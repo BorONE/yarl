@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "../config";
+
+package config;
+
+enum JobType {
+    ShellScript = 0;
+}
+message Job {
+    optional JobType Type = 1;
+    optional string Path = 2;
+}
+
+message Graph {
+    repeated Node Nodes = 1;
+    repeated Edge Edges = 2;
+}
+
+message Node {
+    optional uint64 Id = 1;
+    optional string Name = 2;
+    optional Job Job = 3;
+}
+
+message Edge {
+    optional uint64 FromNodeId = 1;
+    optional uint64 ToNodeId = 2;
+}
