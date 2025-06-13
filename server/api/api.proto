@@ -1,0 +1,20 @@
+syntax = "proto3";
+package api;
+
+option go_package = "pipegraph/server/api";
+
+import "config/graph.proto";
+import "graph/node.proto";
+
+message Nothing {
+}
+
+message GraphState {
+    map<uint64, NodeState> NodeStates = 1;
+}
+
+service Graph {
+    rpc GetInfo(Nothing) returns (config.Graph);
+    rpc GetState(Nothing) returns (GraphState);
+    rpc Run(Nothing) returns (Nothing);
+}

@@ -9,21 +9,21 @@ import (
 type NodeId uint64
 
 type Graph struct {
-	nodes map[NodeId]*Node
+	Nodes map[NodeId]*Node
 }
 
 func NewGraph(config *config.Graph) *Graph {
 	g := &Graph{
-		nodes: make(map[NodeId]*Node),
+		Nodes: make(map[NodeId]*Node),
 	}
 	for _, nodeConfig := range config.Nodes {
-		g.nodes[NodeId(*nodeConfig.Id)] = &Node{
+		g.Nodes[NodeId(*nodeConfig.Id)] = &Node{
 			Config: nodeConfig,
 			graph:  g,
 		}
 	}
 	for _, edgeConfig := range config.Edges {
-		from, to := g.nodes[NodeId(*edgeConfig.FromNodeId)], g.nodes[NodeId(*edgeConfig.ToNodeId)]
+		from, to := g.Nodes[NodeId(*edgeConfig.FromNodeId)], g.Nodes[NodeId(*edgeConfig.ToNodeId)]
 		from.output = append(from.output, NodeId(edgeConfig.GetToNodeId()))
 		to.input = append(to.input, NodeId(edgeConfig.GetFromNodeId()))
 	}
@@ -32,7 +32,7 @@ func NewGraph(config *config.Graph) *Graph {
 
 func (g *Graph) Run() {
 	wg := &sync.WaitGroup{}
-	for _, node := range g.nodes {
+	for _, node := range g.Nodes {
 		g.tryRunRecursively(node, wg)
 	}
 	wg.Wait()
@@ -50,7 +50,7 @@ func (g *Graph) tryRunRecursively(node *Node, wg *sync.WaitGroup) {
 		node.Run(job.CreateJob(node.Config.Job))
 
 		for _, outputId := range node.output {
-			g.tryRunRecursively(g.nodes[outputId], wg)
+			g.tryRunRecursively(g.Nodes[outputId], wg)
 		}
 	}()
 }

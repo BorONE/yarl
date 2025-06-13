@@ -8,37 +8,9 @@ import (
 	"sync"
 )
 
-type NodeInternalState int32
-
-const (
-	NodeInternalState_Waiting NodeInternalState = iota
-	NodeInternalState_Running
-	NodeInternalState_Finished
-	NodeInternalState_Failed
-	NodeInternalState_Stopped
-)
-
-func (s NodeInternalState) String() string {
-	switch s {
-	case NodeInternalState_Waiting:
-		return "Waiting"
-	case NodeInternalState_Running:
-		return "Running"
-	case NodeInternalState_Finished:
-		return "Finished"
-	case NodeInternalState_Failed:
-		return "Failed"
-	case NodeInternalState_Stopped:
-		return "Stopped"
-	default:
-		log.Panicln("unknown state")
-	}
-	return ""
-}
-
 type Node struct {
 	Config *config.Node
-	state  NodeInternalState
+	state  NodeState
 	output []NodeId
 	input  []NodeId
 
@@ -53,12 +25,16 @@ func (n *Node) Run(job job.Job) error {
 	n.mutex.Lock()
 	defer n.mutex.Unlock()
 
+	if !n.isReady() {
+		return fmt.Errorf("node is not ready")
+	}
+
 	switch n.state {
-	case NodeInternalState_Stopped:
+	case NodeState_Stopped:
 		return nil
-	case NodeInternalState_Waiting:
+	case NodeState_Waiting:
 		// noop
-	case NodeInternalState_Running, NodeInternalState_Finished, NodeInternalState_Failed:
+	case NodeState_Running, NodeState_Finished, NodeState_Failed:
 		return fmt.Errorf("invalid operation for node with state %s", n.state.String())
 	default:
 		log.Panicln("unexpected state: ", n.state.String())
@@ -67,22 +43,22 @@ func (n *Node) Run(job job.Job) error {
 	errChan := make(chan error)
 	n.Job = job
 	go func() { errChan <- job.Run() }()
-	n.state = NodeInternalState_Running
+	n.state = NodeState_Running
 
 	n.mutex.Unlock()
 	n.Err = <-errChan
 	n.mutex.Lock()
 	n.Job = nil
 
-	if n.state == NodeInternalState_Stopped {
-		n.state = NodeInternalState_Waiting
+	if n.state == NodeState_Stopped {
+		n.state = NodeState_Waiting
 		return nil
 	}
 
 	if n.Err != nil {
-		n.state = NodeInternalState_Failed
+		n.state = NodeState_Failed
 	} else {
-		n.state = NodeInternalState_Finished
+		n.state = NodeState_Finished
 	}
 	return nil
 }
@@ -92,11 +68,11 @@ func (n *Node) Reset() error {
 	defer n.mutex.Unlock()
 
 	switch n.state {
-	case NodeInternalState_Stopped:
+	case NodeState_Stopped:
 		return nil
-	case NodeInternalState_Running, NodeInternalState_Finished, NodeInternalState_Failed:
+	case NodeState_Running, NodeState_Finished, NodeState_Failed:
 		// noop
-	case NodeInternalState_Waiting:
+	case NodeState_Waiting:
 		return fmt.Errorf("invalid operation for node with state %s", n.state.String())
 	default:
 		log.Panicln("unexpected state: ", n.state.String())
@@ -106,7 +82,7 @@ func (n *Node) Reset() error {
 		n.Job.Stop()
 	}
 
-	n.state = NodeInternalState_Stopped
+	n.state = NodeState_Stopped
 	return nil
 }
 
@@ -115,9 +91,21 @@ func (node *Node) isReady() bool {
 	defer node.mutex.Unlock()
 
 	for _, inputId := range node.input {
-		if node.graph.nodes[inputId].state != NodeInternalState_Finished {
+		if node.graph.Nodes[inputId].state != NodeState_Finished {
 			return false
 		}
 	}
 	return true
+}
+
+func (node *Node) GetState() NodeState {
+	node.mutex.Lock()
+	defer node.mutex.Unlock()
+
+	switch node.state {
+	case NodeState_Stopped:
+		return NodeState_Waiting
+	default:
+		return node.state
+	}
 }

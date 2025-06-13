@@ -1,12 +1,14 @@
 syntax = "proto3";
 
-option go_package = "../config";
+// option go_package = "example.com/project/config";
+option go_package = "pipegraph/config";
 
 package config;
 
 enum JobType {
     ShellScript = 0;
 }
+
 message Job {
     optional JobType Type = 1;
     optional string Path = 2;
