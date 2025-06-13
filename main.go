@@ -33,11 +33,5 @@ func main() {
 	fmt.Print(prototext.Format(graphConfig))
 
 	gr := graph.NewGraph(graphConfig)
-	go func() {
-		for {
-			gr.GetNode(2).Reset()
-		}
-	}()
 	gr.Run()
-
 }

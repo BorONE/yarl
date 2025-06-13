@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"log"
 	"pipegraph/config"
 	"pipegraph/job"
 	"sync"
@@ -16,7 +15,6 @@ type Graph struct {
 func NewGraph(config *config.Graph) *Graph {
 	g := &Graph{
 		nodes: make(map[NodeId]*Node),
-		// readyQueue: make(chan NodeId),
 	}
 	for _, nodeConfig := range config.Nodes {
 		g.nodes[NodeId(*nodeConfig.Id)] = &Node{
@@ -32,9 +30,6 @@ func NewGraph(config *config.Graph) *Graph {
 	return g
 }
 
-func (g *Graph) GetNode(id NodeId) *Node {
-	return g.nodes[id]
-}
 func (g *Graph) Run() {
 	wg := &sync.WaitGroup{}
 	for _, node := range g.nodes {
@@ -52,7 +47,6 @@ func (g *Graph) tryRunRecursively(node *Node, wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 
-		log.Println("running job:\n", node.Config.Job)
 		node.Run(job.CreateJob(node.Config.Job))
 
 		for _, outputId := range node.output {
