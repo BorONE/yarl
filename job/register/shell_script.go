@@ -15,6 +15,8 @@ type ShellScriptJob struct {
 
 func (j *ShellScriptJob) Init(job *config.Job) {
 	j.ctx, j.cancel = context.WithCancel(context.Background())
+	defer j.cancel()
+
 	j.cmd = exec.CommandContext(j.ctx, "/bin/sh", *job.Path)
 }
 
