@@ -1,0 +1,29 @@
+Nodes {
+    Id: 0
+    Job {
+        Type: ShellScript
+        Path: "example/a.sh"
+    }
+}
+Nodes {
+    Id: 1
+    Job {
+        Type: ShellScript
+        Path: "example/b.sh"
+    }
+}
+Nodes {
+    Id: 2
+    Job {
+        Type: ShellScript
+        Path: "example/c.sh"
+    }
+}
+Edges {
+    FromNodeId: 0
+    ToNodeId: 1
+}
+Edges {
+    FromNodeId: 2
+    ToNodeId: 1
+}
