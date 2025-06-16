@@ -2,13 +2,9 @@ package api
 
 import (
 	"context"
-	"flag"
+	"log"
 	config "pipegraph/config"
 	"pipegraph/graph"
-)
-
-var (
-	port = flag.Int("port", 50051, "The server port")
 )
 
 type ImplementedGraphServer struct {
@@ -23,11 +19,13 @@ func NewImplementedGraphServer(graph *graph.Graph) *ImplementedGraphServer {
 	}
 }
 
-func (s ImplementedGraphServer) GetInfo(ctx context.Context, _ *Nothing) (*config.Graph, error) {
-	return &config.Graph{}, nil
+func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*config.Graph, error) {
+	log.Println("serving info")
+	return &s.graph.Config, nil
 }
 
 func (s ImplementedGraphServer) GetState(ctx context.Context, _ *Nothing) (*GraphState, error) {
+	log.Println("serving state")
 	state := &GraphState{NodeStates: make(map[uint64]graph.NodeState)}
 	for id, node := range s.graph.Nodes {
 		state.NodeStates[uint64(id)] = node.GetState()
@@ -36,6 +34,7 @@ func (s ImplementedGraphServer) GetState(ctx context.Context, _ *Nothing) (*Grap
 }
 
 func (s ImplementedGraphServer) Run(ctx context.Context, _ *Nothing) (*Nothing, error) {
-	s.graph.Run()
+	log.Println("runnning")
+	go s.graph.Run()
 	return &Nothing{}, nil
 }

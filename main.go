@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -10,7 +9,6 @@ import (
 
 	"pipegraph/config"
 	"pipegraph/graph"
-	_ "pipegraph/server"
 	"pipegraph/server/api"
 
 	_ "pipegraph/job/register"
@@ -36,8 +34,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Print(prototext.Format(graphConfig))
-
 	gr := graph.NewGraph(graphConfig)
 
 	lis, err := net.Listen("tcp", ":9000")
@@ -47,18 +43,18 @@ func main() {
 
 	s := grpc.NewServer()
 	api.RegisterGraphServer(s, *api.NewImplementedGraphServer(gr))
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
-	// s := server.NewServer(gr)
-	//
-	// log.Println("listening on port 8080...")
-	// go s.ListenAndServe()
-	//
-	// waitSigInt()
-	//
-	// s.Shutdown()
+	api.RegisterNodeServer(s, *api.NewImplementedNodeServer(gr))
+
+	go func() {
+		log.Printf("server listening at %v", lis.Addr())
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	waitSigInt()
+	log.Print("got sigint, gracuffly shutting down")
+	s.GracefulStop()
 }
 
 func waitSigInt() {

@@ -13,8 +13,23 @@ message GraphState {
     map<uint64, NodeState> NodeStates = 1;
 }
 
+message NodeIdentifier {
+    optional uint64 Id = 1;
+    // optional string Name = 2;
+}
+message ArtifactsMessage {
+    optional string Stdout = 1;
+    optional string Stderr = 2;
+}
+
 service Graph {
-    rpc GetInfo(Nothing) returns (config.Graph);
+    rpc GetConfig(Nothing) returns (config.Graph);
     rpc GetState(Nothing) returns (GraphState);
     rpc Run(Nothing) returns (Nothing);
+}
+
+service Node {
+    rpc Run(NodeIdentifier) returns (Nothing);
+    rpc Reset(NodeIdentifier) returns (Nothing);
+    rpc GetArtifacts(NodeIdentifier) returns (ArtifactsMessage);
 }

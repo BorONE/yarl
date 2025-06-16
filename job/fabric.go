@@ -1,11 +1,29 @@
 package job
 
-import "pipegraph/config"
+import (
+	"fmt"
+	"pipegraph/config"
+)
 
 type Job interface {
 	Init(job *config.Job)
 	Run() error
-	Stop()
+	Reset() error
+	CollectArtifacts() (Artifacts, error)
+}
+
+type Artifacts map[string]any
+
+func (a Artifacts) GetString(key string) (string, error) {
+	artifact, ok := a[key]
+	if !ok {
+		return "", fmt.Errorf("artifact %s does not exist", key)
+	}
+	result, ok := artifact.(string)
+	if !ok {
+		return "", fmt.Errorf("artifact %s is not string, but %v", key, result)
+	}
+	return result, nil
 }
 
 type JobCreator func() Job
