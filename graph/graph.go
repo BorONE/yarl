@@ -8,13 +8,13 @@ import (
 type NodeId uint64
 
 type Graph struct {
-	Config config.Graph
+	Config *config.Graph
 	Nodes  map[NodeId]*Node
 }
 
 func NewGraph(config *config.Graph) *Graph {
 	g := &Graph{
-		Config: *config,
+		Config: config,
 		Nodes:  make(map[NodeId]*Node),
 	}
 	for _, nodeConfig := range config.Nodes {

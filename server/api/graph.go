@@ -21,7 +21,7 @@ func NewImplementedGraphServer(graph *graph.Graph) *ImplementedGraphServer {
 
 func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*config.Graph, error) {
 	log.Println("serving info")
-	return &s.graph.Config, nil
+	return s.graph.Config, nil
 }
 
 func (s ImplementedGraphServer) GetState(ctx context.Context, _ *Nothing) (*GraphState, error) {
