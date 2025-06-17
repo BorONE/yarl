@@ -53,7 +53,6 @@ func main() {
 	}()
 
 	waitSigInt()
-	log.Print("got sigint, gracuffly shutting down")
 	s.GracefulStop()
 }
 
