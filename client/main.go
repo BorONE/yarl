@@ -23,7 +23,7 @@ import (
 	"context"
 	"flag"
 	"log"
-	"pipegraph/server/api"
+	"pipegraph/api"
 	"time"
 
 	"google.golang.org/grpc"
@@ -39,6 +39,9 @@ var (
 
 func main() {
 	flag.Parse()
+	if !*node {
+		id = nil
+	}
 	// Set up a connection to the server.
 	conn, err := grpc.NewClient(":9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

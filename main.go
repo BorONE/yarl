@@ -7,9 +7,9 @@ import (
 	"os"
 	"os/signal"
 
+	"pipegraph/api"
 	"pipegraph/config"
 	"pipegraph/graph"
-	"pipegraph/server/api"
 
 	_ "pipegraph/job/register"
 
