@@ -1,0 +1,63 @@
+$ go run client/main.go --cmd config
+Nodes: {
+  Id: 0
+  Job: {
+    ShellScript: {
+      Path: "example/a.sh"
+    }
+  }
+}
+Nodes: {
+  Id: 1
+  Job: {
+    ShellScript: {
+      Path: "example/b.sh"
+    }
+  }
+}
+Nodes: {
+  Id: 2
+  Job: {
+    ShellScript: {
+      Path: "example/c.sh"
+    }
+  }
+}
+Edges: {
+  FromNodeId: 0
+  ToNodeId: 1
+}
+Edges: {
+  FromNodeId: 2
+  ToNodeId: 1
+}
+
+$ go run client/main.go --cmd state
+NodeStates: {
+  key: 0
+  value: Waiting
+}
+NodeStates: {
+  key: 1
+  value: Waiting
+}
+NodeStates: {
+  key: 2
+  value: Waiting
+}
+
+$ go run client/main.go --cmd run
+$ go run client/main.go --cmd state
+NodeStates: {
+  key: 0
+  value: Finished
+}
+NodeStates: {
+  key: 1
+  value: Finished
+}
+NodeStates: {
+  key: 2
+  value: Finished
+}
+
