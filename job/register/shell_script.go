@@ -3,13 +3,12 @@ package register
 import (
 	"context"
 	"os/exec"
-	"pipegraph/config"
 	"pipegraph/job"
 	"strings"
 )
 
 type ShellScriptJob struct {
-	cfg *config.Job
+	cfg *job.Config
 
 	cmd    *exec.Cmd
 	ctx    context.Context
@@ -19,11 +18,11 @@ type ShellScriptJob struct {
 	Stderr strings.Builder
 }
 
-func (j *ShellScriptJob) Init(job *config.Job) {
-	j.cfg = job
+func (j *ShellScriptJob) Init(cfg *job.Config) {
+	j.cfg = cfg
 
 	j.ctx, j.cancel = context.WithCancel(context.Background())
-	j.cmd = exec.CommandContext(j.ctx, "/bin/sh", *j.cfg.Path)
+	j.cmd = exec.CommandContext(j.ctx, "/bin/sh", *j.cfg.GetShellScript().Path)
 	j.cmd.Stdout = &j.Stdout
 	j.cmd.Stderr = &j.Stderr
 }
@@ -49,5 +48,5 @@ func (j *ShellScriptJob) CollectArtifacts() (job.Artifacts, error) {
 var _ job.Job = &ShellScriptJob{}
 
 func init() {
-	job.RegisterJobType(config.JobType_ShellScript, func() job.Job { return &ShellScriptJob{} })
+	job.Register(&job.Config_ShellScript{}, func() job.Job { return &ShellScriptJob{} })
 }

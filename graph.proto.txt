@@ -1,22 +1,25 @@
 Nodes {
     Id: 0
     Job {
-        Type: ShellScript
-        Path: "example/a.sh"
+        ShellScript{
+            Path: "example/a.sh"
+        }
     }
 }
 Nodes {
     Id: 1
     Job {
-        Type: ShellScript
-        Path: "example/b.sh"
+        ShellScript{
+            Path: "example/b.sh"
+        }
     }
 }
 Nodes {
     Id: 2
     Job {
-        Type: ShellScript
-        Path: "example/c.sh"
+        ShellScript{
+            Path: "example/c.sh"
+        }
     }
 }
 Edges {

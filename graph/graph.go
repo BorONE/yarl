@@ -1,18 +1,17 @@
 package graph
 
 import (
-	"pipegraph/config"
 	"sync"
 )
 
 type NodeId uint64
 
 type Graph struct {
-	Config *config.Graph
+	Config *Config
 	Nodes  map[NodeId]*Node
 }
 
-func NewGraph(config *config.Graph) *Graph {
+func NewGraph(config *Config) *Graph {
 	g := &Graph{
 		Config: config,
 		Nodes:  make(map[NodeId]*Node),

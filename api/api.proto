@@ -3,14 +3,13 @@ package api;
 
 option go_package = "pipegraph/server/api";
 
-import "config/graph.proto";
-import "graph/node.proto";
+import "graph/config.proto";
 
 message Nothing {
 }
 
 message GraphState {
-    map<uint64, NodeState> NodeStates = 1;
+    map<uint64, graph.NodeState> NodeStates = 1;
 }
 
 message NodeIdentifier {
@@ -23,7 +22,7 @@ message ArtifactsMessage {
 }
 
 service Graph {
-    rpc GetConfig(Nothing) returns (config.Graph);
+    rpc GetConfig(Nothing) returns (graph.Config);
     rpc GetState(Nothing) returns (GraphState);
     rpc Run(Nothing) returns (Nothing);
 }

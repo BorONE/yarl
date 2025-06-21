@@ -3,13 +3,12 @@ package graph
 import (
 	"fmt"
 	"log"
-	"pipegraph/config"
 	"pipegraph/job"
 	"sync"
 )
 
 type Node struct {
-	Config *config.Node
+	Config *NodeConfig
 	state  NodeState
 	output []NodeId
 	input  []NodeId
@@ -41,7 +40,8 @@ func (n *Node) Run() error {
 		log.Panicln("unexpected state: ", n.state.String())
 	}
 
-	n.Job = job.CreateJob(n.Config.Job)
+	var err error
+	n.Job, err = job.CreateJob(n.Config.Job)
 
 	errChan := make(chan error)
 	log.Printf("job(id=%v) is starting...", n.Config.GetId())
@@ -52,7 +52,6 @@ func (n *Node) Run() error {
 	n.Err = <-errChan
 	n.mutex.Lock()
 
-	var err error
 	n.Arts, err = n.Job.CollectArtifacts()
 	if err != nil {
 		log.Printf("failed to get arts of node(id=%v): %v", n.Config.Id, err)

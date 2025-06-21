@@ -90,7 +90,7 @@ func main() {
 	case "reset":
 		_, err := nodeClient.Reset(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
-			log.Fatalf("could not reste: %v", err)
+			log.Fatalf("could not reset: %v", err)
 		}
 	default:
 		log.Fatalf("invalid case %s", *cmd)

@@ -8,9 +8,7 @@ import (
 	"os/signal"
 
 	"pipegraph/api"
-	"pipegraph/config"
 	"pipegraph/graph"
-
 	_ "pipegraph/job/register"
 
 	"google.golang.org/grpc"
@@ -19,17 +17,20 @@ import (
 
 func main() {
 	file, err := os.Open("graph.proto.txt")
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fileData, err := io.ReadAll(file)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	graphConfig := &config.Graph{}
+	graphConfig := &graph.Config{}
 	err = prototext.Unmarshal(fileData, graphConfig)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,6 +38,7 @@ func main() {
 	gr := graph.NewGraph(graphConfig)
 
 	lis, err := net.Listen("tcp", ":9000")
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

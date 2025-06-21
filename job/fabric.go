@@ -2,11 +2,12 @@ package job
 
 import (
 	"fmt"
-	"pipegraph/config"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type Job interface {
-	Init(job *config.Job)
+	Init(job *Config)
 	Run() error
 	Reset() error
 	CollectArtifacts() (Artifacts, error)
@@ -26,16 +27,37 @@ func (a Artifacts) GetString(key string) (string, error) {
 	return result, nil
 }
 
-type JobCreator func() Job
+type JobNumber protoreflect.FieldNumber
 
-var jobTypes map[config.JobType]JobCreator = make(map[config.JobType]JobCreator)
-
-func RegisterJobType(jobType config.JobType, jobCreator JobCreator) {
-	jobTypes[jobType] = jobCreator
+func GetJobNumber(cfg *Config) (JobNumber, error) {
+	if cfg.Job == nil {
+		return 0, fmt.Errorf("job is not present")
+	}
+	ref := cfg.ProtoReflect()
+	jobDesc := ref.Descriptor().Oneofs().ByName("Job")
+	number := ref.WhichOneof(jobDesc).Number()
+	return JobNumber(number), nil
 }
 
-func CreateJob(jobConfig *config.Job) Job {
-	job := jobTypes[*jobConfig.Type]()
-	job.Init(jobConfig)
-	return job
+type JobCreator func() Job
+
+var jobCreators map[JobNumber]JobCreator = make(map[JobNumber]JobCreator)
+
+func Register(cfg isConfig_Job, creator JobCreator) error {
+	number, err := GetJobNumber(&Config{Job: cfg})
+	if err != nil {
+		return err
+	}
+	jobCreators[number] = creator
+	return nil
+}
+
+func CreateJob(cfg *Config) (Job, error) {
+	number, err := GetJobNumber(cfg)
+	if err != nil {
+		return nil, err
+	}
+	job := jobCreators[number]()
+	job.Init(cfg)
+	return job, err
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: server/api/api.proto
+// source: api/api.proto
 
 package api
 
@@ -11,7 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	config "pipegraph/config"
+	graph "pipegraph/graph"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -29,7 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphClient interface {
-	GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*config.Graph, error)
+	GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error)
 	GetState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GraphState, error)
 	Run(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
 }
@@ -42,9 +42,9 @@ func NewGraphClient(cc grpc.ClientConnInterface) GraphClient {
 	return &graphClient{cc}
 }
 
-func (c *graphClient) GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*config.Graph, error) {
+func (c *graphClient) GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(config.Graph)
+	out := new(graph.Config)
 	err := c.cc.Invoke(ctx, Graph_GetConfig_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (c *graphClient) Run(ctx context.Context, in *Nothing, opts ...grpc.CallOpt
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
 type GraphServer interface {
-	GetConfig(context.Context, *Nothing) (*config.Graph, error)
+	GetConfig(context.Context, *Nothing) (*graph.Config, error)
 	GetState(context.Context, *Nothing) (*GraphState, error)
 	Run(context.Context, *Nothing) (*Nothing, error)
 	mustEmbedUnimplementedGraphServer()
@@ -89,7 +89,7 @@ type GraphServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGraphServer struct{}
 
-func (UnimplementedGraphServer) GetConfig(context.Context, *Nothing) (*config.Graph, error) {
+func (UnimplementedGraphServer) GetConfig(context.Context, *Nothing) (*graph.Config, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
 }
 func (UnimplementedGraphServer) GetState(context.Context, *Nothing) (*GraphState, error) {
@@ -194,7 +194,7 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "server/api/api.proto",
+	Metadata: "api/api.proto",
 }
 
 const (
@@ -372,5 +372,5 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "server/api/api.proto",
+	Metadata: "api/api.proto",
 }

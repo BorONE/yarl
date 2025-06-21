@@ -2,14 +2,13 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: server/api/api.proto
+// source: api/api.proto
 
 package api
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	config "pipegraph/config"
 	graph "pipegraph/graph"
 	reflect "reflect"
 	sync "sync"
@@ -31,7 +30,7 @@ type Nothing struct {
 
 func (x *Nothing) Reset() {
 	*x = Nothing{}
-	mi := &file_server_api_api_proto_msgTypes[0]
+	mi := &file_api_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +42,7 @@ func (x *Nothing) String() string {
 func (*Nothing) ProtoMessage() {}
 
 func (x *Nothing) ProtoReflect() protoreflect.Message {
-	mi := &file_server_api_api_proto_msgTypes[0]
+	mi := &file_api_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,19 +55,19 @@ func (x *Nothing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Nothing.ProtoReflect.Descriptor instead.
 func (*Nothing) Descriptor() ([]byte, []int) {
-	return file_server_api_api_proto_rawDescGZIP(), []int{0}
+	return file_api_api_proto_rawDescGZIP(), []int{0}
 }
 
 type GraphState struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
-	NodeStates    map[uint64]graph.NodeState `protobuf:"bytes,1,rep,name=NodeStates,proto3" json:"NodeStates,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value,enum=api.NodeState"`
+	NodeStates    map[uint64]graph.NodeState `protobuf:"bytes,1,rep,name=NodeStates,proto3" json:"NodeStates,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value,enum=graph.NodeState"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GraphState) Reset() {
 	*x = GraphState{}
-	mi := &file_server_api_api_proto_msgTypes[1]
+	mi := &file_api_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -80,7 +79,7 @@ func (x *GraphState) String() string {
 func (*GraphState) ProtoMessage() {}
 
 func (x *GraphState) ProtoReflect() protoreflect.Message {
-	mi := &file_server_api_api_proto_msgTypes[1]
+	mi := &file_api_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -93,7 +92,7 @@ func (x *GraphState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GraphState.ProtoReflect.Descriptor instead.
 func (*GraphState) Descriptor() ([]byte, []int) {
-	return file_server_api_api_proto_rawDescGZIP(), []int{1}
+	return file_api_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GraphState) GetNodeStates() map[uint64]graph.NodeState {
@@ -112,7 +111,7 @@ type NodeIdentifier struct {
 
 func (x *NodeIdentifier) Reset() {
 	*x = NodeIdentifier{}
-	mi := &file_server_api_api_proto_msgTypes[2]
+	mi := &file_api_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -124,7 +123,7 @@ func (x *NodeIdentifier) String() string {
 func (*NodeIdentifier) ProtoMessage() {}
 
 func (x *NodeIdentifier) ProtoReflect() protoreflect.Message {
-	mi := &file_server_api_api_proto_msgTypes[2]
+	mi := &file_api_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -137,7 +136,7 @@ func (x *NodeIdentifier) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeIdentifier.ProtoReflect.Descriptor instead.
 func (*NodeIdentifier) Descriptor() ([]byte, []int) {
-	return file_server_api_api_proto_rawDescGZIP(), []int{2}
+	return file_api_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *NodeIdentifier) GetId() uint64 {
@@ -157,7 +156,7 @@ type ArtifactsMessage struct {
 
 func (x *ArtifactsMessage) Reset() {
 	*x = ArtifactsMessage{}
-	mi := &file_server_api_api_proto_msgTypes[3]
+	mi := &file_api_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -169,7 +168,7 @@ func (x *ArtifactsMessage) String() string {
 func (*ArtifactsMessage) ProtoMessage() {}
 
 func (x *ArtifactsMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_server_api_api_proto_msgTypes[3]
+	mi := &file_api_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -182,7 +181,7 @@ func (x *ArtifactsMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArtifactsMessage.ProtoReflect.Descriptor instead.
 func (*ArtifactsMessage) Descriptor() ([]byte, []int) {
-	return file_server_api_api_proto_rawDescGZIP(), []int{3}
+	return file_api_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ArtifactsMessage) GetStdout() string {
@@ -199,20 +198,20 @@ func (x *ArtifactsMessage) GetStderr() string {
 	return ""
 }
 
-var File_server_api_api_proto protoreflect.FileDescriptor
+var File_api_api_proto protoreflect.FileDescriptor
 
-const file_server_api_api_proto_rawDesc = "" +
+const file_api_api_proto_rawDesc = "" +
 	"\n" +
-	"\x14server/api/api.proto\x12\x03api\x1a\x12config/graph.proto\x1a\x10graph/node.proto\"\t\n" +
-	"\aNothing\"\x9c\x01\n" +
+	"\rapi/api.proto\x12\x03api\x1a\x12graph/config.proto\"\t\n" +
+	"\aNothing\"\x9e\x01\n" +
 	"\n" +
 	"GraphState\x12?\n" +
 	"\n" +
 	"NodeStates\x18\x01 \x03(\v2\x1f.api.GraphState.NodeStatesEntryR\n" +
-	"NodeStates\x1aM\n" +
+	"NodeStates\x1aO\n" +
 	"\x0fNodeStatesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\x04R\x03key\x12$\n" +
-	"\x05value\x18\x02 \x01(\x0e2\x0e.api.NodeStateR\x05value:\x028\x01\",\n" +
+	"\x03key\x18\x01 \x01(\x04R\x03key\x12&\n" +
+	"\x05value\x18\x02 \x01(\x0e2\x10.graph.NodeStateR\x05value:\x028\x01\",\n" +
 	"\x0eNodeIdentifier\x12\x13\n" +
 	"\x02Id\x18\x01 \x01(\x04H\x00R\x02Id\x88\x01\x01B\x05\n" +
 	"\x03_Id\"b\n" +
@@ -222,7 +221,7 @@ const file_server_api_api_proto_rawDesc = "" +
 	"\a_StdoutB\t\n" +
 	"\a_Stderr2\x7f\n" +
 	"\x05Graph\x12(\n" +
-	"\tGetConfig\x12\f.api.Nothing\x1a\r.config.Graph\x12)\n" +
+	"\tGetConfig\x12\f.api.Nothing\x1a\r.graph.Config\x12)\n" +
 	"\bGetState\x12\f.api.Nothing\x1a\x0f.api.GraphState\x12!\n" +
 	"\x03Run\x12\f.api.Nothing\x1a\f.api.Nothing2\x98\x01\n" +
 	"\x04Node\x12(\n" +
@@ -231,37 +230,37 @@ const file_server_api_api_proto_rawDesc = "" +
 	"\fGetArtifacts\x12\x13.api.NodeIdentifier\x1a\x15.api.ArtifactsMessageB\x16Z\x14pipegraph/server/apib\x06proto3"
 
 var (
-	file_server_api_api_proto_rawDescOnce sync.Once
-	file_server_api_api_proto_rawDescData []byte
+	file_api_api_proto_rawDescOnce sync.Once
+	file_api_api_proto_rawDescData []byte
 )
 
-func file_server_api_api_proto_rawDescGZIP() []byte {
-	file_server_api_api_proto_rawDescOnce.Do(func() {
-		file_server_api_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_server_api_api_proto_rawDesc), len(file_server_api_api_proto_rawDesc)))
+func file_api_api_proto_rawDescGZIP() []byte {
+	file_api_api_proto_rawDescOnce.Do(func() {
+		file_api_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_api_proto_rawDesc), len(file_api_api_proto_rawDesc)))
 	})
-	return file_server_api_api_proto_rawDescData
+	return file_api_api_proto_rawDescData
 }
 
-var file_server_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_server_api_api_proto_goTypes = []any{
+var file_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_api_api_proto_goTypes = []any{
 	(*Nothing)(nil),          // 0: api.Nothing
 	(*GraphState)(nil),       // 1: api.GraphState
 	(*NodeIdentifier)(nil),   // 2: api.NodeIdentifier
 	(*ArtifactsMessage)(nil), // 3: api.ArtifactsMessage
 	nil,                      // 4: api.GraphState.NodeStatesEntry
-	(graph.NodeState)(0),     // 5: api.NodeState
-	(*config.Graph)(nil),     // 6: config.Graph
+	(graph.NodeState)(0),     // 5: graph.NodeState
+	(*graph.Config)(nil),     // 6: graph.Config
 }
-var file_server_api_api_proto_depIdxs = []int32{
+var file_api_api_proto_depIdxs = []int32{
 	4, // 0: api.GraphState.NodeStates:type_name -> api.GraphState.NodeStatesEntry
-	5, // 1: api.GraphState.NodeStatesEntry.value:type_name -> api.NodeState
+	5, // 1: api.GraphState.NodeStatesEntry.value:type_name -> graph.NodeState
 	0, // 2: api.Graph.GetConfig:input_type -> api.Nothing
 	0, // 3: api.Graph.GetState:input_type -> api.Nothing
 	0, // 4: api.Graph.Run:input_type -> api.Nothing
 	2, // 5: api.Node.Run:input_type -> api.NodeIdentifier
 	2, // 6: api.Node.Reset:input_type -> api.NodeIdentifier
 	2, // 7: api.Node.GetArtifacts:input_type -> api.NodeIdentifier
-	6, // 8: api.Graph.GetConfig:output_type -> config.Graph
+	6, // 8: api.Graph.GetConfig:output_type -> graph.Config
 	1, // 9: api.Graph.GetState:output_type -> api.GraphState
 	0, // 10: api.Graph.Run:output_type -> api.Nothing
 	0, // 11: api.Node.Run:output_type -> api.Nothing
@@ -274,28 +273,28 @@ var file_server_api_api_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_server_api_api_proto_init() }
-func file_server_api_api_proto_init() {
-	if File_server_api_api_proto != nil {
+func init() { file_api_api_proto_init() }
+func file_api_api_proto_init() {
+	if File_api_api_proto != nil {
 		return
 	}
-	file_server_api_api_proto_msgTypes[2].OneofWrappers = []any{}
-	file_server_api_api_proto_msgTypes[3].OneofWrappers = []any{}
+	file_api_api_proto_msgTypes[2].OneofWrappers = []any{}
+	file_api_api_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_api_api_proto_rawDesc), len(file_server_api_api_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_api_proto_rawDesc), len(file_api_api_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
-		GoTypes:           file_server_api_api_proto_goTypes,
-		DependencyIndexes: file_server_api_api_proto_depIdxs,
-		MessageInfos:      file_server_api_api_proto_msgTypes,
+		GoTypes:           file_api_api_proto_goTypes,
+		DependencyIndexes: file_api_api_proto_depIdxs,
+		MessageInfos:      file_api_api_proto_msgTypes,
 	}.Build()
-	File_server_api_api_proto = out.File
-	file_server_api_api_proto_goTypes = nil
-	file_server_api_api_proto_depIdxs = nil
+	File_api_api_proto = out.File
+	file_api_api_proto_goTypes = nil
+	file_api_api_proto_depIdxs = nil
 }

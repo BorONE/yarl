@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"log"
-	config "pipegraph/config"
 	"pipegraph/graph"
 )
 
@@ -19,7 +18,7 @@ func NewImplementedGraphServer(graph *graph.Graph) *ImplementedGraphServer {
 	}
 }
 
-func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*config.Graph, error) {
+func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*graph.Config, error) {
 	log.Println("serving info")
 	return s.graph.Config, nil
 }
