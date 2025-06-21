@@ -24,8 +24,8 @@ func NewGraph(config *Config) *Graph {
 	}
 	for _, edgeConfig := range config.Edges {
 		from, to := g.Nodes[NodeId(*edgeConfig.FromNodeId)], g.Nodes[NodeId(*edgeConfig.ToNodeId)]
-		from.output = append(from.output, NodeId(edgeConfig.GetToNodeId()))
-		to.input = append(to.input, NodeId(edgeConfig.GetFromNodeId()))
+		from.Output = append(from.Output, NodeId(edgeConfig.GetToNodeId()))
+		to.Input = append(to.Input, NodeId(edgeConfig.GetFromNodeId()))
 	}
 	return g
 }
@@ -39,7 +39,7 @@ func (g *Graph) Run() {
 }
 
 func (g *Graph) tryRunRecursively(node *Node, wg *sync.WaitGroup) {
-	if !node.isReady() {
+	if !node.IsReady() {
 		return
 	}
 
@@ -49,7 +49,7 @@ func (g *Graph) tryRunRecursively(node *Node, wg *sync.WaitGroup) {
 
 		node.Run()
 
-		for _, outputId := range node.output {
+		for _, outputId := range node.Output {
 			g.tryRunRecursively(g.Nodes[outputId], wg)
 		}
 	}()

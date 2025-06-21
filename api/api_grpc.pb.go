@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	graph "pipegraph/graph"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Graph_GetConfig_FullMethodName = "/api.Graph/GetConfig"
-	Graph_GetState_FullMethodName  = "/api.Graph/GetState"
-	Graph_Run_FullMethodName       = "/api.Graph/Run"
+	Graph_GetGlobalState_FullMethodName = "/api.Graph/GetGlobalState"
+	Graph_RunReadyNode_FullMethodName   = "/api.Graph/RunReadyNode"
+	Graph_WaitRunEnd_FullMethodName     = "/api.Graph/WaitRunEnd"
 )
 
 // GraphClient is the client API for Graph service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphClient interface {
-	GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error)
-	GetState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GraphState, error)
-	Run(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
+	GetGlobalState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GlobalState, error)
+	RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error)
+	WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
 }
 
 type graphClient struct {
@@ -42,30 +41,30 @@ func NewGraphClient(cc grpc.ClientConnInterface) GraphClient {
 	return &graphClient{cc}
 }
 
-func (c *graphClient) GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error) {
+func (c *graphClient) GetGlobalState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GlobalState, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(graph.Config)
-	err := c.cc.Invoke(ctx, Graph_GetConfig_FullMethodName, in, out, cOpts...)
+	out := new(GlobalState)
+	err := c.cc.Invoke(ctx, Graph_GetGlobalState_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *graphClient) GetState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GraphState, error) {
+func (c *graphClient) RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GraphState)
-	err := c.cc.Invoke(ctx, Graph_GetState_FullMethodName, in, out, cOpts...)
+	out := new(NodeIdentifier)
+	err := c.cc.Invoke(ctx, Graph_RunReadyNode_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *graphClient) Run(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error) {
+func (c *graphClient) WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Nothing)
-	err := c.cc.Invoke(ctx, Graph_Run_FullMethodName, in, out, cOpts...)
+	out := new(Updates)
+	err := c.cc.Invoke(ctx, Graph_WaitRunEnd_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +75,9 @@ func (c *graphClient) Run(ctx context.Context, in *Nothing, opts ...grpc.CallOpt
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
 type GraphServer interface {
-	GetConfig(context.Context, *Nothing) (*graph.Config, error)
-	GetState(context.Context, *Nothing) (*GraphState, error)
-	Run(context.Context, *Nothing) (*Nothing, error)
+	GetGlobalState(context.Context, *Nothing) (*GlobalState, error)
+	RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error)
+	WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error)
 	mustEmbedUnimplementedGraphServer()
 }
 
@@ -89,14 +88,14 @@ type GraphServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGraphServer struct{}
 
-func (UnimplementedGraphServer) GetConfig(context.Context, *Nothing) (*graph.Config, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
+func (UnimplementedGraphServer) GetGlobalState(context.Context, *Nothing) (*GlobalState, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGlobalState not implemented")
 }
-func (UnimplementedGraphServer) GetState(context.Context, *Nothing) (*GraphState, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetState not implemented")
+func (UnimplementedGraphServer) RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunReadyNode not implemented")
 }
-func (UnimplementedGraphServer) Run(context.Context, *Nothing) (*Nothing, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Run not implemented")
+func (UnimplementedGraphServer) WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WaitRunEnd not implemented")
 }
 func (UnimplementedGraphServer) mustEmbedUnimplementedGraphServer() {}
 func (UnimplementedGraphServer) testEmbeddedByValue()               {}
@@ -119,56 +118,56 @@ func RegisterGraphServer(s grpc.ServiceRegistrar, srv GraphServer) {
 	s.RegisterService(&Graph_ServiceDesc, srv)
 }
 
-func _Graph_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Graph_GetGlobalState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Nothing)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GraphServer).GetConfig(ctx, in)
+		return srv.(GraphServer).GetGlobalState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Graph_GetConfig_FullMethodName,
+		FullMethod: Graph_GetGlobalState_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).GetConfig(ctx, req.(*Nothing))
+		return srv.(GraphServer).GetGlobalState(ctx, req.(*Nothing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Graph_GetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Graph_RunReadyNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Nothing)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GraphServer).GetState(ctx, in)
+		return srv.(GraphServer).RunReadyNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Graph_GetState_FullMethodName,
+		FullMethod: Graph_RunReadyNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).GetState(ctx, req.(*Nothing))
+		return srv.(GraphServer).RunReadyNode(ctx, req.(*Nothing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Graph_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Nothing)
+func _Graph_WaitRunEnd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeIdentifier)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GraphServer).Run(ctx, in)
+		return srv.(GraphServer).WaitRunEnd(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Graph_Run_FullMethodName,
+		FullMethod: Graph_WaitRunEnd_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).Run(ctx, req.(*Nothing))
+		return srv.(GraphServer).WaitRunEnd(ctx, req.(*NodeIdentifier))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -181,16 +180,16 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GraphServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetConfig",
-			Handler:    _Graph_GetConfig_Handler,
+			MethodName: "GetGlobalState",
+			Handler:    _Graph_GetGlobalState_Handler,
 		},
 		{
-			MethodName: "GetState",
-			Handler:    _Graph_GetState_Handler,
+			MethodName: "RunReadyNode",
+			Handler:    _Graph_RunReadyNode_Handler,
 		},
 		{
-			MethodName: "Run",
-			Handler:    _Graph_Run_Handler,
+			MethodName: "WaitRunEnd",
+			Handler:    _Graph_WaitRunEnd_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

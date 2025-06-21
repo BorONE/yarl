@@ -5,7 +5,7 @@ option go_package = "pipegraph/graph";
 
 import "job/config.proto";
 
-enum NodeState {
+enum NodeStatus {
     Waiting = 0;
     Running = 1;
     Finished = 2;

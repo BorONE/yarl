@@ -9,9 +9,9 @@ import (
 
 type Node struct {
 	Config *NodeConfig
-	state  NodeState
-	output []NodeId
-	input  []NodeId
+	state  NodeStatus
+	Output []NodeId
+	Input  []NodeId
 
 	Job  job.Job
 	Err  error
@@ -30,11 +30,11 @@ func (n *Node) Run() error {
 	}
 
 	switch n.state {
-	case NodeState_Stopped:
+	case NodeStatus_Stopped:
 		return nil
-	case NodeState_Waiting:
+	case NodeStatus_Waiting:
 		// noop
-	case NodeState_Running, NodeState_Finished, NodeState_Failed:
+	case NodeStatus_Running, NodeStatus_Finished, NodeStatus_Failed:
 		return fmt.Errorf("invalid operation for node with state %s", n.state.String())
 	default:
 		log.Panicln("unexpected state: ", n.state.String())
@@ -46,7 +46,7 @@ func (n *Node) Run() error {
 	errChan := make(chan error)
 	log.Printf("job(id=%v) is starting...", n.Config.GetId())
 	go func() { errChan <- n.Job.Run() }()
-	n.state = NodeState_Running
+	n.state = NodeStatus_Running
 
 	n.mutex.Unlock()
 	n.Err = <-errChan
@@ -61,15 +61,15 @@ func (n *Node) Run() error {
 	n.Job = nil
 
 	switch n.state {
-	case NodeState_Stopped:
+	case NodeStatus_Stopped:
 		n.Err = nil
 		n.Arts = nil
-		n.state = NodeState_Waiting
-	case NodeState_Running:
+		n.state = NodeStatus_Waiting
+	case NodeStatus_Running:
 		if n.Err != nil {
-			n.state = NodeState_Failed
+			n.state = NodeStatus_Failed
 		} else {
-			n.state = NodeState_Finished
+			n.state = NodeStatus_Finished
 		}
 	default:
 		log.Panicln("unexpected state: ", n.state.String())
@@ -83,29 +83,29 @@ func (n *Node) Reset() error {
 	defer n.mutex.Unlock()
 
 	switch n.state {
-	case NodeState_Stopped:
+	case NodeStatus_Stopped:
 		return nil
-	case NodeState_Running:
-		n.state = NodeState_Stopped
+	case NodeStatus_Running:
+		n.state = NodeStatus_Stopped
 		n.Job.Reset()
-	case NodeState_Finished, NodeState_Failed:
+	case NodeStatus_Finished, NodeStatus_Failed:
 		n.Err = nil
 		n.Arts = nil
-		n.state = NodeState_Waiting
-	case NodeState_Waiting:
+		n.state = NodeStatus_Waiting
+	case NodeStatus_Waiting:
 		return fmt.Errorf("invalid operation for node with state %s", n.state.String())
 	default:
 		log.Panicln("unexpected state: ", n.state.String())
 	}
 
-	for _, output := range n.output {
+	for _, output := range n.Output {
 		n.graph.Nodes[output].Reset()
 	}
 
 	return nil
 }
 
-func (node *Node) isReady() bool {
+func (node *Node) IsReady() bool {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
@@ -113,21 +113,21 @@ func (node *Node) isReady() bool {
 }
 
 func (node *Node) isReadyWithoutLock() bool {
-	for _, inputId := range node.input {
-		if node.graph.Nodes[inputId].state != NodeState_Finished {
+	for _, inputId := range node.Input {
+		if node.graph.Nodes[inputId].state != NodeStatus_Finished {
 			return false
 		}
 	}
 	return true
 }
 
-func (node *Node) GetState() NodeState {
+func (node *Node) GetStatus() NodeStatus {
 	node.mutex.Lock()
 	defer node.mutex.Unlock()
 
 	switch node.state {
-	case NodeState_Stopped:
-		return NodeState_Waiting
+	case NodeStatus_Stopped:
+		return NodeStatus_Waiting
 	default:
 		return node.state
 	}

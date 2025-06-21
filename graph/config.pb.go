@@ -22,26 +22,26 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type NodeState int32
+type NodeStatus int32
 
 const (
-	NodeState_Waiting  NodeState = 0
-	NodeState_Running  NodeState = 1
-	NodeState_Finished NodeState = 2
-	NodeState_Failed   NodeState = 3
-	NodeState_Stopped  NodeState = 4
+	NodeStatus_Waiting  NodeStatus = 0
+	NodeStatus_Running  NodeStatus = 1
+	NodeStatus_Finished NodeStatus = 2
+	NodeStatus_Failed   NodeStatus = 3
+	NodeStatus_Stopped  NodeStatus = 4
 )
 
-// Enum value maps for NodeState.
+// Enum value maps for NodeStatus.
 var (
-	NodeState_name = map[int32]string{
+	NodeStatus_name = map[int32]string{
 		0: "Waiting",
 		1: "Running",
 		2: "Finished",
 		3: "Failed",
 		4: "Stopped",
 	}
-	NodeState_value = map[string]int32{
+	NodeStatus_value = map[string]int32{
 		"Waiting":  0,
 		"Running":  1,
 		"Finished": 2,
@@ -50,30 +50,30 @@ var (
 	}
 )
 
-func (x NodeState) Enum() *NodeState {
-	p := new(NodeState)
+func (x NodeStatus) Enum() *NodeStatus {
+	p := new(NodeStatus)
 	*p = x
 	return p
 }
 
-func (x NodeState) String() string {
+func (x NodeStatus) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (NodeState) Descriptor() protoreflect.EnumDescriptor {
+func (NodeStatus) Descriptor() protoreflect.EnumDescriptor {
 	return file_graph_config_proto_enumTypes[0].Descriptor()
 }
 
-func (NodeState) Type() protoreflect.EnumType {
+func (NodeStatus) Type() protoreflect.EnumType {
 	return &file_graph_config_proto_enumTypes[0]
 }
 
-func (x NodeState) Number() protoreflect.EnumNumber {
+func (x NodeStatus) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use NodeState.Descriptor instead.
-func (NodeState) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use NodeStatus.Descriptor instead.
+func (NodeStatus) EnumDescriptor() ([]byte, []int) {
 	return file_graph_config_proto_rawDescGZIP(), []int{0}
 }
 
@@ -264,8 +264,9 @@ const file_graph_config_proto_rawDesc = "" +
 	"FromNodeId\x88\x01\x01\x12\x1f\n" +
 	"\bToNodeId\x18\x02 \x01(\x04H\x01R\bToNodeId\x88\x01\x01B\r\n" +
 	"\v_FromNodeIdB\v\n" +
-	"\t_ToNodeId*L\n" +
-	"\tNodeState\x12\v\n" +
+	"\t_ToNodeId*M\n" +
+	"\n" +
+	"NodeStatus\x12\v\n" +
 	"\aWaiting\x10\x00\x12\v\n" +
 	"\aRunning\x10\x01\x12\f\n" +
 	"\bFinished\x10\x02\x12\n" +
@@ -288,7 +289,7 @@ func file_graph_config_proto_rawDescGZIP() []byte {
 var file_graph_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_graph_config_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_graph_config_proto_goTypes = []any{
-	(NodeState)(0),     // 0: graph.NodeState
+	(NodeStatus)(0),    // 0: graph.NodeStatus
 	(*Config)(nil),     // 1: graph.Config
 	(*NodeConfig)(nil), // 2: graph.NodeConfig
 	(*EdgeConfig)(nil), // 3: graph.EdgeConfig

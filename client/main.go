@@ -32,16 +32,13 @@ import (
 )
 
 var (
-	cmd  = flag.String("cmd", "", "")
-	node = flag.Bool("node", false, "")
-	id   = flag.Uint64("id", 0, "")
+	cmd = flag.String("cmd", "", "")
+	id  = flag.Uint64("id", 0, "")
 )
 
 func main() {
 	flag.Parse()
-	if !*node {
-		id = nil
-	}
+
 	// Set up a connection to the server.
 	conn, err := grpc.NewClient(":9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -50,48 +47,34 @@ func main() {
 	defer conn.Close()
 
 	graphClient := api.NewGraphClient(conn)
-	nodeClient := api.NewNodeClient(conn)
 
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	switch *cmd {
-	case "config":
-		info, err := graphClient.GetConfig(ctx, &api.Nothing{})
-		if err != nil {
-			log.Fatalf("could not get info: %v", err)
-		}
-		log.Println(prototext.Format(info))
 	case "state":
-		state, err := graphClient.GetState(ctx, &api.Nothing{})
+		state, err := graphClient.GetGlobalState(ctx, &api.Nothing{})
 		if err != nil {
-			log.Fatalf("could not get state: %v", err)
+			log.Fatal(err.Error())
 		}
-		log.Println(prototext.Format(state))
-	case "run":
-		if id != nil {
-			_, err = nodeClient.Run(ctx, &api.NodeIdentifier{Id: id})
-			if err != nil {
-				log.Fatalf("could not run: %v", err)
-			}
+		log.Print(prototext.Format(state))
+	case "run-ready":
+		id, err := graphClient.RunReadyNode(ctx, &api.Nothing{})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		if id.Id == nil {
+			log.Print("nothing to run")
 		} else {
-			_, err = graphClient.Run(ctx, &api.Nothing{})
-			if err != nil {
-				log.Fatalf("could not run: %v", err)
-			}
+			log.Print(prototext.Format(id))
 		}
-	case "arts":
-		artifacts, err := nodeClient.GetArtifacts(ctx, &api.NodeIdentifier{Id: id})
+	case "wait":
+		updates, err := graphClient.WaitRunEnd(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
-			log.Fatalf("could not get artifacts: %v", err)
+			log.Fatal(err.Error())
 		}
-		log.Printf("arts:\n%v", prototext.Format(artifacts))
-	case "reset":
-		_, err := nodeClient.Reset(ctx, &api.NodeIdentifier{Id: id})
-		if err != nil {
-			log.Fatalf("could not reset: %v", err)
-		}
+		log.Print(prototext.Format(updates))
 	default:
 		log.Fatalf("invalid case %s", *cmd)
 	}

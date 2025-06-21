@@ -8,23 +8,44 @@ import "graph/config.proto";
 message Nothing {
 }
 
-message GraphState {
-    map<uint64, graph.NodeState> NodeStates = 1;
-}
-
 message NodeIdentifier {
     optional uint64 Id = 1;
     // optional string Name = 2;
 }
+
 message ArtifactsMessage {
     optional string Stdout = 1;
     optional string Stderr = 2;
 }
 
+message NodeState {
+    optional uint64 id = 1;
+    optional graph.NodeStatus Status = 2;
+    optional bool IsReady = 3;
+}
+
+message Updates {
+    repeated NodeState NodeStates = 1;
+}
+
+message NodeWithState {
+    optional graph.NodeConfig Config = 1;
+    optional NodeState State = 2;
+}
+
+message GlobalState {
+    repeated NodeWithState Nodes = 1;
+    repeated graph.EdgeConfig Edges = 2;
+}
+
 service Graph {
-    rpc GetConfig(Nothing) returns (graph.Config);
-    rpc GetState(Nothing) returns (GraphState);
-    rpc Run(Nothing) returns (Nothing);
+    rpc GetGlobalState(Nothing) returns (GlobalState);
+    
+    rpc RunReadyNode(Nothing) returns (NodeIdentifier);
+    rpc WaitRunEnd(NodeIdentifier) returns (Updates);
+    
+    // rpc AddNode(graph.NodeConfig) returns (Updates);
+    // rpc AddEdge(graph.EdgeConfig) returns (Updates);
 }
 
 service Node {

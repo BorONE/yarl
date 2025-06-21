@@ -1,63 +1,88 @@
-$ go run client/main.go --cmd config
-Nodes: {
-  Id: 0
-  Job: {
-    ShellScript: {
-      Path: "example/a.sh"
-    }
-  }
-}
-Nodes: {
-  Id: 1
-  Job: {
-    ShellScript: {
-      Path: "example/b.sh"
-    }
-  }
-}
-Nodes: {
-  Id: 2
-  Job: {
-    ShellScript: {
-      Path: "example/c.sh"
-    }
-  }
-}
-Edges: {
-  FromNodeId: 0
-  ToNodeId: 1
-}
-Edges: {
-  FromNodeId: 2
-  ToNodeId: 1
-}
-
 $ go run client/main.go --cmd state
-NodeStates: {
-  key: 0
-  value: Waiting
+Nodes:  {
+  Config:  {
+    Id:  0
+    Job:  {
+      ShellScript:  {
+        Path:  "example/a.sh"
+      }
+    }
+  }
+  State:  {
+    id:  0
+    Status:  Waiting
+    IsReady:  true
+  }
 }
-NodeStates: {
-  key: 1
-  value: Waiting
+Nodes:  {
+  Config:  {
+    Id:  1
+    Job:  {
+      ShellScript:  {
+        Path:  "example/b.sh"
+      }
+    }
+  }
+  State:  {
+    id:  1
+    Status:  Waiting
+    IsReady:  false
+  }
 }
-NodeStates: {
-  key: 2
-  value: Waiting
+Nodes:  {
+  Config:  {
+    Id:  2
+    Job:  {
+      ShellScript:  {
+        Path:  "example/c.sh"
+      }
+    }
+  }
+  State:  {
+    id:  2
+    Status:  Waiting
+    IsReady:  true
+  }
 }
-
-$ go run client/main.go --cmd run
-$ go run client/main.go --cmd state
-NodeStates: {
-  key: 0
-  value: Finished
+Edges:  {
+  FromNodeId:  0
+  ToNodeId:  1
 }
-NodeStates: {
-  key: 1
-  value: Finished
+Edges:  {
+  FromNodeId:  2
+  ToNodeId:  1
 }
-NodeStates: {
-  key: 2
-  value: Finished
+$ go run client/main.go --cmd run-ready
+Id:  0
+$ go run client/main.go --cmd wait --id 0
+NodeStates:  {
+  id:  0
+  Status:  Finished
+  IsReady:  true
 }
-
+NodeStates:  {
+  id:  1
+  Status:  Waiting
+  IsReady:  false
+}
+$ go run client/main.go --cmd run-ready
+Id:  2
+$ go run client/main.go --cmd run-ready
+Id:  1
+$ go run client/main.go --cmd wait --id 1
+NodeStates:  {
+  id:  1
+  Status:  Finished
+  IsReady:  true
+}
+$ go run client/main.go --cmd wait --id 2
+NodeStates:  {
+  id:  2
+  Status:  Finished
+  IsReady:  true
+}
+NodeStates:  {
+  id:  1
+  Status:  Finished
+  IsReady:  true
+}

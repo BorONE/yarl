@@ -11,6 +11,8 @@ function client {
     echo "$ ${cmd}" >> $output/client
 
     $cmd 2>&1 | rm_ts >> $output/client
+    # $cmd 2>&1 | rm_ts >> $output/client
+    return ${PIPESTATUS[0]}
 }
 
 output=$(dirname $0)/output
@@ -26,10 +28,13 @@ pid=$(lsof -i :9000 | tail -1 | awk '{print $2}')
 trap 'kill $pid' EXIT
 
 > $output/client
-client config
 client state
-client run
-client state
+client run-ready
+client wait --id 0
+client run-ready
+client run-ready
+client wait --id 1
+client wait --id 2
 
 if [[ $1 == canonize ]]; then
     rm -rf $canon
