@@ -27,6 +27,7 @@ pid=$(lsof -i :9000 | tail -1 | awk '{print $2}')
 trap 'kill $pid' EXIT
 
 > $output/client
+client config
 client state
 client run-ready
 client wait --id 0

@@ -25,10 +25,12 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 	if !ok {
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
+
 	err := node.Run()
 	if err != nil {
 		return nil, err
 	}
+
 	return &Nothing{}, nil
 }
 
@@ -43,31 +45,4 @@ func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*
 		return nil, err
 	}
 	return &Nothing{}, nil
-}
-
-func (s ImplementedNodeServer) GetArtifacts(ctx context.Context, id *NodeIdentifier) (*ArtifactsMessage, error) {
-	log.Println("serving artifacts")
-
-	node, ok := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if !ok {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
-	}
-
-	artifacts := node.Arts
-
-	result := &ArtifactsMessage{}
-
-	if stdout, err := artifacts.GetString("stdout"); err != nil {
-		fmt.Println("err while collecting arts: ", err)
-	} else {
-		result.Stdout = &stdout
-	}
-
-	if stderr, err := artifacts.GetString("stderr"); err != nil {
-		fmt.Println("err while collecting arts: ", err)
-	} else {
-		result.Stderr = &stderr
-	}
-
-	return result, nil
 }

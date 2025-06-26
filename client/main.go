@@ -53,8 +53,14 @@ func main() {
 	defer cancel()
 
 	switch *cmd {
+	case "config":
+		config, err := graphClient.GetConfig(ctx, &api.Nothing{})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(config))
 	case "state":
-		state, err := graphClient.GetGlobalState(ctx, &api.Nothing{})
+		state, err := graphClient.CollectState(ctx, &api.Nothing{})
 		if err != nil {
 			log.Fatal(err.Error())
 		}

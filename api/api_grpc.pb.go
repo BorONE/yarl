@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	graph "pipegraph/graph"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,16 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Graph_GetGlobalState_FullMethodName = "/api.Graph/GetGlobalState"
-	Graph_RunReadyNode_FullMethodName   = "/api.Graph/RunReadyNode"
-	Graph_WaitRunEnd_FullMethodName     = "/api.Graph/WaitRunEnd"
+	Graph_GetConfig_FullMethodName    = "/api.Graph/GetConfig"
+	Graph_CollectState_FullMethodName = "/api.Graph/CollectState"
+	Graph_RunReadyNode_FullMethodName = "/api.Graph/RunReadyNode"
+	Graph_WaitRunEnd_FullMethodName   = "/api.Graph/WaitRunEnd"
 )
 
 // GraphClient is the client API for Graph service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphClient interface {
-	GetGlobalState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GlobalState, error)
+	GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error)
+	CollectState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*State, error)
 	RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
 }
@@ -41,10 +44,20 @@ func NewGraphClient(cc grpc.ClientConnInterface) GraphClient {
 	return &graphClient{cc}
 }
 
-func (c *graphClient) GetGlobalState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*GlobalState, error) {
+func (c *graphClient) GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GlobalState)
-	err := c.cc.Invoke(ctx, Graph_GetGlobalState_FullMethodName, in, out, cOpts...)
+	out := new(graph.Config)
+	err := c.cc.Invoke(ctx, Graph_GetConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphClient) CollectState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*State, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(State)
+	err := c.cc.Invoke(ctx, Graph_CollectState_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +88,8 @@ func (c *graphClient) WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts .
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
 type GraphServer interface {
-	GetGlobalState(context.Context, *Nothing) (*GlobalState, error)
+	GetConfig(context.Context, *Nothing) (*graph.Config, error)
+	CollectState(context.Context, *Nothing) (*State, error)
 	RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error)
 	WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error)
 	mustEmbedUnimplementedGraphServer()
@@ -88,8 +102,11 @@ type GraphServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGraphServer struct{}
 
-func (UnimplementedGraphServer) GetGlobalState(context.Context, *Nothing) (*GlobalState, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetGlobalState not implemented")
+func (UnimplementedGraphServer) GetConfig(context.Context, *Nothing) (*graph.Config, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
+}
+func (UnimplementedGraphServer) CollectState(context.Context, *Nothing) (*State, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollectState not implemented")
 }
 func (UnimplementedGraphServer) RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RunReadyNode not implemented")
@@ -118,20 +135,38 @@ func RegisterGraphServer(s grpc.ServiceRegistrar, srv GraphServer) {
 	s.RegisterService(&Graph_ServiceDesc, srv)
 }
 
-func _Graph_GetGlobalState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Graph_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Nothing)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GraphServer).GetGlobalState(ctx, in)
+		return srv.(GraphServer).GetConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Graph_GetGlobalState_FullMethodName,
+		FullMethod: Graph_GetConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).GetGlobalState(ctx, req.(*Nothing))
+		return srv.(GraphServer).GetConfig(ctx, req.(*Nothing))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Graph_CollectState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Nothing)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).CollectState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_CollectState_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).CollectState(ctx, req.(*Nothing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -180,8 +215,12 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GraphServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetGlobalState",
-			Handler:    _Graph_GetGlobalState_Handler,
+			MethodName: "GetConfig",
+			Handler:    _Graph_GetConfig_Handler,
+		},
+		{
+			MethodName: "CollectState",
+			Handler:    _Graph_CollectState_Handler,
 		},
 		{
 			MethodName: "RunReadyNode",
@@ -197,9 +236,8 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Node_Run_FullMethodName          = "/api.Node/Run"
-	Node_Reset_FullMethodName        = "/api.Node/Reset"
-	Node_GetArtifacts_FullMethodName = "/api.Node/GetArtifacts"
+	Node_Run_FullMethodName   = "/api.Node/Run"
+	Node_Reset_FullMethodName = "/api.Node/Reset"
 )
 
 // NodeClient is the client API for Node service.
@@ -208,7 +246,6 @@ const (
 type NodeClient interface {
 	Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
-	GetArtifacts(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*ArtifactsMessage, error)
 }
 
 type nodeClient struct {
@@ -239,23 +276,12 @@ func (c *nodeClient) Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc
 	return out, nil
 }
 
-func (c *nodeClient) GetArtifacts(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*ArtifactsMessage, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ArtifactsMessage)
-	err := c.cc.Invoke(ctx, Node_GetArtifacts_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // NodeServer is the server API for Node service.
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility.
 type NodeServer interface {
 	Run(context.Context, *NodeIdentifier) (*Nothing, error)
 	Reset(context.Context, *NodeIdentifier) (*Nothing, error)
-	GetArtifacts(context.Context, *NodeIdentifier) (*ArtifactsMessage, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -271,9 +297,6 @@ func (UnimplementedNodeServer) Run(context.Context, *NodeIdentifier) (*Nothing, 
 }
 func (UnimplementedNodeServer) Reset(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reset not implemented")
-}
-func (UnimplementedNodeServer) GetArtifacts(context.Context, *NodeIdentifier) (*ArtifactsMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetArtifacts not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
 func (UnimplementedNodeServer) testEmbeddedByValue()              {}
@@ -332,24 +355,6 @@ func _Node_Reset_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Node_GetArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NodeIdentifier)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodeServer).GetArtifacts(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Node_GetArtifacts_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).GetArtifacts(ctx, req.(*NodeIdentifier))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Node_ServiceDesc is the grpc.ServiceDesc for Node service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -364,10 +369,6 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Reset",
 			Handler:    _Node_Reset_Handler,
-		},
-		{
-			MethodName: "GetArtifacts",
-			Handler:    _Node_GetArtifacts_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

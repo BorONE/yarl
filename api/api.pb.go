@@ -198,28 +198,27 @@ func (x *Updates) GetNodeStates() []*graph.NodeState {
 	return nil
 }
 
-type NodeWithState struct {
+type State struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Config        *graph.NodeConfig      `protobuf:"bytes,1,opt,name=Config,proto3,oneof" json:"Config,omitempty"`
-	State         *graph.NodeState       `protobuf:"bytes,2,opt,name=State,proto3,oneof" json:"State,omitempty"`
+	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates,proto3" json:"NodeStates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *NodeWithState) Reset() {
-	*x = NodeWithState{}
+func (x *State) Reset() {
+	*x = State{}
 	mi := &file_api_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *NodeWithState) String() string {
+func (x *State) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*NodeWithState) ProtoMessage() {}
+func (*State) ProtoMessage() {}
 
-func (x *NodeWithState) ProtoReflect() protoreflect.Message {
+func (x *State) ProtoReflect() protoreflect.Message {
 	mi := &file_api_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -231,73 +230,14 @@ func (x *NodeWithState) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use NodeWithState.ProtoReflect.Descriptor instead.
-func (*NodeWithState) Descriptor() ([]byte, []int) {
+// Deprecated: Use State.ProtoReflect.Descriptor instead.
+func (*State) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *NodeWithState) GetConfig() *graph.NodeConfig {
+func (x *State) GetNodeStates() []*graph.NodeState {
 	if x != nil {
-		return x.Config
-	}
-	return nil
-}
-
-func (x *NodeWithState) GetState() *graph.NodeState {
-	if x != nil {
-		return x.State
-	}
-	return nil
-}
-
-type GlobalState struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Nodes         []*NodeWithState       `protobuf:"bytes,1,rep,name=Nodes,proto3" json:"Nodes,omitempty"`
-	Edges         []*graph.EdgeConfig    `protobuf:"bytes,2,rep,name=Edges,proto3" json:"Edges,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GlobalState) Reset() {
-	*x = GlobalState{}
-	mi := &file_api_api_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GlobalState) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GlobalState) ProtoMessage() {}
-
-func (x *GlobalState) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GlobalState.ProtoReflect.Descriptor instead.
-func (*GlobalState) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *GlobalState) GetNodes() []*NodeWithState {
-	if x != nil {
-		return x.Nodes
-	}
-	return nil
-}
-
-func (x *GlobalState) GetEdges() []*graph.EdgeConfig {
-	if x != nil {
-		return x.Edges
+		return x.NodeStates
 	}
 	return nil
 }
@@ -319,24 +259,21 @@ const file_api_api_proto_rawDesc = "" +
 	"\aUpdates\x120\n" +
 	"\n" +
 	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
-	"NodeStates\"\x81\x01\n" +
-	"\rNodeWithState\x12.\n" +
-	"\x06Config\x18\x01 \x01(\v2\x11.graph.NodeConfigH\x00R\x06Config\x88\x01\x01\x12+\n" +
-	"\x05State\x18\x02 \x01(\v2\x10.graph.NodeStateH\x01R\x05State\x88\x01\x01B\t\n" +
-	"\a_ConfigB\b\n" +
-	"\x06_State\"`\n" +
-	"\vGlobalState\x12(\n" +
-	"\x05Nodes\x18\x01 \x03(\v2\x12.api.NodeWithStateR\x05Nodes\x12'\n" +
-	"\x05Edges\x18\x02 \x03(\v2\x11.graph.EdgeConfigR\x05Edges2\x9d\x01\n" +
-	"\x05Graph\x120\n" +
-	"\x0eGetGlobalState\x12\f.api.Nothing\x1a\x10.api.GlobalState\x121\n" +
+	"NodeStates\"9\n" +
+	"\x05State\x120\n" +
+	"\n" +
+	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
+	"NodeStates2\xbf\x01\n" +
+	"\x05Graph\x12(\n" +
+	"\tGetConfig\x12\f.api.Nothing\x1a\r.graph.Config\x12(\n" +
+	"\fCollectState\x12\f.api.Nothing\x1a\n" +
+	".api.State\x121\n" +
 	"\fRunReadyNode\x12\f.api.Nothing\x1a\x13.api.NodeIdentifier\x12/\n" +
 	"\n" +
-	"WaitRunEnd\x12\x13.api.NodeIdentifier\x1a\f.api.Updates2\x98\x01\n" +
+	"WaitRunEnd\x12\x13.api.NodeIdentifier\x1a\f.api.Updates2\\\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12*\n" +
-	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12:\n" +
-	"\fGetArtifacts\x12\x13.api.NodeIdentifier\x1a\x15.api.ArtifactsMessageB\x16Z\x14pipegraph/server/apib\x06proto3"
+	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.NothingB\x16Z\x14pipegraph/server/apib\x06proto3"
 
 var (
 	file_api_api_proto_rawDescOnce sync.Once
@@ -350,41 +287,36 @@ func file_api_api_proto_rawDescGZIP() []byte {
 	return file_api_api_proto_rawDescData
 }
 
-var file_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_api_api_proto_goTypes = []any{
 	(*Nothing)(nil),          // 0: api.Nothing
 	(*NodeIdentifier)(nil),   // 1: api.NodeIdentifier
 	(*ArtifactsMessage)(nil), // 2: api.ArtifactsMessage
 	(*Updates)(nil),          // 3: api.Updates
-	(*NodeWithState)(nil),    // 4: api.NodeWithState
-	(*GlobalState)(nil),      // 5: api.GlobalState
-	(*graph.NodeState)(nil),  // 6: graph.NodeState
-	(*graph.NodeConfig)(nil), // 7: graph.NodeConfig
-	(*graph.EdgeConfig)(nil), // 8: graph.EdgeConfig
+	(*State)(nil),            // 4: api.State
+	(*graph.NodeState)(nil),  // 5: graph.NodeState
+	(*graph.Config)(nil),     // 6: graph.Config
 }
 var file_api_api_proto_depIdxs = []int32{
-	6,  // 0: api.Updates.NodeStates:type_name -> graph.NodeState
-	7,  // 1: api.NodeWithState.Config:type_name -> graph.NodeConfig
-	6,  // 2: api.NodeWithState.State:type_name -> graph.NodeState
-	4,  // 3: api.GlobalState.Nodes:type_name -> api.NodeWithState
-	8,  // 4: api.GlobalState.Edges:type_name -> graph.EdgeConfig
-	0,  // 5: api.Graph.GetGlobalState:input_type -> api.Nothing
-	0,  // 6: api.Graph.RunReadyNode:input_type -> api.Nothing
-	1,  // 7: api.Graph.WaitRunEnd:input_type -> api.NodeIdentifier
-	1,  // 8: api.Node.Run:input_type -> api.NodeIdentifier
-	1,  // 9: api.Node.Reset:input_type -> api.NodeIdentifier
-	1,  // 10: api.Node.GetArtifacts:input_type -> api.NodeIdentifier
-	5,  // 11: api.Graph.GetGlobalState:output_type -> api.GlobalState
-	1,  // 12: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
-	3,  // 13: api.Graph.WaitRunEnd:output_type -> api.Updates
-	0,  // 14: api.Node.Run:output_type -> api.Nothing
-	0,  // 15: api.Node.Reset:output_type -> api.Nothing
-	2,  // 16: api.Node.GetArtifacts:output_type -> api.ArtifactsMessage
-	11, // [11:17] is the sub-list for method output_type
-	5,  // [5:11] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	5, // 0: api.Updates.NodeStates:type_name -> graph.NodeState
+	5, // 1: api.State.NodeStates:type_name -> graph.NodeState
+	0, // 2: api.Graph.GetConfig:input_type -> api.Nothing
+	0, // 3: api.Graph.CollectState:input_type -> api.Nothing
+	0, // 4: api.Graph.RunReadyNode:input_type -> api.Nothing
+	1, // 5: api.Graph.WaitRunEnd:input_type -> api.NodeIdentifier
+	1, // 6: api.Node.Run:input_type -> api.NodeIdentifier
+	1, // 7: api.Node.Reset:input_type -> api.NodeIdentifier
+	6, // 8: api.Graph.GetConfig:output_type -> graph.Config
+	4, // 9: api.Graph.CollectState:output_type -> api.State
+	1, // 10: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
+	3, // 11: api.Graph.WaitRunEnd:output_type -> api.Updates
+	0, // 12: api.Node.Run:output_type -> api.Nothing
+	0, // 13: api.Node.Reset:output_type -> api.Nothing
+	8, // [8:14] is the sub-list for method output_type
+	2, // [2:8] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_api_proto_init() }
@@ -394,14 +326,13 @@ func file_api_api_proto_init() {
 	}
 	file_api_api_proto_msgTypes[1].OneofWrappers = []any{}
 	file_api_api_proto_msgTypes[2].OneofWrappers = []any{}
-	file_api_api_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_api_proto_rawDesc), len(file_api_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

@@ -22,18 +22,13 @@ message Updates {
     repeated graph.NodeState NodeStates = 1;
 }
 
-message NodeWithState {
-    optional graph.NodeConfig Config = 1;
-    optional graph.NodeState State = 2;
-}
-
-message GlobalState {
-    repeated NodeWithState Nodes = 1;
-    repeated graph.EdgeConfig Edges = 2;
+message State {
+    repeated graph.NodeState NodeStates = 1;
 }
 
 service Graph {
-    rpc GetGlobalState(Nothing) returns (GlobalState);
+    rpc GetConfig(Nothing) returns (graph.Config);
+    rpc CollectState(Nothing) returns (State);
     
     rpc RunReadyNode(Nothing) returns (NodeIdentifier);
     rpc WaitRunEnd(NodeIdentifier) returns (Updates);
@@ -45,5 +40,4 @@ service Graph {
 service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
     rpc Reset(NodeIdentifier) returns (Nothing);
-    rpc GetArtifacts(NodeIdentifier) returns (ArtifactsMessage);
 }

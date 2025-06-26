@@ -22,20 +22,14 @@ func NewImplementedGraphServer(graph *graph.Graph) *ImplementedGraphServer {
 	}
 }
 
-func (s ImplementedGraphServer) GetGlobalState(ctx context.Context, _ *Nothing) (*GlobalState, error) {
-	log.Println("serving GetGlobalState()")
-	s.graph.GlobalLock()
-	defer s.graph.GlobalUnlock()
-	result := &GlobalState{}
-	for _, nodeConfig := range s.graph.Config.Nodes {
-		node := s.graph.Nodes[graph.NodeId(*nodeConfig.Id)]
-		result.Nodes = append(result.Nodes, &NodeWithState{
-			Config: nodeConfig,
-			State:  node.GetStateWithoutLock(),
-		})
-	}
-	result.Edges = s.graph.Config.Edges
-	return result, nil
+func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*graph.Config, error) {
+	log.Println("serving GetConfig()")
+	return s.graph.Config, nil
+}
+
+func (s ImplementedGraphServer) CollectState(ctx context.Context, _ *Nothing) (*State, error) {
+	log.Println("serving CollectState()")
+	return &State{NodeStates: s.graph.CollectNodeStates()}, nil
 }
 
 func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*NodeIdentifier, error) {
@@ -55,7 +49,7 @@ func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*
 }
 
 func (s ImplementedGraphServer) WaitRunEnd(ctx context.Context, identifier *NodeIdentifier) (*Updates, error) {
-	log.Printf("serving WaitRunEnd(%v)\n", prototext.Format(identifier))
+	log.Printf("serving WaitRunEnd(%v)\n", prototext.MarshalOptions{}.Format(identifier))
 	node, ok := s.graph.Nodes[graph.NodeId(*identifier.Id)]
 	if !ok {
 		return nil, fmt.Errorf("node not found")

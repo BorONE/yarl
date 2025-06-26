@@ -1,97 +1,92 @@
+$ go run client/main.go --cmd config
+Nodes: {
+  Id: 0
+  Job: {
+    ShellScript: {
+      Path: "example/a.sh"
+    }
+  }
+}
+Nodes: {
+  Id: 1
+  Job: {
+    ShellScript: {
+      Path: "example/b.sh"
+    }
+  }
+}
+Nodes: {
+  Id: 2
+  Job: {
+    ShellScript: {
+      Path: "example/c.sh"
+    }
+  }
+}
+Edges: {
+  FromNodeId: 0
+  ToNodeId: 1
+}
+Edges: {
+  FromNodeId: 2
+  ToNodeId: 1
+}
+Edges: {
+  FromNodeId: 0
+  ToNodeId: 2
+}
 $ go run client/main.go --cmd state
-Nodes:  {
-  Config:  {
-    Id:  0
-    Job:  {
-      ShellScript:  {
-        Path:  "example/a.sh"
-      }
-    }
-  }
-  State:  {
-    Id:  0
-    Status:  Idle
-    IsReady:  true
-  }
+NodeStates: {
+  Id: 0
+  Status: Idle
+  IsReady: true
 }
-Nodes:  {
-  Config:  {
-    Id:  1
-    Job:  {
-      ShellScript:  {
-        Path:  "example/b.sh"
-      }
-    }
-  }
-  State:  {
-    Id:  1
-    Status:  Idle
-    IsReady:  false
-  }
+NodeStates: {
+  Id: 1
+  Status: Idle
+  IsReady: false
 }
-Nodes:  {
-  Config:  {
-    Id:  2
-    Job:  {
-      ShellScript:  {
-        Path:  "example/c.sh"
-      }
-    }
-  }
-  State:  {
-    Id:  2
-    Status:  Idle
-    IsReady:  false
-  }
-}
-Edges:  {
-  FromNodeId:  0
-  ToNodeId:  1
-}
-Edges:  {
-  FromNodeId:  2
-  ToNodeId:  1
-}
-Edges:  {
-  FromNodeId:  0
-  ToNodeId:  2
+NodeStates: {
+  Id: 2
+  Status: Idle
+  IsReady: false
 }
 $ go run client/main.go --cmd run-ready
-Id:  0
+Id: 0
 $ go run client/main.go --cmd wait --id 0
-NodeStates:  {
-  Id:  0
-  Status:  Success
-  IsReady:  true
+NodeStates: {
+  Id: 0
+  Status: Success
+  IsReady: true
 }
-NodeStates:  {
-  Id:  1
-  Status:  Idle
-  IsReady:  false
+NodeStates: {
+  Id: 1
+  Status: Idle
+  IsReady: false
 }
-NodeStates:  {
-  Id:  2
-  Status:  Idle
-  IsReady:  true
+NodeStates: {
+  Id: 2
+  Status: Idle
+  IsReady: true
 }
 $ go run client/main.go --cmd run-ready
-Id:  2
+Id: 2
 $ go run client/main.go --cmd run-ready
-Id:  1
+Id: 1
 $ go run client/main.go --cmd wait --id 1
-NodeStates:  {
-  Id:  1
-  Status:  Success
-  IsReady:  true
+NodeStates: {
+  Id: 1
+  Status: Success
+  IsReady: true
 }
 $ go run client/main.go --cmd wait --id 2
-NodeStates:  {
-  Id:  2
-  Status:  Success
-  IsReady:  true
+NodeStates: {
+  Id: 2
+  Status: Success
+  IsReady: true
 }
-NodeStates:  {
-  Id:  1
-  Status:  Success
-  IsReady:  true
+NodeStates: {
+  Id: 1
+  Status: Success
+  IsReady: true
 }

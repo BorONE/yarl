@@ -18,10 +18,7 @@ func NewGraph(config *Config) *Graph {
 		Nodes:  make(map[NodeId]*Node),
 	}
 	for _, nodeConfig := range config.Nodes {
-		g.Nodes[NodeId(*nodeConfig.Id)] = &Node{
-			Config: nodeConfig,
-			graph:  g,
-		}
+		g.Nodes[NodeId(*nodeConfig.Id)] = NewNode(g, nodeConfig)
 	}
 	for _, edgeConfig := range config.Edges {
 		from, to := g.Nodes[NodeId(*edgeConfig.FromNodeId)], g.Nodes[NodeId(*edgeConfig.ToNodeId)]
@@ -31,39 +28,26 @@ func NewGraph(config *Config) *Graph {
 	return g
 }
 
-func (g *Graph) Run() {
-	wg := &sync.WaitGroup{}
-	for _, node := range g.Nodes {
-		g.tryRunRecursively(node, wg)
+func (graph *Graph) CollectNodeStates() []*NodeState {
+	graph.globalLock()
+	defer graph.globalUnlock()
+
+	result := []*NodeState{}
+	for _, nodeConfig := range graph.Config.Nodes { // iterating over config for determined order
+		node := graph.Nodes[NodeId(*nodeConfig.Id)]
+		result = append(result, node.unsafe.getState())
 	}
-	wg.Wait()
+	return result
 }
 
-func (g *Graph) tryRunRecursively(node *Node, wg *sync.WaitGroup) {
-	if !node.IsReady() {
-		return
-	}
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		node.Run()
-
-		for _, outputId := range node.Output {
-			g.tryRunRecursively(g.Nodes[outputId], wg)
-		}
-	}()
-}
-
-func (g *Graph) GlobalLock() {
+func (g *Graph) globalLock() {
 	g.mutex.Lock()
 	for _, node := range g.Nodes {
 		node.mutex.Lock()
 	}
 }
 
-func (g *Graph) GlobalUnlock() {
+func (g *Graph) globalUnlock() {
 	for _, node := range g.Nodes {
 		node.mutex.Unlock()
 	}
@@ -71,19 +55,22 @@ func (g *Graph) GlobalUnlock() {
 }
 
 func (graph *Graph) TryRunAnyNode() (node *Node, isRunning bool, err error) {
-	graph.GlobalLock()
-	defer graph.GlobalUnlock()
+	graph.globalLock()
+	defer graph.globalUnlock()
 
 	for _, node := range graph.Nodes {
-		if node.getStatusWithoutLock() == NodeStatus_Running {
+		if node.unsafe.status == NodeStatus_Running {
 			isRunning = true
 		}
 
-		if node.getStatusWithoutLock() == NodeStatus_Idle && node.isReadyWithoutLock() {
-			err := graph.Nodes[NodeId(*node.Config.Id)].runWithoutLock()
+		if node.unsafe.status == NodeStatus_Idle && node.unsafe.isReady() {
+			err := node.unsafe.startJob()
 			if err != nil {
 				return nil, false, err
 			}
+
+			go node.HandleJobResult()
+
 			return node, true, nil
 		}
 	}
