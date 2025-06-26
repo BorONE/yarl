@@ -9,6 +9,7 @@ type NodeId uint64
 type Graph struct {
 	Config *Config
 	Nodes  map[NodeId]*Node
+	mutex  sync.Mutex
 }
 
 func NewGraph(config *Config) *Graph {
@@ -53,4 +54,38 @@ func (g *Graph) tryRunRecursively(node *Node, wg *sync.WaitGroup) {
 			g.tryRunRecursively(g.Nodes[outputId], wg)
 		}
 	}()
+}
+
+func (g *Graph) GlobalLock() {
+	g.mutex.Lock()
+	for _, node := range g.Nodes {
+		node.mutex.Lock()
+	}
+}
+
+func (g *Graph) GlobalUnlock() {
+	for _, node := range g.Nodes {
+		node.mutex.Unlock()
+	}
+	g.mutex.Unlock()
+}
+
+func (graph *Graph) TryRunAnyNode() (node *Node, isRunning bool, err error) {
+	graph.GlobalLock()
+	defer graph.GlobalUnlock()
+
+	for _, node := range graph.Nodes {
+		if node.getStatusWithoutLock() == NodeStatus_Running {
+			isRunning = true
+		}
+
+		if node.getStatusWithoutLock() == NodeStatus_Idle && node.isReadyWithoutLock() {
+			err := graph.Nodes[NodeId(*node.Config.Id)].runWithoutLock()
+			if err != nil {
+				return nil, false, err
+			}
+			return node, true, nil
+		}
+	}
+	return nil, isRunning, nil
 }

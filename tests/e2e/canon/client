@@ -9,8 +9,8 @@ Nodes:  {
     }
   }
   State:  {
-    id:  0
-    Status:  Waiting
+    Id:  0
+    Status:  Idle
     IsReady:  true
   }
 }
@@ -24,8 +24,8 @@ Nodes:  {
     }
   }
   State:  {
-    id:  1
-    Status:  Waiting
+    Id:  1
+    Status:  Idle
     IsReady:  false
   }
 }
@@ -39,9 +39,9 @@ Nodes:  {
     }
   }
   State:  {
-    id:  2
-    Status:  Waiting
-    IsReady:  true
+    Id:  2
+    Status:  Idle
+    IsReady:  false
   }
 }
 Edges:  {
@@ -52,18 +52,27 @@ Edges:  {
   FromNodeId:  2
   ToNodeId:  1
 }
+Edges:  {
+  FromNodeId:  0
+  ToNodeId:  2
+}
 $ go run client/main.go --cmd run-ready
 Id:  0
 $ go run client/main.go --cmd wait --id 0
 NodeStates:  {
-  id:  0
-  Status:  Finished
+  Id:  0
+  Status:  Success
   IsReady:  true
 }
 NodeStates:  {
-  id:  1
-  Status:  Waiting
+  Id:  1
+  Status:  Idle
   IsReady:  false
+}
+NodeStates:  {
+  Id:  2
+  Status:  Idle
+  IsReady:  true
 }
 $ go run client/main.go --cmd run-ready
 Id:  2
@@ -71,18 +80,18 @@ $ go run client/main.go --cmd run-ready
 Id:  1
 $ go run client/main.go --cmd wait --id 1
 NodeStates:  {
-  id:  1
-  Status:  Finished
+  Id:  1
+  Status:  Success
   IsReady:  true
 }
 $ go run client/main.go --cmd wait --id 2
 NodeStates:  {
-  id:  2
-  Status:  Finished
+  Id:  2
+  Status:  Success
   IsReady:  true
 }
 NodeStates:  {
-  id:  1
-  Status:  Finished
+  Id:  1
+  Status:  Success
   IsReady:  true
 }

@@ -1,0 +1,21 @@
+server listening at [::]:9000
+serving GetGlobalState()
+serving RunReadyNode()
+job(id=0) is starting...
+job(id=0) finished: err=<nil> artifacts=map[stderr: stdout:]
+serving WaitRunEnd(Id: 0
+)
+serving RunReadyNode()
+job(id=2) is starting...
+job(id=2) finished: err=<nil> artifacts=map[stderr: stdout:]
+serving RunReadyNode()
+job(id=1) is starting...
+job(id=1) finished: err=<nil> artifacts=map[stderr: stdout:a.sh
+b.sh
+c.sh
+]
+serving WaitRunEnd(Id: 1
+)
+serving WaitRunEnd(Id: 2
+)
+signal: terminated

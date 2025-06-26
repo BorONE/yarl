@@ -6,11 +6,17 @@ option go_package = "pipegraph/graph";
 import "job/config.proto";
 
 enum NodeStatus {
-    Waiting = 0;
+    Idle = 0;
     Running = 1;
-    Finished = 2;
+    Success = 2;
     Failed = 3;
     Stopped = 4;
+}
+
+message NodeState {
+    optional uint64 Id = 1;
+    optional graph.NodeStatus Status = 2;
+    optional bool IsReady = 3;
 }
 
 message Config {

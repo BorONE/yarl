@@ -11,7 +11,6 @@ function client {
     echo "$ ${cmd}" >> $output/client
 
     $cmd 2>&1 | rm_ts >> $output/client
-    # $cmd 2>&1 | rm_ts >> $output/client
     return ${PIPESTATUS[0]}
 }
 
@@ -38,8 +37,9 @@ client wait --id 2
 
 if [[ $1 == canonize ]]; then
     rm -rf $canon
-    cp -r $output $canon
-    rm -rf $output
+    mv $output $canon
+    # cp -r $output $canon
+    # rm -rf $output
 else
     diff $output $canon && rm -rf $output
 fi

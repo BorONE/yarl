@@ -6,6 +6,8 @@ import (
 	"log"
 	"pipegraph/graph"
 	"time"
+
+	"google.golang.org/protobuf/encoding/prototext"
 )
 
 type ImplementedGraphServer struct {
@@ -20,25 +22,16 @@ func NewImplementedGraphServer(graph *graph.Graph) *ImplementedGraphServer {
 	}
 }
 
-func asPtr[T any](x T) *T {
-	p := new(T)
-	*p = x
-	return p
-}
-
 func (s ImplementedGraphServer) GetGlobalState(ctx context.Context, _ *Nothing) (*GlobalState, error) {
-	log.Println("serving as updates")
-	// TODO global lock
+	log.Println("serving GetGlobalState()")
+	s.graph.GlobalLock()
+	defer s.graph.GlobalUnlock()
 	result := &GlobalState{}
 	for _, nodeConfig := range s.graph.Config.Nodes {
 		node := s.graph.Nodes[graph.NodeId(*nodeConfig.Id)]
 		result.Nodes = append(result.Nodes, &NodeWithState{
 			Config: nodeConfig,
-			State: &NodeState{
-				Id:      asPtr(*nodeConfig.Id),
-				Status:  node.GetStatus().Enum(),
-				IsReady: asPtr(node.IsReady()),
-			},
+			State:  node.GetStateWithoutLock(),
 		})
 	}
 	result.Edges = s.graph.Config.Edges
@@ -46,78 +39,39 @@ func (s ImplementedGraphServer) GetGlobalState(ctx context.Context, _ *Nothing) 
 }
 
 func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*NodeIdentifier, error) {
+	log.Println("serving RunReadyNode()")
 	for {
-		state, err := s.GetGlobalState(ctx, &Nothing{})
+		node, isRunning, err := s.graph.TryRunAnyNode()
 		if err != nil {
 			return nil, err
-		}
-
-		isRunning := false
-
-		for _, node := range state.Nodes {
-			switch *node.State.Status {
-			case graph.NodeStatus_Stopped, graph.NodeStatus_Finished, graph.NodeStatus_Failed:
-				// noop
-			case graph.NodeStatus_Running:
-				isRunning = true
-			case graph.NodeStatus_Waiting:
-				if *node.State.IsReady {
-					err := s.graph.Nodes[graph.NodeId(*node.Config.Id)].Run()
-					if err != nil {
-						continue
-					}
-					return &NodeIdentifier{Id: node.Config.Id}, nil
-				}
-			default:
-				log.Panicln("unexpected state: ", node.State.Status.String())
-			}
-
-			time.Sleep(time.Second)
-		}
-
-		if !isRunning {
+		} else if node != nil {
+			return &NodeIdentifier{Id: node.Config.Id}, nil
+		} else if !isRunning {
 			return nil, nil
+		} else {
+			time.Sleep(time.Second)
 		}
 	}
 }
 
 func (s ImplementedGraphServer) WaitRunEnd(ctx context.Context, identifier *NodeIdentifier) (*Updates, error) {
+	log.Printf("serving WaitRunEnd(%v)\n", prototext.Format(identifier))
 	node, ok := s.graph.Nodes[graph.NodeId(*identifier.Id)]
 	if !ok {
 		return nil, fmt.Errorf("node not found")
 	}
 
-	for {
-		status := node.GetStatus()
-		switch status {
-		case graph.NodeStatus_Failed, graph.NodeStatus_Finished:
-			nodeStates := []*NodeState{
-				{
-					Id:     node.Config.Id,
-					Status: &status,
-					// IsReady: asPtr(false),
-					IsReady: asPtr(node.IsReady()),
-				},
-			}
-			if status == graph.NodeStatus_Finished {
-				for _, outputId := range node.Output {
-					output := s.graph.Nodes[graph.NodeId(outputId)]
-					nodeStates = append(nodeStates, &NodeState{
-						Id:      output.Config.Id,
-						Status:  output.GetStatus().Enum(),
-						IsReady: asPtr(output.IsReady()),
-					})
-				}
-			}
-			return &Updates{NodeStates: nodeStates}, nil
-		case graph.NodeStatus_Stopped, graph.NodeStatus_Running:
-			// noop
-		case graph.NodeStatus_Waiting:
-			return nil, fmt.Errorf("unexepected state: %s", status.String())
-		default:
-			log.Panicln("unexpected state: ", status.String())
-		}
-
-		time.Sleep(time.Second)
+	status, err := node.WaitRunEnd()
+	if err != nil {
+		return nil, err
 	}
+
+	nodeStates := []*graph.NodeState{node.GetState()}
+	if status == graph.NodeStatus_Success {
+		for _, outputId := range node.Output {
+			output := s.graph.Nodes[graph.NodeId(outputId)]
+			nodeStates = append(nodeStates, output.GetState())
+		}
+	}
+	return &Updates{NodeStates: nodeStates}, nil
 }

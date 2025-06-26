@@ -30,3 +30,8 @@ Edges {
     FromNodeId: 2
     ToNodeId: 1
 }
+
+Edges {
+    FromNodeId: 0
+    ToNodeId: 2
+}

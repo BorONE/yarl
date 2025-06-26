@@ -18,19 +18,13 @@ message ArtifactsMessage {
     optional string Stderr = 2;
 }
 
-message NodeState {
-    optional uint64 id = 1;
-    optional graph.NodeStatus Status = 2;
-    optional bool IsReady = 3;
-}
-
 message Updates {
-    repeated NodeState NodeStates = 1;
+    repeated graph.NodeState NodeStates = 1;
 }
 
 message NodeWithState {
     optional graph.NodeConfig Config = 1;
-    optional NodeState State = 2;
+    optional graph.NodeState State = 2;
 }
 
 message GlobalState {
