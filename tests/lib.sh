@@ -1,4 +1,3 @@
-#!/bin/bash -e
 
 function rm_ts {
     date_re='[0-9]*/[0-9]*/[0-9]*'
@@ -14,33 +13,32 @@ function client {
     return ${PIPESTATUS[0]}
 }
 
+
 output=$(dirname $0)/output
 canon=$(dirname $0)/canon
 rm -rf $output
 mkdir -p $output
 
-go run main.go 2>&1 | rm_ts > $output/server &
+go run main.go $SERVER_ARGS 2>&1 | rm_ts > $output/server &
 while ! lsof -i :9000 &> /dev/null; do
     true
 done
 pid=$(lsof -i :9000 | tail -1 | awk '{print $2}')
-trap 'kill $pid' EXIT
+trap 'kill $pid &> /dev/null || true' EXIT
 
 > $output/client
-client config
-client state
-client run-ready
-client wait --id 0
-client run-ready
-client run-ready
-client wait --id 1
-client wait --id 2
 
-if [[ $1 == canonize ]]; then
+function test-check {
+    kill $pid
+    wait
+
+    diff $output $canon && rm -rf $output
+}
+
+function test-canonize {
+    kill $pid
+    wait
+
     rm -rf $canon
     mv $output $canon
-    # cp -r $output $canon
-    # rm -rf $output
-else
-    diff $output $canon && rm -rf $output
-fi
+}

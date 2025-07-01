@@ -24,6 +24,7 @@ import (
 	"flag"
 	"log"
 	"pipegraph/api"
+	"pipegraph/graph"
 	"time"
 
 	"google.golang.org/grpc"
@@ -34,6 +35,7 @@ import (
 var (
 	cmd = flag.String("cmd", "", "")
 	id  = flag.Uint64("id", 0, "")
+	id2 = flag.Uint64("id2", 0, "")
 )
 
 func main() {
@@ -47,6 +49,7 @@ func main() {
 	defer conn.Close()
 
 	graphClient := api.NewGraphClient(conn)
+	nodeClient := api.NewNodeClient(conn)
 
 	// Contact the server and print out its response.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -77,6 +80,24 @@ func main() {
 		}
 	case "wait":
 		updates, err := graphClient.WaitRunEnd(ctx, &api.NodeIdentifier{Id: id})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(updates))
+	case "connect":
+		updates, err := graphClient.Connect(ctx, &graph.EdgeConfig{FromNodeId: id, ToNodeId: id2})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(updates))
+	case "disconnect":
+		updates, err := graphClient.Disconnect(ctx, &graph.EdgeConfig{FromNodeId: id, ToNodeId: id2})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(updates))
+	case "reset":
+		updates, err := nodeClient.Reset(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
 			log.Fatal(err.Error())
 		}

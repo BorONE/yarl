@@ -263,14 +263,17 @@ const file_api_api_proto_rawDesc = "" +
 	"\x05State\x120\n" +
 	"\n" +
 	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
-	"NodeStates2\xbf\x01\n" +
+	"NodeStates2\x9a\x02\n" +
 	"\x05Graph\x12(\n" +
 	"\tGetConfig\x12\f.api.Nothing\x1a\r.graph.Config\x12(\n" +
 	"\fCollectState\x12\f.api.Nothing\x1a\n" +
 	".api.State\x121\n" +
 	"\fRunReadyNode\x12\f.api.Nothing\x1a\x13.api.NodeIdentifier\x12/\n" +
 	"\n" +
-	"WaitRunEnd\x12\x13.api.NodeIdentifier\x1a\f.api.Updates2\\\n" +
+	"WaitRunEnd\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12*\n" +
+	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates\x12-\n" +
+	"\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates2\\\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12*\n" +
 	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.NothingB\x16Z\x14pipegraph/server/apib\x06proto3"
@@ -295,28 +298,33 @@ var file_api_api_proto_goTypes = []any{
 	(*Updates)(nil),          // 3: api.Updates
 	(*State)(nil),            // 4: api.State
 	(*graph.NodeState)(nil),  // 5: graph.NodeState
-	(*graph.Config)(nil),     // 6: graph.Config
+	(*graph.EdgeConfig)(nil), // 6: graph.EdgeConfig
+	(*graph.Config)(nil),     // 7: graph.Config
 }
 var file_api_api_proto_depIdxs = []int32{
-	5, // 0: api.Updates.NodeStates:type_name -> graph.NodeState
-	5, // 1: api.State.NodeStates:type_name -> graph.NodeState
-	0, // 2: api.Graph.GetConfig:input_type -> api.Nothing
-	0, // 3: api.Graph.CollectState:input_type -> api.Nothing
-	0, // 4: api.Graph.RunReadyNode:input_type -> api.Nothing
-	1, // 5: api.Graph.WaitRunEnd:input_type -> api.NodeIdentifier
-	1, // 6: api.Node.Run:input_type -> api.NodeIdentifier
-	1, // 7: api.Node.Reset:input_type -> api.NodeIdentifier
-	6, // 8: api.Graph.GetConfig:output_type -> graph.Config
-	4, // 9: api.Graph.CollectState:output_type -> api.State
-	1, // 10: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
-	3, // 11: api.Graph.WaitRunEnd:output_type -> api.Updates
-	0, // 12: api.Node.Run:output_type -> api.Nothing
-	0, // 13: api.Node.Reset:output_type -> api.Nothing
-	8, // [8:14] is the sub-list for method output_type
-	2, // [2:8] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	5,  // 0: api.Updates.NodeStates:type_name -> graph.NodeState
+	5,  // 1: api.State.NodeStates:type_name -> graph.NodeState
+	0,  // 2: api.Graph.GetConfig:input_type -> api.Nothing
+	0,  // 3: api.Graph.CollectState:input_type -> api.Nothing
+	0,  // 4: api.Graph.RunReadyNode:input_type -> api.Nothing
+	1,  // 5: api.Graph.WaitRunEnd:input_type -> api.NodeIdentifier
+	6,  // 6: api.Graph.Connect:input_type -> graph.EdgeConfig
+	6,  // 7: api.Graph.Disconnect:input_type -> graph.EdgeConfig
+	1,  // 8: api.Node.Run:input_type -> api.NodeIdentifier
+	1,  // 9: api.Node.Reset:input_type -> api.NodeIdentifier
+	7,  // 10: api.Graph.GetConfig:output_type -> graph.Config
+	4,  // 11: api.Graph.CollectState:output_type -> api.State
+	1,  // 12: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
+	3,  // 13: api.Graph.WaitRunEnd:output_type -> api.Updates
+	3,  // 14: api.Graph.Connect:output_type -> api.Updates
+	3,  // 15: api.Graph.Disconnect:output_type -> api.Updates
+	0,  // 16: api.Node.Run:output_type -> api.Nothing
+	0,  // 17: api.Node.Reset:output_type -> api.Nothing
+	10, // [10:18] is the sub-list for method output_type
+	2,  // [2:10] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_api_proto_init() }

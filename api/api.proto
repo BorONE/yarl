@@ -34,7 +34,8 @@ service Graph {
     rpc WaitRunEnd(NodeIdentifier) returns (Updates);
     
     // rpc AddNode(graph.NodeConfig) returns (Updates);
-    // rpc AddEdge(graph.EdgeConfig) returns (Updates);
+    rpc Connect(graph.EdgeConfig) returns (Updates);
+    rpc Disconnect(graph.EdgeConfig) returns (Updates);
 }
 
 service Node {

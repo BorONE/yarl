@@ -69,3 +69,21 @@ func (s ImplementedGraphServer) WaitRunEnd(ctx context.Context, identifier *Node
 	}
 	return &Updates{NodeStates: nodeStates}, nil
 }
+
+func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeConfig) (*Updates, error) {
+	log.Printf("serving Connect(%v)\n", prototext.MarshalOptions{}.Format(edge))
+	nodeStates, err := s.graph.Connect(edge)
+	if err != nil {
+		return nil, err
+	}
+	return &Updates{NodeStates: nodeStates}, nil
+}
+
+func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.EdgeConfig) (*Updates, error) {
+	log.Printf("serving Disconnect(%v)\n", prototext.MarshalOptions{}.Format(edge))
+	nodeStates, err := s.graph.Disconnect(edge)
+	if err != nil {
+		return nil, err
+	}
+	return &Updates{NodeStates: nodeStates}, nil
+}

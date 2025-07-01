@@ -24,6 +24,8 @@ const (
 	Graph_CollectState_FullMethodName = "/api.Graph/CollectState"
 	Graph_RunReadyNode_FullMethodName = "/api.Graph/RunReadyNode"
 	Graph_WaitRunEnd_FullMethodName   = "/api.Graph/WaitRunEnd"
+	Graph_Connect_FullMethodName      = "/api.Graph/Connect"
+	Graph_Disconnect_FullMethodName   = "/api.Graph/Disconnect"
 )
 
 // GraphClient is the client API for Graph service.
@@ -34,6 +36,9 @@ type GraphClient interface {
 	CollectState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*State, error)
 	RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
+	// rpc AddNode(graph.NodeConfig) returns (Updates);
+	Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error)
+	Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error)
 }
 
 type graphClient struct {
@@ -84,6 +89,26 @@ func (c *graphClient) WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts .
 	return out, nil
 }
 
+func (c *graphClient) Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Updates)
+	err := c.cc.Invoke(ctx, Graph_Connect_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Updates)
+	err := c.cc.Invoke(ctx, Graph_Disconnect_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GraphServer is the server API for Graph service.
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
@@ -92,6 +117,9 @@ type GraphServer interface {
 	CollectState(context.Context, *Nothing) (*State, error)
 	RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error)
 	WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error)
+	// rpc AddNode(graph.NodeConfig) returns (Updates);
+	Connect(context.Context, *graph.EdgeConfig) (*Updates, error)
+	Disconnect(context.Context, *graph.EdgeConfig) (*Updates, error)
 	mustEmbedUnimplementedGraphServer()
 }
 
@@ -113,6 +141,12 @@ func (UnimplementedGraphServer) RunReadyNode(context.Context, *Nothing) (*NodeId
 }
 func (UnimplementedGraphServer) WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WaitRunEnd not implemented")
+}
+func (UnimplementedGraphServer) Connect(context.Context, *graph.EdgeConfig) (*Updates, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
+}
+func (UnimplementedGraphServer) Disconnect(context.Context, *graph.EdgeConfig) (*Updates, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
 }
 func (UnimplementedGraphServer) mustEmbedUnimplementedGraphServer() {}
 func (UnimplementedGraphServer) testEmbeddedByValue()               {}
@@ -207,6 +241,42 @@ func _Graph_WaitRunEnd_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Graph_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(graph.EdgeConfig)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).Connect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_Connect_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).Connect(ctx, req.(*graph.EdgeConfig))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Graph_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(graph.EdgeConfig)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).Disconnect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_Disconnect_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).Disconnect(ctx, req.(*graph.EdgeConfig))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Graph_ServiceDesc is the grpc.ServiceDesc for Graph service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +299,14 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WaitRunEnd",
 			Handler:    _Graph_WaitRunEnd_Handler,
+		},
+		{
+			MethodName: "Connect",
+			Handler:    _Graph_Connect_Handler,
+		},
+		{
+			MethodName: "Disconnect",
+			Handler:    _Graph_Disconnect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io"
 	"log"
 	"net"
@@ -15,8 +16,14 @@ import (
 	"google.golang.org/protobuf/encoding/prototext"
 )
 
+var (
+	configPath = flag.String("config", "graph.proto.txt", "path to config of graph")
+)
+
 func main() {
-	file, err := os.Open("graph.proto.txt")
+	flag.Parse()
+
+	file, err := os.Open(*configPath)
 
 	if err != nil {
 		log.Fatal(err)

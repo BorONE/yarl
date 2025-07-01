@@ -1,0 +1,24 @@
+Nodes {
+    Id: 0
+    Job {
+        ShellScript{
+            Path: "example/a.sh"
+        }
+    }
+}
+Nodes {
+    Id: 1
+    Job {
+        ShellScript{
+            Path: "example/b.sh"
+        }
+    }
+}
+Nodes {
+    Id: 2
+    Job {
+        ShellScript{
+            Path: "example/c.sh"
+        }
+    }
+}
