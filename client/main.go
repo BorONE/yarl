@@ -79,7 +79,7 @@ func main() {
 			log.Print(prototext.Format(id))
 		}
 	case "wait":
-		updates, err := graphClient.WaitRunEnd(ctx, &api.NodeIdentifier{Id: id})
+		updates, err := nodeClient.WaitRunEnd(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
 			log.Fatal(err.Error())
 		}

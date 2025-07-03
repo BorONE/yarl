@@ -31,14 +31,17 @@ service Graph {
     rpc CollectState(Nothing) returns (State);
     
     rpc RunReadyNode(Nothing) returns (NodeIdentifier);
-    rpc WaitRunEnd(NodeIdentifier) returns (Updates);
-    
-    // rpc AddNode(graph.NodeConfig) returns (Updates);
+
     rpc Connect(graph.EdgeConfig) returns (Updates);
     rpc Disconnect(graph.EdgeConfig) returns (Updates);
 }
 
 service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
-    rpc Reset(NodeIdentifier) returns (Nothing);
+    rpc WaitRunEnd(NodeIdentifier) returns (Updates);
+    rpc Reset(NodeIdentifier) returns (Updates);
+
+    // rpc Add(graph.NodeConfig) returns (NodeIdentifier);
+    // rpc Edit(graph.NodeConfig) returns (Updates);
+    // rpc Delete(NodeIdentifier) returns (Updates);
 }

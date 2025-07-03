@@ -14,5 +14,5 @@ client wait --id 2
 if [[ $1 == canonize ]]; then
     test-canonize
 else
-    test-finish
+    test-check
 fi

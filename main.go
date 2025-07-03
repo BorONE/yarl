@@ -51,8 +51,9 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	api.RegisterGraphServer(s, *api.NewImplementedGraphServer(gr))
-	api.RegisterNodeServer(s, *api.NewImplementedNodeServer(gr))
+	graphServer, nodeServer := api.NewImplementedServers(gr)
+	api.RegisterGraphServer(s, *graphServer)
+	api.RegisterNodeServer(s, *nodeServer)
 
 	go func() {
 		log.Printf("server listening at %v", lis.Addr())

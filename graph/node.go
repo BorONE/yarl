@@ -3,8 +3,8 @@ package graph
 import (
 	"fmt"
 	"log"
+	"pipegraph/job"
 	"sync"
-	"time"
 )
 
 type Node struct {
@@ -13,84 +13,147 @@ type Node struct {
 	Input  []NodeId
 	graph  *Graph
 
-	unsafe unsafeNode
-	mutex  sync.Mutex
+	Status NodeStatus
+
+	EndListeners []func()
+
+	Job     job.Job
+	ErrChan chan error
+	Err     error
+	Arts    job.Artifacts
 }
 
 func NewNode(graph *Graph, config *NodeConfig) *Node {
-	node := &Node{
+	return &Node{
 		Config: config,
 		graph:  graph,
 	}
-	node.unsafe.safe = node
-	return node
 }
 
-func (node *Node) Run() error {
-	err := node.unsafe.startJob()
+func (node *Node) Run(endGuard *sync.Mutex) error {
+	err := node.startJob()
 	if err != nil {
 		return err
 	}
 
-	node.HandleJobResult()
+	go func() {
+		node.Err = <-node.ErrChan
+		endGuard.Lock()
+		node.endJob()
+		endGuard.Unlock()
+	}()
 	return nil
 }
 
-func (node *Node) HandleJobResult() {
-	node.unsafe.Err = <-node.unsafe.ErrChan
+func (node *Node) startJob() error {
+	if !node.IsReady() {
+		return fmt.Errorf("node is not ready")
+	}
 
-	node.mutex.Lock()
-	defer node.mutex.Unlock()
+	switch node.Status {
+	case NodeStatus_Idle:
+		// noop
+	case NodeStatus_Running, NodeStatus_Success, NodeStatus_Failed, NodeStatus_Stopped:
+		return fmt.Errorf("invalid operation for node with state %s", node.Status.String())
+	default:
+		log.Panicln("unexpected state: ", node.Status.String())
+	}
 
-	node.unsafe.endJob()
+	var err error
+	node.Job, err = job.CreateJob(node.Config.Job)
+	if err != nil {
+		return err
+	}
+
+	node.ErrChan = make(chan error)
+	log.Printf("job(id=%v) is starting...", node.Config.GetId())
+	go func() { node.ErrChan <- node.Job.Run() }()
+	node.Status = NodeStatus_Running
+	return nil
 }
 
-func (node *Node) Reset() error {
-	node.mutex.Lock()
-	defer node.mutex.Unlock()
+func (node *Node) endJob() {
+	var err error
+	node.Arts, err = node.Job.CollectArtifacts()
+	if err != nil {
+		log.Printf("failed to get arts of node(id=%v): %v", node.Config.Id, err)
+	}
+	log.Printf("job(id=%v) finished: err=%v artifacts=%v", node.Config.GetId(), node.Err, node.Arts)
 
-	return node.unsafe.reset()
-}
+	node.Job = nil
 
-func (node *Node) IsReady() bool {
-	node.mutex.Lock()
-	defer node.mutex.Unlock()
+	switch node.Status {
+	case NodeStatus_Stopped:
+		for _, listener := range node.EndListeners {
+			listener()
+		}
+		node.EndListeners = nil
 
-	return node.unsafe.isReady()
-}
+		node.Err = nil
+		node.Arts = nil
+		node.Status = NodeStatus_Idle
+	case NodeStatus_Running:
+		if node.Err != nil {
+			node.Status = NodeStatus_Failed
+		} else {
+			node.Status = NodeStatus_Success
+		}
 
-func (node *Node) GetStatus() NodeStatus {
-	node.mutex.Lock()
-	defer node.mutex.Unlock()
-
-	if node.unsafe.status == NodeStatus_Stopped {
-		return NodeStatus_Idle
-	} else {
-		return node.unsafe.status
+		for _, listener := range node.EndListeners {
+			listener()
+		}
+		node.EndListeners = nil
+	default:
+		log.Panicln("unexpected state: ", node.Status.String())
 	}
 }
 
-func (node *Node) GetState() *NodeState {
-	node.mutex.Lock()
-	defer node.mutex.Unlock()
+func (node *Node) Reset() error {
+	switch node.Status {
+	case NodeStatus_Stopped:
+		return nil
+	case NodeStatus_Running:
+		node.Status = NodeStatus_Stopped
+		node.Job.Reset()
+		node.graph.Updates = append(node.graph.Updates, node.GetState())
+	case NodeStatus_Success, NodeStatus_Failed:
+		node.Err = nil
+		node.Arts = nil
+		node.Status = NodeStatus_Idle
+		node.graph.Updates = append(node.graph.Updates, node.GetState())
+	case NodeStatus_Idle:
+		node.graph.Updates = append(node.graph.Updates, node.GetState())
+		return fmt.Errorf("invalid operation for node with state %s", node.Status.String())
+	default:
+		log.Panicln("unexpected state: ", node.Status.String())
+	}
 
-	return node.unsafe.getState()
+	for _, output := range node.Output {
+		node.graph.Nodes[output].Reset()
+	}
+
+	return nil
 }
 
-func (node *Node) WaitRunEnd() (NodeStatus, error) {
-	for {
-		switch status := node.GetStatus(); status {
-		case NodeStatus_Failed, NodeStatus_Success:
-			return status, nil
-		case NodeStatus_Stopped, NodeStatus_Running:
-			// noop
-			log.Println("status is", status.String())
-		case NodeStatus_Idle:
-			return status, fmt.Errorf("unexepected state: %s", status.String())
-		default:
-			log.Panicln("unexpected state: ", status.String())
+func (node *Node) IsReady() bool {
+	for _, inputId := range node.Input {
+		if node.graph.Nodes[inputId].Status != NodeStatus_Success {
+			return false
 		}
+	}
+	return true
+}
 
-		time.Sleep(time.Second)
+func asPtr[T any](x T) *T {
+	p := new(T)
+	*p = x
+	return p
+}
+
+func (node *Node) GetState() *NodeState {
+	return &NodeState{
+		Id:      node.Config.Id,
+		Status:  node.Status.Enum(),
+		IsReady: asPtr(node.IsReady()),
 	}
 }

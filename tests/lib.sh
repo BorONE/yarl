@@ -32,7 +32,7 @@ function test-check {
     kill $pid
     wait
 
-    diff $output $canon && rm -rf $output
+    diff --color $output $canon && rm -rf $output
 }
 
 function test-canonize {

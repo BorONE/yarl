@@ -4,7 +4,7 @@ serving CollectState()
 serving RunReadyNode()
 job(id=0) is starting...
 job(id=0) finished: err=<nil> artifacts=map[stderr: stdout:]
-serving WaitRunEnd(Id:0)
+serving node{Id:0}.WaitRunEnd()
 serving RunReadyNode()
 job(id=2) is starting...
 job(id=2) finished: err=<nil> artifacts=map[stderr: stdout:]
@@ -14,6 +14,6 @@ job(id=1) finished: err=<nil> artifacts=map[stderr: stdout:a.sh
 b.sh
 c.sh
 ]
-serving WaitRunEnd(Id:1)
-serving WaitRunEnd(Id:2)
+serving node{Id:1}.WaitRunEnd()
+serving node{Id:2}.WaitRunEnd()
 signal: terminated
