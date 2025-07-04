@@ -37,7 +37,6 @@ func (s ImplementedNodeServer) WaitRunEnd(ctx context.Context, id *NodeIdentifie
 	log.Printf("serving node{%v}.WaitRunEnd()\n", prototext.MarshalOptions{}.Format(id))
 
 	s.mutex.Lock()
-	defer s.mutex.Unlock()
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
@@ -59,8 +58,7 @@ func (s ImplementedNodeServer) WaitRunEnd(ctx context.Context, id *NodeIdentifie
 
 	switch status := node.Status; status {
 	case graph.NodeStatus_Stopped, graph.NodeStatus_Running:
-		node.EndListeners = append(node.EndListeners, func() { s.mutex.Lock(); genUpdates() })
-		s.mutex.Unlock()
+		node.EndListeners = append(node.EndListeners, func() { genUpdates() })
 	case graph.NodeStatus_Idle:
 		return nil, fmt.Errorf("unexepected state: %s", status.String())
 	case graph.NodeStatus_Failed, graph.NodeStatus_Success:
@@ -69,10 +67,14 @@ func (s ImplementedNodeServer) WaitRunEnd(ctx context.Context, id *NodeIdentifie
 		log.Panicln("unexpected state: ", status.String())
 	}
 
+	s.mutex.Unlock()
+
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	case <-updatesReady:
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
 		return &Updates{NodeStates: s.graph.PopUpdates()}, nil
 	}
 }

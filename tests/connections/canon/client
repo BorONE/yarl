@@ -40,23 +40,23 @@ NodeStates: {
   IsReady: true
 }
 $ go run client/main.go --cmd run-ready
-Id: 1
-$ go run client/main.go --cmd run-ready
 Id: 0
-$ go run client/main.go --cmd run-ready
-Id: 2
 $ go run client/main.go --cmd wait --id 0
 NodeStates: {
   Id: 0
   Status: Success
   IsReady: true
 }
+$ go run client/main.go --cmd run-ready
+Id: 1
 $ go run client/main.go --cmd wait --id 1
 NodeStates: {
   Id: 1
   Status: Success
   IsReady: true
 }
+$ go run client/main.go --cmd run-ready
+Id: 2
 $ go run client/main.go --cmd wait --id 2
 NodeStates: {
   Id: 2
@@ -120,3 +120,5 @@ NodeStates: {
   Status: Success
   IsReady: true
 }
+$ go run client/main.go --cmd run-ready
+nothing to run
