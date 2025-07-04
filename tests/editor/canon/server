@@ -1,0 +1,19 @@
+server listening at [::]:9000
+serving GetConfig()
+serving CollectState()
+[]
+adding node{Job:{ShellScript:{}}}
+adding node{Job:{ShellScript:{Path:"example/b.sh"}}}
+adding node{Job:{ShellScript:{Path:"example/c.sh"}}}
+serving GetConfig()
+serving CollectState()
+[Id:0 Status:Idle IsReady:true Id:1 Status:Idle IsReady:true Id:2 Status:Idle IsReady:true]
+running node{Id:0}.Edit(Id:0 Job:{ShellScript:{Path:"example/a.sh"}})
+serving Connect(FromNodeId:0 ToNodeId:1)
+serving Connect(FromNodeId:0 ToNodeId:2)
+serving Connect(FromNodeId:2 ToNodeId:1)
+deleting node{Id:2}
+serving GetConfig()
+serving CollectState()
+[Id:0 Status:Idle IsReady:true Id:1 Status:Idle IsReady:false]
+signal: terminated

@@ -36,10 +36,18 @@ var (
 	cmd = flag.String("cmd", "", "")
 	id  = flag.Uint64("id", 0, "")
 	id2 = flag.Uint64("id2", 0, "")
+
+	nodeConfigText = flag.String("node-config", "", "")
 )
 
 func main() {
 	flag.Parse()
+
+	nodeConfig := graph.NodeConfig{}
+	err := prototext.Unmarshal([]byte(*nodeConfigText), &nodeConfig)
+	if err != nil {
+		log.Fatalf("failed to parse node config: %v", err)
+	}
 
 	// Set up a connection to the server.
 	conn, err := grpc.NewClient(":9000", grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -102,6 +110,23 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		log.Print(prototext.Format(updates))
+	case "add":
+		msg, err := nodeClient.Add(ctx, &nodeConfig)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(msg))
+	case "edit":
+		_, err := nodeClient.Edit(ctx, &nodeConfig)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	case "delete":
+		msg, err := nodeClient.Delete(ctx, &api.NodeIdentifier{Id: id})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(msg))
 	default:
 		log.Fatalf("invalid case %s", *cmd)
 	}

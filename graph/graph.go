@@ -2,6 +2,7 @@ package graph
 
 import (
 	"fmt"
+	"log"
 	"slices"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -14,6 +15,8 @@ type Graph struct {
 	Nodes  map[NodeId]*Node
 
 	Updates []*NodeState
+
+	nextNodeId NodeId
 }
 
 func NewGraph(config *Config) *Graph {
@@ -44,6 +47,7 @@ func (graph *Graph) CollectNodeStates() []*NodeState {
 		node := graph.Nodes[NodeId(*nodeConfig.Id)]
 		result = append(result, node.GetState())
 	}
+	log.Println(result)
 	return result
 }
 
@@ -104,7 +108,23 @@ func (graph *Graph) Disconnect(edge *EdgeConfig) error {
 	from.Output = slices.DeleteFunc(to.Output, func(id NodeId) bool { return id == NodeId(*edge.ToNodeId) })
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
 
-	graph.Updates = append(graph.Updates, from.GetState())
+	graph.Updates = append(graph.Updates, to.GetState())
 
 	return nil
+}
+
+func (graph *Graph) getFreeNodeId() NodeId {
+	for graph.Nodes[graph.nextNodeId] != nil {
+		graph.nextNodeId += 1
+	}
+	return graph.nextNodeId
+}
+
+func (graph *Graph) AddNewNode(nodeConfig *NodeConfig) NodeId {
+	nodeId := graph.getFreeNodeId()
+	id := uint64(nodeId)
+	nodeConfig.Id = &id
+	graph.Config.Nodes = append(graph.Config.Nodes, nodeConfig)
+	graph.Nodes[nodeId] = NewNode(graph, nodeConfig)
+	return nodeId
 }

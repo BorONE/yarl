@@ -271,12 +271,15 @@ const file_api_api_proto_rawDesc = "" +
 	"\fRunReadyNode\x12\f.api.Nothing\x1a\x13.api.NodeIdentifier\x12*\n" +
 	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates\x12-\n" +
 	"\n" +
-	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates2\x8d\x01\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates2\x92\x02\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12/\n" +
 	"\n" +
 	"WaitRunEnd\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12*\n" +
-	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.UpdatesB\x16Z\x14pipegraph/server/apib\x06proto3"
+	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12-\n" +
+	"\x03Add\x12\x11.graph.NodeConfig\x1a\x13.api.NodeIdentifier\x12'\n" +
+	"\x04Edit\x12\x11.graph.NodeConfig\x1a\f.api.Nothing\x12+\n" +
+	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.UpdatesB\x16Z\x14pipegraph/server/apib\x06proto3"
 
 var (
 	file_api_api_proto_rawDescOnce sync.Once
@@ -299,7 +302,8 @@ var file_api_api_proto_goTypes = []any{
 	(*State)(nil),            // 4: api.State
 	(*graph.NodeState)(nil),  // 5: graph.NodeState
 	(*graph.EdgeConfig)(nil), // 6: graph.EdgeConfig
-	(*graph.Config)(nil),     // 7: graph.Config
+	(*graph.NodeConfig)(nil), // 7: graph.NodeConfig
+	(*graph.Config)(nil),     // 8: graph.Config
 }
 var file_api_api_proto_depIdxs = []int32{
 	5,  // 0: api.Updates.NodeStates:type_name -> graph.NodeState
@@ -312,16 +316,22 @@ var file_api_api_proto_depIdxs = []int32{
 	1,  // 7: api.Node.Run:input_type -> api.NodeIdentifier
 	1,  // 8: api.Node.WaitRunEnd:input_type -> api.NodeIdentifier
 	1,  // 9: api.Node.Reset:input_type -> api.NodeIdentifier
-	7,  // 10: api.Graph.GetConfig:output_type -> graph.Config
-	4,  // 11: api.Graph.CollectState:output_type -> api.State
-	1,  // 12: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
-	3,  // 13: api.Graph.Connect:output_type -> api.Updates
-	3,  // 14: api.Graph.Disconnect:output_type -> api.Updates
-	0,  // 15: api.Node.Run:output_type -> api.Nothing
-	3,  // 16: api.Node.WaitRunEnd:output_type -> api.Updates
-	3,  // 17: api.Node.Reset:output_type -> api.Updates
-	10, // [10:18] is the sub-list for method output_type
-	2,  // [2:10] is the sub-list for method input_type
+	7,  // 10: api.Node.Add:input_type -> graph.NodeConfig
+	7,  // 11: api.Node.Edit:input_type -> graph.NodeConfig
+	1,  // 12: api.Node.Delete:input_type -> api.NodeIdentifier
+	8,  // 13: api.Graph.GetConfig:output_type -> graph.Config
+	4,  // 14: api.Graph.CollectState:output_type -> api.State
+	1,  // 15: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
+	3,  // 16: api.Graph.Connect:output_type -> api.Updates
+	3,  // 17: api.Graph.Disconnect:output_type -> api.Updates
+	0,  // 18: api.Node.Run:output_type -> api.Nothing
+	3,  // 19: api.Node.WaitRunEnd:output_type -> api.Updates
+	3,  // 20: api.Node.Reset:output_type -> api.Updates
+	1,  // 21: api.Node.Add:output_type -> api.NodeIdentifier
+	0,  // 22: api.Node.Edit:output_type -> api.Nothing
+	3,  // 23: api.Node.Delete:output_type -> api.Updates
+	13, // [13:24] is the sub-list for method output_type
+	2,  // [2:13] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name

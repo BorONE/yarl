@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"pipegraph/graph"
+	"slices"
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -90,4 +91,66 @@ func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*
 	err := node.Reset()
 
 	return &Updates{NodeStates: s.graph.PopUpdates()}, err
+}
+
+func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig) (*NodeIdentifier, error) {
+	log.Printf("adding node{%v}\n", prototext.MarshalOptions{}.Format(config))
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	nodeId := s.graph.AddNewNode(config)
+	id := uint64(nodeId)
+	return &NodeIdentifier{Id: &id}, nil
+}
+
+func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfig) (*Nothing, error) {
+	log.Printf("running node{Id:%v}.Edit(%v)\n", *config.Id, prototext.MarshalOptions{}.Format(config))
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	node := s.graph.Nodes[graph.NodeId(*config.Id)]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", *config.Id)
+	}
+
+	node.Config = config
+
+	return nil, nil
+}
+
+func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (*Updates, error) {
+	log.Printf("deleting node{%v}\n", prototext.MarshalOptions{}.Format(id))
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	for _, inputId := range node.Input {
+		fromNodeId := uint64(inputId)
+		err := s.graph.Disconnect(&graph.EdgeConfig{FromNodeId: &fromNodeId, ToNodeId: id.Id})
+		if err != nil {
+			return &Updates{NodeStates: s.graph.PopUpdates()}, err
+		}
+	}
+	s.graph.PopUpdates()
+
+	for _, outputId := range node.Output {
+		toNodeId := uint64(outputId)
+		err := s.graph.Disconnect(&graph.EdgeConfig{FromNodeId: id.Id, ToNodeId: &toNodeId})
+		if err != nil {
+			return &Updates{NodeStates: s.graph.PopUpdates()}, err
+		}
+	}
+
+	delete(s.graph.Nodes, graph.NodeId(id.GetId()))
+
+	s.graph.Config.Nodes = slices.DeleteFunc(s.graph.Config.Nodes, func(nodeConfig *graph.NodeConfig) bool { return nodeConfig.GetId() == id.GetId() })
+
+	return &Updates{NodeStates: s.graph.PopUpdates()}, nil
 }

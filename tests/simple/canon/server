@@ -1,6 +1,7 @@
 server listening at [::]:9000
 serving GetConfig()
 serving CollectState()
+[Id:0 Status:Idle IsReady:true Id:1 Status:Idle IsReady:false Id:2 Status:Idle IsReady:false]
 serving RunReadyNode()
 job(id=0) is starting...
 job(id=0) finished: err=<nil> artifacts=map[stderr: stdout:]
