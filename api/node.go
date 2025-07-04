@@ -140,6 +140,7 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 			return &Updates{NodeStates: s.graph.PopUpdates()}, err
 		}
 	}
+	// these updates are updates of the node to be deleted, so we do not need them
 	s.graph.PopUpdates()
 
 	for _, outputId := range node.Output {
