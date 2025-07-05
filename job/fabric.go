@@ -3,11 +3,11 @@ package job
 import (
 	"fmt"
 
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type Job interface {
-	Init(job *Config)
 	Run() error
 	Reset() error
 	CollectArtifacts() (Artifacts, error)
@@ -27,37 +27,29 @@ func (a Artifacts) GetString(key string) (string, error) {
 	return result, nil
 }
 
-type JobNumber protoreflect.FieldNumber
+type Creator func(*anypb.Any) (Job, error)
 
-func GetJobNumber(cfg *Config) (JobNumber, error) {
-	if cfg.Job == nil {
-		return 0, fmt.Errorf("job is not present")
-	}
-	ref := cfg.ProtoReflect()
-	jobDesc := ref.Descriptor().Oneofs().ByName("Job")
-	number := ref.WhichOneof(jobDesc).Number()
-	return JobNumber(number), nil
-}
+var creators map[string]Creator = make(map[string]Creator)
 
-type JobCreator func() Job
-
-var jobCreators map[JobNumber]JobCreator = make(map[JobNumber]JobCreator)
-
-func Register(cfg isConfig_Job, creator JobCreator) error {
-	number, err := GetJobNumber(&Config{Job: cfg})
+// Make sure that .pb.go-files' init-s executed before Register call. Otherwise
+// you will get nil dereference since config type is not in proto-registry and
+// any is not able to Marshal message.
+//
+// NB execution order of init-s is lexigraphical order of corresponding files,
+// so <job>.pb.go should preced <job_register>.go file. NB '.' < '_'
+func Register(cfg proto.Message, creator Creator) error {
+	job, err := anypb.New(cfg)
 	if err != nil {
 		return err
 	}
-	jobCreators[number] = creator
+	creators[job.TypeUrl] = creator
 	return nil
 }
 
-func CreateJob(cfg *Config) (Job, error) {
-	number, err := GetJobNumber(cfg)
-	if err != nil {
-		return nil, err
+func Create(cfg *anypb.Any) (Job, error) {
+	creator, ok := creators[cfg.GetTypeUrl()]
+	if !ok {
+		return nil, fmt.Errorf("unknown job type: %v", cfg.GetTypeUrl())
 	}
-	job := jobCreators[number]()
-	job.Init(cfg)
-	return job, err
+	return creator(cfg)
 }

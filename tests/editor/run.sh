@@ -6,12 +6,12 @@ source tests/lib.sh
 
 client config
 client state
-client add --node-config 'Job{ShellScript{}}'
-client add --node-config 'Job{ShellScript{Path:"example/b.sh"}}'
-client add --node-config 'Job{ShellScript{Path:"example/c.sh"}}'
+client add --node-config 'Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}'
+client add --node-config 'Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/b.sh"}}'
+client add --node-config 'Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/c.sh"}}'
 client config
 client state
-client edit --node-config 'Id:0;Job{ShellScript{Path:"example/a.sh"}}'
+client edit --node-config 'Id:0;Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/a.sh"}}'
 client connect --id 0 --id2 1
 client connect --id 0 --id2 2
 client connect --id 2 --id2 1

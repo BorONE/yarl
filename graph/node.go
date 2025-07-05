@@ -60,7 +60,7 @@ func (node *Node) startJob() error {
 	}
 
 	var err error
-	node.Job, err = job.CreateJob(node.Config.Job)
+	node.Job, err = job.Create(node.Config.Job)
 	if err != nil {
 		return err
 	}

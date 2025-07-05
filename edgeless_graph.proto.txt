@@ -1,7 +1,7 @@
 Nodes {
     Id: 0
     Job {
-        ShellScript{
+        [type.googleapis.com/register.ShellScriptConfig]: {
             Path: "example/a.sh"
         }
     }
@@ -9,7 +9,7 @@ Nodes {
 Nodes {
     Id: 1
     Job {
-        ShellScript{
+        [type.googleapis.com/register.ShellScriptConfig]: {
             Path: "example/b.sh"
         }
     }
@@ -17,7 +17,7 @@ Nodes {
 Nodes {
     Id: 2
     Job {
-        ShellScript{
+        [type.googleapis.com/register.ShellScriptConfig]: {
             Path: "example/c.sh"
         }
     }

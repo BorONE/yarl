@@ -1,9 +1,10 @@
 syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
 package graph;
 
 option go_package = "pipegraph/graph";
-
-import "job/config.proto";
 
 enum NodeStatus {
     Idle = 0;
@@ -27,7 +28,7 @@ message Config {
 message NodeConfig {
     optional uint64 Id = 1;
     optional string Name = 2;
-    optional job.Config Job = 3;
+    optional google.protobuf.Any Job = 3;
 }
 
 message EdgeConfig {

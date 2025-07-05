@@ -25,6 +25,7 @@ import (
 	"log"
 	"pipegraph/api"
 	"pipegraph/graph"
+	_ "pipegraph/job/register"
 	"time"
 
 	"google.golang.org/grpc"

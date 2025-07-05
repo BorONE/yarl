@@ -5,10 +5,12 @@ import (
 	"os/exec"
 	"pipegraph/job"
 	"strings"
+
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type ShellScriptJob struct {
-	cfg *job.Config
+	ShellScriptConfig
 
 	cmd    *exec.Cmd
 	ctx    context.Context
@@ -18,11 +20,9 @@ type ShellScriptJob struct {
 	Stderr strings.Builder
 }
 
-func (j *ShellScriptJob) Init(cfg *job.Config) {
-	j.cfg = cfg
-
+func (j *ShellScriptJob) reset() {
 	j.ctx, j.cancel = context.WithCancel(context.Background())
-	j.cmd = exec.CommandContext(j.ctx, "/bin/sh", *j.cfg.GetShellScript().Path)
+	j.cmd = exec.CommandContext(j.ctx, "/bin/sh", *j.Path)
 	j.cmd.Stdout = &j.Stdout
 	j.cmd.Stderr = &j.Stderr
 }
@@ -34,7 +34,7 @@ func (j *ShellScriptJob) Run() error {
 
 func (j *ShellScriptJob) Reset() error {
 	j.cancel()
-	j.Init(j.cfg)
+	j.reset()
 	return nil
 }
 
@@ -48,5 +48,13 @@ func (j *ShellScriptJob) CollectArtifacts() (job.Artifacts, error) {
 var _ job.Job = &ShellScriptJob{}
 
 func init() {
-	job.Register(&job.Config_ShellScript{}, func() job.Job { return &ShellScriptJob{} })
+	job.Register(&ShellScriptConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
+		job := &ShellScriptJob{}
+		err := anyConfig.UnmarshalTo(job)
+		if err != nil {
+			return nil, err
+		}
+		job.reset()
+		return job, nil
+	})
 }

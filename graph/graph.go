@@ -2,7 +2,6 @@ package graph
 
 import (
 	"fmt"
-	"log"
 	"slices"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -47,7 +46,6 @@ func (graph *Graph) CollectNodeStates() []*NodeState {
 		node := graph.Nodes[NodeId(*nodeConfig.Id)]
 		result = append(result, node.GetState())
 	}
-	log.Println(result)
 	return result
 }
 
