@@ -1,0 +1,16 @@
+server listening at [::]:9000
+serving GetConfig()
+serving CollectState()
+adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}}
+adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/b.sh"}}}
+adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/c.sh"}}}
+serving GetConfig()
+serving CollectState()
+running node{Id:0}.Edit(Id:0 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/a.sh"}})
+serving Connect(FromNodeId:0 ToNodeId:1)
+serving Connect(FromNodeId:0 ToNodeId:2)
+serving Connect(FromNodeId:2 ToNodeId:1)
+deleting node{Id:2}
+serving GetConfig()
+serving CollectState()
+signal: terminated

@@ -1,0 +1,43 @@
+server listening at [::]:9000
+serving GetConfig()
+serving CollectState()
+serving Connect(FromNodeId:0 ToNodeId:1)
+serving Connect(FromNodeId:0 ToNodeId:2)
+serving Connect(FromNodeId:2 ToNodeId:1)
+serving RunReadyNode()
+job(id=0) is starting...
+job(id=0) finished: err=<nil> artifacts=map[stderr: stdout:]
+serving node{Id:0}.WaitRunEnd()
+serving RunReadyNode()
+job(id=2) is starting...
+serving node{Id:2}.WaitRunEnd()
+job(id=2) finished: err=<nil> artifacts=map[stderr: stdout:]
+serving RunReadyNode()
+job(id=1) is starting...
+serving node{Id:1}.WaitRunEnd()
+job(id=1) finished: err=<nil> artifacts=map[stderr: stdout:a.sh
+b.sh
+c.sh
+]
+serving Disconnect(FromNodeId:2 ToNodeId:1)
+running node{Id:2}.Reset()
+serving RunReadyNode()
+job(id=2) is starting...
+serving node{Id:2}.WaitRunEnd()
+job(id=2) finished: err=<nil> artifacts=map[stderr: stdout:]
+serving RunReadyNode()
+running node{Id:2}.Reset()
+serving Connect(FromNodeId:2 ToNodeId:1)
+serving RunReadyNode()
+job(id=2) is starting...
+serving node{Id:2}.WaitRunEnd()
+job(id=2) finished: err=<nil> artifacts=map[stderr: stdout:]
+serving RunReadyNode()
+job(id=1) is starting...
+serving node{Id:1}.WaitRunEnd()
+job(id=1) finished: err=<nil> artifacts=map[stderr: stdout:a.sh
+b.sh
+c.sh
+]
+serving RunReadyNode()
+signal: terminated

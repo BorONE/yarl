@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "internal/graph/config.proto";
+
+package api;
+option go_package = "pipegraph/internal/api";
+
+message Nothing {
+}
+
+message NodeIdentifier {
+    optional uint64 Id = 1;
+    // optional string Name = 2;
+}
+
+message ArtifactsMessage {
+    optional string Stdout = 1;
+    optional string Stderr = 2;
+}
+
+message Updates {
+    repeated graph.NodeState NodeStates = 1;
+}
+
+message State {
+    repeated graph.NodeState NodeStates = 1;
+}
+
+service Graph {
+    rpc GetConfig(Nothing) returns (graph.Config);
+    rpc CollectState(Nothing) returns (State);
+    
+    rpc RunReadyNode(Nothing) returns (NodeIdentifier);
+
+    rpc Connect(graph.EdgeConfig) returns (Updates);
+    rpc Disconnect(graph.EdgeConfig) returns (Updates);
+}
+
+service Node {
+    rpc Run(NodeIdentifier) returns (Nothing);
+    rpc WaitRunEnd(NodeIdentifier) returns (Updates);
+    rpc Reset(NodeIdentifier) returns (Updates);
+
+    rpc Add(graph.NodeConfig) returns (NodeIdentifier);
+    rpc Edit(graph.NodeConfig) returns (Nothing);
+    rpc Delete(NodeIdentifier) returns (Updates);
+}
