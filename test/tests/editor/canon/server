@@ -2,11 +2,11 @@ server listening at [::]:9000
 serving GetConfig()
 serving CollectState()
 adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}}
-adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/b.sh"}}}
-adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/c.sh"}}}
+adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/b.sh"}}}
+adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/c.sh"}}}
 serving GetConfig()
 serving CollectState()
-running node{Id:0}.Edit(Id:0 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/a.sh"}})
+running node{Id:0}.Edit(Id:0 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/a.sh"}})
 serving Connect(FromNodeId:0 ToNodeId:1)
 serving Connect(FromNodeId:0 ToNodeId:2)
 serving Connect(FromNodeId:2 ToNodeId:1)

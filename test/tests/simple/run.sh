@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+SERVER_ARGS='--config test/graphs/graph.proto.txt'
+
 source test/lib.sh
 
 client config

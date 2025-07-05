@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-SERVER_ARGS='--config edgeless_graph.proto.txt'
+SERVER_ARGS='--config test/graphs/edgeless.proto.txt'
 
 source test/lib.sh
 

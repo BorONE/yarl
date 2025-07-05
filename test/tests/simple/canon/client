@@ -3,7 +3,7 @@ Nodes: {
   Id: 0
   Job: {
     [type.googleapis.com/register.ShellScriptConfig]: {
-      Path: "example/a.sh"
+      Path: "test/data/a.sh"
     }
   }
 }
@@ -11,7 +11,7 @@ Nodes: {
   Id: 1
   Job: {
     [type.googleapis.com/register.ShellScriptConfig]: {
-      Path: "example/b.sh"
+      Path: "test/data/b.sh"
     }
   }
 }
@@ -19,7 +19,7 @@ Nodes: {
   Id: 2
   Job: {
     [type.googleapis.com/register.ShellScriptConfig]: {
-      Path: "example/c.sh"
+      Path: "test/data/c.sh"
     }
   }
 }

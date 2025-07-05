@@ -9,15 +9,15 @@ if [[ "$1" == "canonize" ]]; then
 fi
 
 if [[ $# == 0 ]]; then
-    tests=test/*/
+    tests=test/tests/*
 else
     for label in $@; do
-        tests="$tests test/$@/"
+        tests="$tests test/tests/$@"
     done
 fi
 
 for test in $tests; do
-    label=$(echo $test | sed 's|.*/\(.*\)/|\1|')
+    label=$(echo $test | sed 's|test/tests/\(.*\)/|\1|')
     echo -e "\033[1mTEST\t\033[0m$label"
     if $test/run.sh $mode; then
         echo -e "\t\t\033[1;032m$ok\033[0m"

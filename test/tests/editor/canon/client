@@ -4,9 +4,9 @@ $ go run cmd/client/main.go --cmd state
 
 $ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}
 Id: 0
-$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/b.sh"}}
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/b.sh"}}
 Id: 1
-$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/c.sh"}}
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/c.sh"}}
 Id: 2
 $ go run cmd/client/main.go --cmd config
 Nodes: {
@@ -19,7 +19,7 @@ Nodes: {
   Id: 1
   Job: {
     [type.googleapis.com/register.ShellScriptConfig]: {
-      Path: "example/b.sh"
+      Path: "test/data/b.sh"
     }
   }
 }
@@ -27,7 +27,7 @@ Nodes: {
   Id: 2
   Job: {
     [type.googleapis.com/register.ShellScriptConfig]: {
-      Path: "example/c.sh"
+      Path: "test/data/c.sh"
     }
   }
 }
@@ -47,7 +47,7 @@ NodeStates: {
   Status: Idle
   IsReady: true
 }
-$ go run cmd/client/main.go --cmd edit --node-config Id:0;Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"example/a.sh"}}
+$ go run cmd/client/main.go --cmd edit --node-config Id:0;Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/a.sh"}}
 $ go run cmd/client/main.go --cmd connect --id 0 --id2 1
 NodeStates: {
   Id: 1
@@ -83,7 +83,7 @@ Nodes: {
   Id: 1
   Job: {
     [type.googleapis.com/register.ShellScriptConfig]: {
-      Path: "example/b.sh"
+      Path: "test/data/b.sh"
     }
   }
 }
