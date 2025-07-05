@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package graph;
+option go_package = "pipegraph/internal/graph";
+
+enum NodeStatus {
+    Idle = 0;
+    Running = 1;
+    Success = 2;
+    Failed = 3;
+    Stopped = 4;
+}
+
+message NodeState {
+    optional uint64 Id = 1;
+    optional graph.NodeStatus Status = 2;
+    optional bool IsReady = 3;
+}
+
+message Config {
+    repeated NodeConfig Nodes = 1;
+    repeated EdgeConfig Edges = 2;
+}
+
+message NodeConfig {
+    optional uint64 Id = 1;
+    optional string Name = 2;
+    optional google.protobuf.Any Job = 3;
+}
+
+message EdgeConfig {
+    optional uint64 FromNodeId = 1;
+    optional uint64 ToNodeId = 2;
+}

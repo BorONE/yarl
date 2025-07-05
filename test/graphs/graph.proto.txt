@@ -1,0 +1,37 @@
+Nodes {
+    Id: 0
+    Job {
+        [type.googleapis.com/register.ShellScriptConfig]: {
+            Path: "test/data/a.sh"
+        }
+    }
+}
+Nodes {
+    Id: 1
+    Job {
+        [type.googleapis.com/register.ShellScriptConfig]: {
+            Path: "test/data/b.sh"
+        }
+    }
+}
+Nodes {
+    Id: 2
+    Job {
+        [type.googleapis.com/register.ShellScriptConfig]: {
+            Path: "test/data/c.sh"
+        }
+    }
+}
+Edges {
+    FromNodeId: 0
+    ToNodeId: 1
+}
+Edges {
+    FromNodeId: 2
+    ToNodeId: 1
+}
+
+Edges {
+    FromNodeId: 0
+    ToNodeId: 2
+}

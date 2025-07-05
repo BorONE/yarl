@@ -1,0 +1,92 @@
+$ go run cmd/client/main.go --cmd config
+Nodes: {
+  Id: 0
+  Job: {
+    [type.googleapis.com/register.ShellScriptConfig]: {
+      Path: "test/data/a.sh"
+    }
+  }
+}
+Nodes: {
+  Id: 1
+  Job: {
+    [type.googleapis.com/register.ShellScriptConfig]: {
+      Path: "test/data/b.sh"
+    }
+  }
+}
+Nodes: {
+  Id: 2
+  Job: {
+    [type.googleapis.com/register.ShellScriptConfig]: {
+      Path: "test/data/c.sh"
+    }
+  }
+}
+Edges: {
+  FromNodeId: 0
+  ToNodeId: 1
+}
+Edges: {
+  FromNodeId: 2
+  ToNodeId: 1
+}
+Edges: {
+  FromNodeId: 0
+  ToNodeId: 2
+}
+$ go run cmd/client/main.go --cmd state
+NodeStates: {
+  Id: 0
+  Status: Idle
+  IsReady: true
+}
+NodeStates: {
+  Id: 1
+  Status: Idle
+  IsReady: false
+}
+NodeStates: {
+  Id: 2
+  Status: Idle
+  IsReady: false
+}
+$ go run cmd/client/main.go --cmd run-ready
+Id: 0
+$ go run cmd/client/main.go --cmd wait --id 0
+NodeStates: {
+  Id: 0
+  Status: Success
+  IsReady: true
+}
+NodeStates: {
+  Id: 1
+  Status: Idle
+  IsReady: false
+}
+NodeStates: {
+  Id: 2
+  Status: Idle
+  IsReady: true
+}
+$ go run cmd/client/main.go --cmd run-ready
+Id: 2
+$ go run cmd/client/main.go --cmd run-ready
+Id: 1
+$ go run cmd/client/main.go --cmd wait --id 1
+NodeStates: {
+  Id: 1
+  Status: Success
+  IsReady: true
+}
+$ go run cmd/client/main.go --cmd wait --id 2
+NodeStates: {
+  Id: 2
+  Status: Success
+  IsReady: true
+}
+NodeStates: {
+  Id: 1
+  Status: Success
+  IsReady: true
+}
