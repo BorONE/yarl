@@ -1,1 +1,1 @@
-Nodes:{Id:0 Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}} Nodes:{Id:1 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/b.sh"}}} Edges:{FromNodeId:0 ToNodeId:1}
+Nodes:{Id:0 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/a.sh"}}} Nodes:{Id:1 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/b.sh"}}} Edges:{FromNodeId:0 ToNodeId:1}

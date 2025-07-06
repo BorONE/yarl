@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 )
 
 type ImplementedNodeServer struct {
@@ -117,7 +118,8 @@ func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfi
 		return nil, fmt.Errorf("node (id=%v) not found", *config.Id)
 	}
 
-	node.Config = config
+	node.Config.Reset()
+	proto.Merge(node.Config, config)
 
 	return nil, nil
 }
