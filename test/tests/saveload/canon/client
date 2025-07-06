@@ -1,0 +1,40 @@
+$ go run cmd/client/main.go --cmd new
+
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}
+Id: 0
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/b.sh"}}
+Id: 1
+$ go run cmd/client/main.go --cmd edit --node-config Id:0;Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/a.sh"}}
+$ go run cmd/client/main.go --cmd connect --id 0 --id2 1
+NodeStates: {
+  Id: 1
+  Status: Idle
+  IsReady: false
+}
+$ go run cmd/client/main.go --cmd save --path test/tests/saveload/output/graph.proto.txt
+
+$ go run cmd/client/main.go --cmd new
+
+$ go run cmd/client/main.go --cmd config
+
+$ go run cmd/client/main.go --cmd load --path test/tests/saveload/output/graph.proto.txt
+
+$ go run cmd/client/main.go --cmd config
+Nodes: {
+  Id: 0
+  Job: {
+    [type.googleapis.com/register.ShellScriptConfig]: {}
+  }
+}
+Nodes: {
+  Id: 1
+  Job: {
+    [type.googleapis.com/register.ShellScriptConfig]: {
+      Path: "test/data/b.sh"
+    }
+  }
+}
+Edges: {
+  FromNodeId: 0
+  ToNodeId: 1
+}

@@ -14,7 +14,7 @@ import (
 type ImplementedNodeServer struct {
 	UnimplementedNodeServer
 
-	graph *graph.Graph
+	graph *GraphHolder
 	mutex *sync.Mutex
 }
 

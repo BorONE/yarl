@@ -1,3 +1,5 @@
+$ go run cmd/client/main.go --cmd load --path test/graphs/empty.proto.txt
+
 $ go run cmd/client/main.go --cmd config
 
 $ go run cmd/client/main.go --cmd state

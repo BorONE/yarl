@@ -34,9 +34,10 @@ import (
 )
 
 var (
-	cmd = flag.String("cmd", "", "")
-	id  = flag.Uint64("id", 0, "")
-	id2 = flag.Uint64("id2", 0, "")
+	cmd  = flag.String("cmd", "", "")
+	id   = flag.Uint64("id", 0, "")
+	id2  = flag.Uint64("id2", 0, "")
+	path = flag.String("path", "", "")
 
 	nodeConfigText = flag.String("node-config", "", "")
 )
@@ -65,6 +66,24 @@ func main() {
 	defer cancel()
 
 	switch *cmd {
+	case "new":
+		msg, err := graphClient.New(ctx, &api.Nothing{})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(msg))
+	case "save":
+		msg, err := graphClient.Save(ctx, &api.Path{Path: path})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(msg))
+	case "load":
+		msg, err := graphClient.Load(ctx, &api.Path{Path: path})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(msg))
 	case "config":
 		config, err := graphClient.GetConfig(ctx, &api.Nothing{})
 		if err != nil {

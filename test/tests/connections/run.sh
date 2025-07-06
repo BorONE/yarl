@@ -1,9 +1,8 @@
 #!/bin/bash -e
 
-SERVER_ARGS='--config test/graphs/edgeless.proto.txt'
-
 source test/lib.sh
 
+client load --path test/graphs/edgeless.proto.txt
 client config
 client state
 client connect --id 0 --id2 1

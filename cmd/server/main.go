@@ -1,69 +1,33 @@
 package main
 
 import (
-	"flag"
-	"io"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 
 	"pipegraph/internal/api"
-	"pipegraph/internal/graph"
 	_ "pipegraph/internal/job/register"
-
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/encoding/prototext"
-)
-
-var (
-	configPath = flag.String("config", "graph.proto.txt", "path to config of graph")
 )
 
 func main() {
-	flag.Parse()
-
-	file, err := os.Open(*configPath)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fileData, err := io.ReadAll(file)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	graphConfig := &graph.Config{}
-	err = prototext.Unmarshal(fileData, graphConfig)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	gr := graph.NewGraph(graphConfig)
-
 	lis, err := net.Listen("tcp", ":9000")
-
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
-	graphServer, nodeServer := api.NewImplementedServers(gr)
-	api.RegisterGraphServer(s, *graphServer)
-	api.RegisterNodeServer(s, *nodeServer)
+	server := api.NewServer()
 
 	go func() {
-		log.Printf("server listening at %v", lis.Addr())
-		if err := s.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v", err)
-		}
+		waitSigInt()
+		log.Printf("got sigint, shutting down...")
+		server.GracefulStop()
 	}()
 
-	waitSigInt()
-	s.GracefulStop()
+	log.Printf("server listening at %v", lis.Addr())
+	if err := server.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
 
 func waitSigInt() {

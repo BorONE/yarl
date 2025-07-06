@@ -242,6 +242,50 @@ func (x *State) GetNodeStates() []*graph.NodeState {
 	return nil
 }
 
+type Path struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          *string                `protobuf:"bytes,1,opt,name=Path,proto3,oneof" json:"Path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Path) Reset() {
+	*x = Path{}
+	mi := &file_internal_api_api_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Path) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Path) ProtoMessage() {}
+
+func (x *Path) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_api_api_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Path.ProtoReflect.Descriptor instead.
+func (*Path) Descriptor() ([]byte, []int) {
+	return file_internal_api_api_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Path) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
 var File_internal_api_api_proto protoreflect.FileDescriptor
 
 const file_internal_api_api_proto_rawDesc = "" +
@@ -263,8 +307,14 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x05State\x120\n" +
 	"\n" +
 	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
-	"NodeStates2\xe9\x01\n" +
-	"\x05Graph\x12(\n" +
+	"NodeStates\"(\n" +
+	"\x04Path\x12\x17\n" +
+	"\x04Path\x18\x01 \x01(\tH\x00R\x04Path\x88\x01\x01B\a\n" +
+	"\x05_Path2\xce\x02\n" +
+	"\x05Graph\x12!\n" +
+	"\x03New\x12\f.api.Nothing\x1a\f.api.Nothing\x12\x1f\n" +
+	"\x04Load\x12\t.api.Path\x1a\f.api.Nothing\x12\x1f\n" +
+	"\x04Save\x12\t.api.Path\x1a\f.api.Nothing\x12(\n" +
 	"\tGetConfig\x12\f.api.Nothing\x1a\r.graph.Config\x12(\n" +
 	"\fCollectState\x12\f.api.Nothing\x1a\n" +
 	".api.State\x121\n" +
@@ -293,45 +343,52 @@ func file_internal_api_api_proto_rawDescGZIP() []byte {
 	return file_internal_api_api_proto_rawDescData
 }
 
-var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_internal_api_api_proto_goTypes = []any{
 	(*Nothing)(nil),          // 0: api.Nothing
 	(*NodeIdentifier)(nil),   // 1: api.NodeIdentifier
 	(*ArtifactsMessage)(nil), // 2: api.ArtifactsMessage
 	(*Updates)(nil),          // 3: api.Updates
 	(*State)(nil),            // 4: api.State
-	(*graph.NodeState)(nil),  // 5: graph.NodeState
-	(*graph.EdgeConfig)(nil), // 6: graph.EdgeConfig
-	(*graph.NodeConfig)(nil), // 7: graph.NodeConfig
-	(*graph.Config)(nil),     // 8: graph.Config
+	(*Path)(nil),             // 5: api.Path
+	(*graph.NodeState)(nil),  // 6: graph.NodeState
+	(*graph.EdgeConfig)(nil), // 7: graph.EdgeConfig
+	(*graph.NodeConfig)(nil), // 8: graph.NodeConfig
+	(*graph.Config)(nil),     // 9: graph.Config
 }
 var file_internal_api_api_proto_depIdxs = []int32{
-	5,  // 0: api.Updates.NodeStates:type_name -> graph.NodeState
-	5,  // 1: api.State.NodeStates:type_name -> graph.NodeState
-	0,  // 2: api.Graph.GetConfig:input_type -> api.Nothing
-	0,  // 3: api.Graph.CollectState:input_type -> api.Nothing
-	0,  // 4: api.Graph.RunReadyNode:input_type -> api.Nothing
-	6,  // 5: api.Graph.Connect:input_type -> graph.EdgeConfig
-	6,  // 6: api.Graph.Disconnect:input_type -> graph.EdgeConfig
-	1,  // 7: api.Node.Run:input_type -> api.NodeIdentifier
-	1,  // 8: api.Node.WaitRunEnd:input_type -> api.NodeIdentifier
-	1,  // 9: api.Node.Reset:input_type -> api.NodeIdentifier
-	7,  // 10: api.Node.Add:input_type -> graph.NodeConfig
-	7,  // 11: api.Node.Edit:input_type -> graph.NodeConfig
-	1,  // 12: api.Node.Delete:input_type -> api.NodeIdentifier
-	8,  // 13: api.Graph.GetConfig:output_type -> graph.Config
-	4,  // 14: api.Graph.CollectState:output_type -> api.State
-	1,  // 15: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
-	3,  // 16: api.Graph.Connect:output_type -> api.Updates
-	3,  // 17: api.Graph.Disconnect:output_type -> api.Updates
-	0,  // 18: api.Node.Run:output_type -> api.Nothing
-	3,  // 19: api.Node.WaitRunEnd:output_type -> api.Updates
-	3,  // 20: api.Node.Reset:output_type -> api.Updates
-	1,  // 21: api.Node.Add:output_type -> api.NodeIdentifier
-	0,  // 22: api.Node.Edit:output_type -> api.Nothing
-	3,  // 23: api.Node.Delete:output_type -> api.Updates
-	13, // [13:24] is the sub-list for method output_type
-	2,  // [2:13] is the sub-list for method input_type
+	6,  // 0: api.Updates.NodeStates:type_name -> graph.NodeState
+	6,  // 1: api.State.NodeStates:type_name -> graph.NodeState
+	0,  // 2: api.Graph.New:input_type -> api.Nothing
+	5,  // 3: api.Graph.Load:input_type -> api.Path
+	5,  // 4: api.Graph.Save:input_type -> api.Path
+	0,  // 5: api.Graph.GetConfig:input_type -> api.Nothing
+	0,  // 6: api.Graph.CollectState:input_type -> api.Nothing
+	0,  // 7: api.Graph.RunReadyNode:input_type -> api.Nothing
+	7,  // 8: api.Graph.Connect:input_type -> graph.EdgeConfig
+	7,  // 9: api.Graph.Disconnect:input_type -> graph.EdgeConfig
+	1,  // 10: api.Node.Run:input_type -> api.NodeIdentifier
+	1,  // 11: api.Node.WaitRunEnd:input_type -> api.NodeIdentifier
+	1,  // 12: api.Node.Reset:input_type -> api.NodeIdentifier
+	8,  // 13: api.Node.Add:input_type -> graph.NodeConfig
+	8,  // 14: api.Node.Edit:input_type -> graph.NodeConfig
+	1,  // 15: api.Node.Delete:input_type -> api.NodeIdentifier
+	0,  // 16: api.Graph.New:output_type -> api.Nothing
+	0,  // 17: api.Graph.Load:output_type -> api.Nothing
+	0,  // 18: api.Graph.Save:output_type -> api.Nothing
+	9,  // 19: api.Graph.GetConfig:output_type -> graph.Config
+	4,  // 20: api.Graph.CollectState:output_type -> api.State
+	1,  // 21: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
+	3,  // 22: api.Graph.Connect:output_type -> api.Updates
+	3,  // 23: api.Graph.Disconnect:output_type -> api.Updates
+	0,  // 24: api.Node.Run:output_type -> api.Nothing
+	3,  // 25: api.Node.WaitRunEnd:output_type -> api.Updates
+	3,  // 26: api.Node.Reset:output_type -> api.Updates
+	1,  // 27: api.Node.Add:output_type -> api.NodeIdentifier
+	0,  // 28: api.Node.Edit:output_type -> api.Nothing
+	3,  // 29: api.Node.Delete:output_type -> api.Updates
+	16, // [16:30] is the sub-list for method output_type
+	2,  // [2:16] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -344,13 +401,14 @@ func file_internal_api_api_proto_init() {
 	}
 	file_internal_api_api_proto_msgTypes[1].OneofWrappers = []any{}
 	file_internal_api_api_proto_msgTypes[2].OneofWrappers = []any{}
+	file_internal_api_api_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_api_api_proto_rawDesc), len(file_internal_api_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

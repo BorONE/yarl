@@ -19,7 +19,7 @@ fi
 for test in $tests; do
     label=$(echo $test | sed 's|test/tests/\(.*\)/|\1|')
     echo -e "\033[1mTEST\t\033[0m$label"
-    if $test/run.sh $mode; then
+    if OUTPUTDIR=$test/output $test/run.sh $mode; then
         echo -e "\t\t\033[1;032m$ok\033[0m"
     else
         echo -e "\t\t\033[1;031mFailed\033[0m"
