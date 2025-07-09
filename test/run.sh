@@ -23,5 +23,8 @@ for test in $tests; do
         echo -e "\t\t\033[1;032m$ok\033[0m"
     else
         echo -e "\t\t\033[1;031mFailed\033[0m"
+        exitcode=1
     fi
 done
+
+exit $exitcode

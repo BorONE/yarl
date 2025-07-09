@@ -20,8 +20,7 @@ type Node struct {
 
 	EndListeners []func()
 
-	Job     job.Job
-	ErrChan chan error
+	Job *job.JobRunner
 }
 
 func NewNode(graph *Graph, config *NodeConfig) *Node {
@@ -40,16 +39,16 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 	}
 
 	go func() {
-		jobError := <-node.ErrChan
+		<-node.Job.Done
 		endGuard.Lock()
-		node.endJob(jobError)
+		node.endJob()
 		endGuard.Unlock()
 	}()
 	return nil
 }
 
 func (node *Node) startJob() error {
-	if !node.IsReady() {
+	if !node.isReady() {
 		return fmt.Errorf("node is not ready")
 	}
 
@@ -62,27 +61,26 @@ func (node *Node) startJob() error {
 		log.Panicln("unexpected state: ", node.GetStateString())
 	}
 
-	var err error
-	node.Job, err = job.Create(node.Config.Job)
+	createdJob, err := job.Create(node.Config.Job)
 	if err != nil {
 		return err
 	}
 
-	node.ErrChan = make(chan error)
 	log.Printf("job(id=%v) is starting...", node.Config.GetId())
-	go func() { node.ErrChan <- node.Job.Run() }()
 	node.state = &NodeState_InProgress{InProgress: &NodeState_InProgressState{Status: NodeState_InProgressState_Running.Enum()}}
+	node.Job = &job.JobRunner{Job: createdJob}
+	go node.Job.Run()
 	return nil
 }
 
-func (node *Node) endJob(jobError error) {
+func (node *Node) endJob() {
+	defer func() { node.Job = nil }()
+
 	arts, err := node.Job.CollectArtifacts()
 	if err != nil {
 		log.Printf("failed to get arts of node(id=%v): %v", node.Config.Id, err)
 	}
-	log.Printf("job(id=%v) finished: err=%v artifacts=%v", node.Config.GetId(), jobError, arts)
-
-	node.Job = nil
+	log.Printf("job(id=%v) finished: err=%v artifacts=%v", node.Config.GetId(), node.Job.Err, arts)
 
 	state, ok := node.state.(*NodeState_InProgress)
 	if !ok {
@@ -98,16 +96,13 @@ func (node *Node) endJob(jobError error) {
 
 		node.SetState(&NodeState_IdleState{})
 	case NodeState_InProgressState_Running:
-		targetState := &NodeState_DoneState{}
-		if jobError != nil {
-			errString := jobError.Error()
-			targetState.Error = &errString
-		}
-		targetState.Arts = map[string]string{}
+		doneState := &NodeState_DoneState{}
+		doneState.Error = node.Job.Error()
+		doneState.Arts = map[string]string{}
 		for key, value := range arts {
-			targetState.Arts[key] = fmt.Sprint(value)
+			doneState.Arts[key] = fmt.Sprint(value)
 		}
-		node.SetState(targetState)
+		node.SetState(doneState)
 
 		for _, listener := range node.EndListeners {
 			listener()
@@ -167,7 +162,7 @@ func (node *Node) stop() {
 	}
 }
 
-func (node *Node) IsReady() bool {
+func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
 		input := node.graph.Nodes[inputId]
 		if state, ok := input.state.(*NodeState_Done); !ok || state.Done.Error != nil {
@@ -180,7 +175,7 @@ func (node *Node) IsReady() bool {
 func (node *Node) GetState() *NodeState {
 	switch state := node.state.(type) {
 	case *NodeState_Idle:
-		isReady := node.IsReady()
+		isReady := node.isReady()
 		state.Idle.IsReady = &isReady
 	}
 

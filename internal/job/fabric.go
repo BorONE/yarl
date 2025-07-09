@@ -13,6 +13,27 @@ type Job interface {
 	CollectArtifacts() (Artifacts, error)
 }
 
+type JobRunner struct {
+	Job
+	Err  error
+	Done chan any
+}
+
+func (runner *JobRunner) Run() {
+	runner.Done = make(chan any)
+	runner.Err = runner.Job.Run()
+	close(runner.Done)
+}
+
+func (runner *JobRunner) Error() *string {
+	if runner.Err != nil {
+		err := runner.Err.Error()
+		return &err
+	} else {
+		return nil
+	}
+}
+
 type Artifacts map[string]any
 
 func (a Artifacts) GetString(key string) (string, error) {

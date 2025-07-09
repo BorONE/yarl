@@ -62,7 +62,7 @@ func main() {
 	nodeClient := api.NewNodeClient(conn)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	switch *cmd {
