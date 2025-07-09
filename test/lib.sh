@@ -6,7 +6,7 @@ function rm_ts {
 }
 
 function stabilize_prototext {
-    sed "s/:  /: /" | sed "s/\([^ ]\)  \([^ ]\)/\1 \2/"
+    sed "s/:  /: /" | sed "s/\([^ ]\)  \([^ ]\)/\1 \2/g"
 }
 
 function client {

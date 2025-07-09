@@ -34,8 +34,8 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 }
 
 // in case of simultaneous calls the first call will collect all of the updates, and the rest will be empty
-func (s ImplementedNodeServer) WaitRunEnd(ctx context.Context, id *NodeIdentifier) (*Updates, error) {
-	log.Printf("serving node{%v}.WaitRunEnd()\n", prototext.MarshalOptions{}.Format(id))
+func (s ImplementedNodeServer) WaitDone(ctx context.Context, id *NodeIdentifier) (*Updates, error) {
+	log.Printf("serving node{%v}.WaitDone()\n", prototext.MarshalOptions{}.Format(id))
 
 	s.mutex.Lock()
 
@@ -49,7 +49,7 @@ func (s ImplementedNodeServer) WaitRunEnd(ctx context.Context, id *NodeIdentifie
 		defer func() { updatesReady <- struct{}{} }()
 
 		s.graph.Updates = append(s.graph.Updates, node.GetState())
-		if node.Status == graph.NodeStatus_Success {
+		if state := node.GetState().State.(*graph.NodeState_Done); state.Done.Error == nil {
 			for _, outputId := range node.Output {
 				output := s.graph.Nodes[graph.NodeId(outputId)]
 				s.graph.Updates = append(s.graph.Updates, output.GetState())
@@ -57,15 +57,15 @@ func (s ImplementedNodeServer) WaitRunEnd(ctx context.Context, id *NodeIdentifie
 		}
 	}
 
-	switch status := node.Status; status {
-	case graph.NodeStatus_Stopped, graph.NodeStatus_Running:
+	switch node.GetState().State.(type) {
+	case *graph.NodeState_Idle:
+		return nil, fmt.Errorf("unexepected state: %s", node.GetStateString())
+	case *graph.NodeState_InProgress:
 		node.EndListeners = append(node.EndListeners, func() { genUpdates() })
-	case graph.NodeStatus_Idle:
-		return nil, fmt.Errorf("unexepected state: %s", status.String())
-	case graph.NodeStatus_Failed, graph.NodeStatus_Success:
+	case *graph.NodeState_Done:
 		genUpdates()
 	default:
-		log.Panicln("unexpected state: ", status.String())
+		log.Panicln("unexpected state: ", node.GetStateString())
 	}
 
 	s.mutex.Unlock()

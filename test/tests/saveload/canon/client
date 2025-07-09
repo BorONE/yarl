@@ -8,8 +8,9 @@ $ go run cmd/client/main.go --cmd edit --node-config Id:0;Job:{[type.googleapis.
 $ go run cmd/client/main.go --cmd connect --id 0 --id2 1
 NodeStates: {
   Id: 1
-  Status: Idle
-  IsReady: false
+  Idle: {
+    IsReady: false
+  }
 }
 $ go run cmd/client/main.go --cmd save --path test/tests/saveload/output/graph.proto.txt
 

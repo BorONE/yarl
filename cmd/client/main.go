@@ -107,7 +107,7 @@ func main() {
 			log.Print(prototext.Format(id))
 		}
 	case "wait":
-		updates, err := nodeClient.WaitRunEnd(ctx, &api.NodeIdentifier{Id: id})
+		updates, err := nodeClient.WaitDone(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
 			log.Fatal(err.Error())
 		}

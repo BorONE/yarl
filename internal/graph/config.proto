@@ -5,18 +5,32 @@ import "google/protobuf/any.proto";
 package graph;
 option go_package = "pipegraph/internal/graph";
 
-enum NodeStatus {
-    Idle = 0;
-    Running = 1;
-    Success = 2;
-    Failed = 3;
-    Stopped = 4;
-}
-
 message NodeState {
+    message IdleState {
+        optional bool IsReady = 1;
+    }
+
+    message InProgressState {
+        enum InProgressStatus {
+            Scheduled = 0; // NotImplemented
+            Running = 1;
+            Stopped = 2;
+        }
+
+        optional InProgressStatus Status = 1;
+    }
+
+    message DoneState {
+        optional string Error = 1;
+        map<string, string> Arts = 2;
+    }
+
     optional uint64 Id = 1;
-    optional graph.NodeStatus Status = 2;
-    optional bool IsReady = 3;
+    oneof State {
+        IdleState Idle = 2;
+        InProgressState InProgress = 3;
+        DoneState Done = 4;
+    }
 }
 
 message Config {

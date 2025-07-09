@@ -40,36 +40,49 @@ Edges: {
 $ go run cmd/client/main.go --cmd state
 NodeStates: {
   Id: 0
-  Status: Idle
-  IsReady: true
+  Idle: {
+    IsReady: true
+  }
 }
 NodeStates: {
   Id: 1
-  Status: Idle
-  IsReady: false
+  Idle: {
+    IsReady: false
+  }
 }
 NodeStates: {
   Id: 2
-  Status: Idle
-  IsReady: false
+  Idle: {
+    IsReady: false
+  }
 }
 $ go run cmd/client/main.go --cmd run-ready
 Id: 0
 $ go run cmd/client/main.go --cmd wait --id 0
 NodeStates: {
   Id: 0
-  Status: Success
-  IsReady: true
+  Done: {
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: ""
+    }
+  }
 }
 NodeStates: {
   Id: 1
-  Status: Idle
-  IsReady: false
+  Idle: {
+    IsReady: false
+  }
 }
 NodeStates: {
   Id: 2
-  Status: Idle
-  IsReady: true
+  Idle: {
+    IsReady: true
+  }
 }
 $ go run cmd/client/main.go --cmd run-ready
 Id: 2
@@ -78,17 +91,41 @@ Id: 1
 $ go run cmd/client/main.go --cmd wait --id 1
 NodeStates: {
   Id: 1
-  Status: Success
-  IsReady: true
+  Done: {
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: "a.sh\nb.sh\nc.sh\n"
+    }
+  }
 }
 $ go run cmd/client/main.go --cmd wait --id 2
 NodeStates: {
   Id: 2
-  Status: Success
-  IsReady: true
+  Done: {
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: ""
+    }
+  }
 }
 NodeStates: {
   Id: 1
-  Status: Success
-  IsReady: true
+  Done: {
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: "a.sh\nb.sh\nc.sh\n"
+    }
+  }
 }
