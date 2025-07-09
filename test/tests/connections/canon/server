@@ -1,4 +1,5 @@
 server listening at [::]:9000
+serving Load(Path:"test/graphs/edgeless.proto.txt")
 serving GetConfig()
 serving CollectState()
 serving Connect(FromNodeId:0 ToNodeId:1)

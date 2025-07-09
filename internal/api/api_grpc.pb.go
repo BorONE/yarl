@@ -20,6 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	Graph_New_FullMethodName          = "/api.Graph/New"
+	Graph_Load_FullMethodName         = "/api.Graph/Load"
+	Graph_Save_FullMethodName         = "/api.Graph/Save"
 	Graph_GetConfig_FullMethodName    = "/api.Graph/GetConfig"
 	Graph_CollectState_FullMethodName = "/api.Graph/CollectState"
 	Graph_RunReadyNode_FullMethodName = "/api.Graph/RunReadyNode"
@@ -31,6 +34,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphClient interface {
+	New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
+	Load(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
+	Save(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
 	GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error)
 	CollectState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*State, error)
 	RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error)
@@ -44,6 +50,36 @@ type graphClient struct {
 
 func NewGraphClient(cc grpc.ClientConnInterface) GraphClient {
 	return &graphClient{cc}
+}
+
+func (c *graphClient) New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Graph_New_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphClient) Load(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Graph_Load_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphClient) Save(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Graph_Save_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *graphClient) GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error) {
@@ -100,6 +136,9 @@ func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
 type GraphServer interface {
+	New(context.Context, *Nothing) (*Nothing, error)
+	Load(context.Context, *Path) (*Nothing, error)
+	Save(context.Context, *Path) (*Nothing, error)
 	GetConfig(context.Context, *Nothing) (*graph.Config, error)
 	CollectState(context.Context, *Nothing) (*State, error)
 	RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error)
@@ -115,6 +154,15 @@ type GraphServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGraphServer struct{}
 
+func (UnimplementedGraphServer) New(context.Context, *Nothing) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
+}
+func (UnimplementedGraphServer) Load(context.Context, *Path) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Load not implemented")
+}
+func (UnimplementedGraphServer) Save(context.Context, *Path) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
+}
 func (UnimplementedGraphServer) GetConfig(context.Context, *Nothing) (*graph.Config, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
 }
@@ -149,6 +197,60 @@ func RegisterGraphServer(s grpc.ServiceRegistrar, srv GraphServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Graph_ServiceDesc, srv)
+}
+
+func _Graph_New_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Nothing)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).New(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_New_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).New(ctx, req.(*Nothing))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Graph_Load_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Path)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).Load(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_Load_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).Load(ctx, req.(*Path))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Graph_Save_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Path)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).Save(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_Save_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).Save(ctx, req.(*Path))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Graph_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -248,6 +350,18 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "api.Graph",
 	HandlerType: (*GraphServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "New",
+			Handler:    _Graph_New_Handler,
+		},
+		{
+			MethodName: "Load",
+			Handler:    _Graph_Load_Handler,
+		},
+		{
+			MethodName: "Save",
+			Handler:    _Graph_Save_Handler,
+		},
 		{
 			MethodName: "GetConfig",
 			Handler:    _Graph_GetConfig_Handler,

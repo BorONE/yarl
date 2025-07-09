@@ -1,9 +1,8 @@
 #!/bin/bash -e
 
-SERVER_ARGS='--config test/graphs/graph.proto.txt'
-
 source test/lib.sh
 
+client load --path test/graphs/graph.proto.txt
 client config
 client state
 client run-ready

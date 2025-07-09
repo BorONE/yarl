@@ -13,8 +13,32 @@ import (
 type ImplementedGraphServer struct {
 	UnimplementedGraphServer
 
-	graph *graph.Graph
+	graph *GraphHolder
 	mutex *sync.Mutex
+}
+
+func (s ImplementedGraphServer) New(ctx context.Context, _ *Nothing) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("serving New()\n")
+	return nil, s.graph.New(ctx)
+}
+
+func (s ImplementedGraphServer) Load(ctx context.Context, path *Path) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("serving Load(%v)\n", prototext.MarshalOptions{}.Format(path))
+	return nil, s.graph.Load(ctx, path)
+}
+
+func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("serving Save(%v)\n", prototext.MarshalOptions{}.Format(path))
+	return nil, s.graph.Save(ctx, path)
 }
 
 func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*graph.Config, error) {

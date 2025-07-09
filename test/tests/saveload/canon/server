@@ -1,17 +1,12 @@
 server listening at [::]:9000
-serving Load(Path:"test/graphs/empty.proto.txt")
-serving GetConfig()
-serving CollectState()
+serving New()
 adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}}
 adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/b.sh"}}}
-adding node{Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/c.sh"}}}
-serving GetConfig()
-serving CollectState()
 running node{Id:0}.Edit(Id:0 Job:{[type.googleapis.com/register.ShellScriptConfig]:{Path:"test/data/a.sh"}})
 serving Connect(FromNodeId:0 ToNodeId:1)
-serving Connect(FromNodeId:0 ToNodeId:2)
-serving Connect(FromNodeId:2 ToNodeId:1)
-deleting node{Id:2}
+serving Save(Path:"test/tests/saveload/output/graph.proto.txt")
+serving New()
 serving GetConfig()
-serving CollectState()
+serving Load(Path:"test/tests/saveload/output/graph.proto.txt")
+serving GetConfig()
 signal: terminated

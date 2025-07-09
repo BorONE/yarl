@@ -1,3 +1,5 @@
+$ go run cmd/client/main.go --cmd load --path test/graphs/empty.proto.txt
+
 $ go run cmd/client/main.go --cmd config
 
 $ go run cmd/client/main.go --cmd state
@@ -76,7 +78,9 @@ $ go run cmd/client/main.go --cmd config
 Nodes: {
   Id: 0
   Job: {
-    [type.googleapis.com/register.ShellScriptConfig]: {}
+    [type.googleapis.com/register.ShellScriptConfig]: {
+      Path: "test/data/a.sh"
+    }
   }
 }
 Nodes: {

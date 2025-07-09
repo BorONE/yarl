@@ -26,7 +26,15 @@ message State {
     repeated graph.NodeState NodeStates = 1;
 }
 
+message Path {
+    optional string Path = 1;
+}
+
 service Graph {
+    rpc New(Nothing) returns (Nothing);
+    rpc Load(Path) returns (Nothing);
+    rpc Save(Path) returns (Nothing);
+
     rpc GetConfig(Nothing) returns (graph.Config);
     rpc CollectState(Nothing) returns (State);
     
