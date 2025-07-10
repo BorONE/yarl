@@ -20,7 +20,7 @@ type Node struct {
 
 	EndListeners []func()
 
-	Job *job.JobRunner
+	Job job.Job
 }
 
 func NewNode(graph *Graph, config *NodeConfig) *Node {
@@ -33,84 +33,55 @@ func NewNode(graph *Graph, config *NodeConfig) *Node {
 }
 
 func (node *Node) Run(endGuard *sync.Mutex) error {
-	err := node.startJob()
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		<-node.Job.Done
-		endGuard.Lock()
-		node.endJob()
-		endGuard.Unlock()
-	}()
-	return nil
-}
-
-func (node *Node) startJob() error {
-	if !node.isReady() {
-		return fmt.Errorf("node is not ready")
-	}
-
-	switch node.state.(type) {
-	case *NodeState_Idle:
-		// noop
-	case *NodeState_InProgress, *NodeState_Done:
+	state, ok := node.GetState().State.(*NodeState_Idle)
+	if !ok {
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
-	default:
-		log.Panicln("unexpected state: ", node.GetStateString())
+	}
+
+	if !state.Idle.GetIsReady() {
+		return fmt.Errorf("node is not ready")
 	}
 
 	createdJob, err := job.Create(node.Config.Job)
 	if err != nil {
-		return err
+		return fmt.Errorf("job creation failed: %s", err.Error())
 	}
 
 	log.Printf("job(id=%v) is starting...", node.Config.GetId())
-	node.state = &NodeState_InProgress{InProgress: &NodeState_InProgressState{Status: NodeState_InProgressState_Running.Enum()}}
-	node.Job = &job.JobRunner{Job: createdJob}
-	go node.Job.Run()
+	node.SetState(&NodeState_InProgressState{Status: NodeState_InProgressState_Running.Enum()})
+	node.Job = createdJob
+
+	go func() {
+		jobErr := node.Job.Run()
+
+		endGuard.Lock()
+		defer endGuard.Unlock()
+
+		log.Printf("job(id=%v) finished", node.Config.GetId())
+
+		state := node.state.(*NodeState_InProgress)
+		node.SetState(&NodeState_DoneState{
+			Error:     asStringPtr(jobErr),
+			Arts:      node.Job.CollectArtifacts(),
+			IsStopped: *state.InProgress.Status == NodeState_InProgressState_Stopping,
+		})
+
+		for _, listener := range node.EndListeners {
+			listener()
+		}
+		node.EndListeners = nil
+
+		node.Job = nil
+	}()
 	return nil
 }
 
-func (node *Node) endJob() {
-	defer func() { node.Job = nil }()
-
-	arts, err := node.Job.CollectArtifacts()
-	if err != nil {
-		log.Printf("failed to get arts of node(id=%v): %v", node.Config.Id, err)
+func asStringPtr(err error) *string {
+	if err == nil {
+		return nil
 	}
-	log.Printf("job(id=%v) finished: err=%v artifacts=%v", node.Config.GetId(), node.Job.Err, arts)
-
-	state, ok := node.state.(*NodeState_InProgress)
-	if !ok {
-		log.Panicln("unexpected state: ", node.GetStateString())
-	}
-
-	switch *state.InProgress.Status {
-	case NodeState_InProgressState_Stopped:
-		for _, listener := range node.EndListeners {
-			listener()
-		}
-		node.EndListeners = nil
-
-		node.SetState(&NodeState_IdleState{})
-	case NodeState_InProgressState_Running:
-		doneState := &NodeState_DoneState{}
-		doneState.Error = node.Job.Error()
-		doneState.Arts = map[string]string{}
-		for key, value := range arts {
-			doneState.Arts[key] = fmt.Sprint(value)
-		}
-		node.SetState(doneState)
-
-		for _, listener := range node.EndListeners {
-			listener()
-		}
-		node.EndListeners = nil
-	default:
-		log.Panicln("unexpected state: ", node.GetStateString())
-	}
+	str := err.Error()
+	return &str
 }
 
 func (node *Node) Reset() error {
@@ -118,13 +89,21 @@ func (node *Node) Reset() error {
 		node.graph.Updates = append(node.graph.Updates, node.GetState())
 	}()
 
-	switch node.state.(type) {
+	switch state := node.state.(type) {
 	case *NodeState_Idle:
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
 	case *NodeState_InProgress:
-		node.stop()
+		switch *state.InProgress.Status {
+		case NodeState_InProgressState_Stopping:
+			return nil
+		case NodeState_InProgressState_Running:
+			state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
+			node.Job.Reset()
+		default:
+			log.Panicln("unexpected state: ", node.GetStateString())
+		}
 	case *NodeState_Done:
-		node.reset()
+		node.SetState(&NodeState_IdleState{})
 	default:
 		log.Panicln("unexpected state: ", node.GetStateString())
 	}
@@ -134,32 +113,6 @@ func (node *Node) Reset() error {
 	}
 
 	return nil
-}
-
-func (node *Node) reset() {
-	_, ok := node.state.(*NodeState_Done)
-	if !ok {
-		log.Panicln("unexpected state: ", node.GetStateString())
-	}
-
-	node.SetState(&NodeState_IdleState{})
-}
-
-func (node *Node) stop() {
-	state, ok := node.state.(*NodeState_InProgress)
-	if !ok {
-		log.Panicln("unexpected state: ", node.GetStateString())
-	}
-
-	switch *state.InProgress.Status {
-	case NodeState_InProgressState_Stopped:
-		return
-	case NodeState_InProgressState_Running:
-		state.InProgress.Status = NodeState_InProgressState_Stopped.Enum()
-		node.Job.Reset()
-	default:
-		log.Panicln("unexpected state: ", node.GetStateString())
-	}
 }
 
 func (node *Node) isReady() bool {

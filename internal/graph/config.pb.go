@@ -27,7 +27,7 @@ type NodeState_InProgressState_InProgressStatus int32
 const (
 	NodeState_InProgressState_Scheduled NodeState_InProgressState_InProgressStatus = 0 // NotImplemented
 	NodeState_InProgressState_Running   NodeState_InProgressState_InProgressStatus = 1
-	NodeState_InProgressState_Stopped   NodeState_InProgressState_InProgressStatus = 2
+	NodeState_InProgressState_Stopping  NodeState_InProgressState_InProgressStatus = 2
 )
 
 // Enum value maps for NodeState_InProgressState_InProgressStatus.
@@ -35,12 +35,12 @@ var (
 	NodeState_InProgressState_InProgressStatus_name = map[int32]string{
 		0: "Scheduled",
 		1: "Running",
-		2: "Stopped",
+		2: "Stopping",
 	}
 	NodeState_InProgressState_InProgressStatus_value = map[string]int32{
 		"Scheduled": 0,
 		"Running":   1,
-		"Stopped":   2,
+		"Stopping":  2,
 	}
 )
 
@@ -433,6 +433,7 @@ type NodeState_DoneState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Error         *string                `protobuf:"bytes,1,opt,name=Error,proto3,oneof" json:"Error,omitempty"`
 	Arts          map[string]string      `protobuf:"bytes,2,rep,name=Arts,proto3" json:"Arts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	IsStopped     bool                   `protobuf:"varint,3,opt,name=IsStopped,proto3" json:"IsStopped,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -481,11 +482,18 @@ func (x *NodeState_DoneState) GetArts() map[string]string {
 	return nil
 }
 
+func (x *NodeState_DoneState) GetIsStopped() bool {
+	if x != nil {
+		return x.IsStopped
+	}
+	return false
+}
+
 var File_internal_graph_config_proto protoreflect.FileDescriptor
 
 const file_internal_graph_config_proto_rawDesc = "" +
 	"\n" +
-	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\xe2\x04\n" +
+	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\x81\x05\n" +
 	"\tNodeState\x12\x13\n" +
 	"\x02Id\x18\x01 \x01(\x04H\x01R\x02Id\x88\x01\x01\x120\n" +
 	"\x04Idle\x18\x02 \x01(\v2\x1a.graph.NodeState.IdleStateH\x00R\x04Idle\x12B\n" +
@@ -496,17 +504,18 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"\tIdleState\x12\x1d\n" +
 	"\aIsReady\x18\x01 \x01(\bH\x00R\aIsReady\x88\x01\x01B\n" +
 	"\n" +
-	"\b_IsReady\x1a\xa9\x01\n" +
+	"\b_IsReady\x1a\xaa\x01\n" +
 	"\x0fInProgressState\x12N\n" +
-	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusH\x00R\x06Status\x88\x01\x01\";\n" +
+	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusH\x00R\x06Status\x88\x01\x01\"<\n" +
 	"\x10InProgressStatus\x12\r\n" +
 	"\tScheduled\x10\x00\x12\v\n" +
-	"\aRunning\x10\x01\x12\v\n" +
-	"\aStopped\x10\x02B\t\n" +
-	"\a_Status\x1a\xa3\x01\n" +
+	"\aRunning\x10\x01\x12\f\n" +
+	"\bStopping\x10\x02B\t\n" +
+	"\a_Status\x1a\xc1\x01\n" +
 	"\tDoneState\x12\x19\n" +
 	"\x05Error\x18\x01 \x01(\tH\x00R\x05Error\x88\x01\x01\x128\n" +
-	"\x04Arts\x18\x02 \x03(\v2$.graph.NodeState.DoneState.ArtsEntryR\x04Arts\x1a7\n" +
+	"\x04Arts\x18\x02 \x03(\v2$.graph.NodeState.DoneState.ArtsEntryR\x04Arts\x12\x1c\n" +
+	"\tIsStopped\x18\x03 \x01(\bR\tIsStopped\x1a7\n" +
 	"\tArtsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +

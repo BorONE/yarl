@@ -38,11 +38,11 @@ func (j *ShellScriptJob) Reset() error {
 	return nil
 }
 
-func (j *ShellScriptJob) CollectArtifacts() (job.Artifacts, error) {
-	result := make(map[string]any)
+func (j *ShellScriptJob) CollectArtifacts() job.Artifacts {
+	result := make(map[string]string)
 	result["stdout"] = j.Stdout.String()
 	result["stderr"] = j.Stderr.String()
-	return result, nil
+	return result
 }
 
 var _ job.Job = &ShellScriptJob{}
