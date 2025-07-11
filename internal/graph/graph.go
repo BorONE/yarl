@@ -89,13 +89,7 @@ func (graph *Graph) Connect(edge *EdgeConfig) error {
 	from.Output = append(from.Output, NodeId(*edge.ToNodeId))
 	graph.Config.Edges = append(graph.Config.Edges, edge)
 
-	if from.Status != NodeStatus_Success {
-		if to.Status != NodeStatus_Idle {
-			to.Reset()
-		} else {
-			graph.Updates = append(graph.Updates, to.GetState())
-		}
-	}
+	graph.Updates = append(graph.Updates, to.GetState())
 
 	return nil
 }

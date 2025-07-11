@@ -66,14 +66,15 @@ func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*
 		s.mutex.Lock()
 
 		for _, node := range s.graph.Nodes {
-			if node.Status == graph.NodeStatus_Running {
-				node.EndListeners = append(node.EndListeners, waitAny.Done)
+			switch state := node.GetState().State.(type) {
+			case *graph.NodeState_InProgress:
+				node.DoneEvent.OnTrigger(waitAny.Done)
 				isRunning = true
-			}
-
-			if node.Status == graph.NodeStatus_Idle && node.IsReady() {
-				defer s.mutex.Unlock()
-				return &NodeIdentifier{Id: node.Config.Id}, node.Run(s.mutex)
+			case *graph.NodeState_Idle:
+				if state.Idle.GetIsReady() {
+					defer s.mutex.Unlock()
+					return &NodeIdentifier{Id: node.Config.Id}, node.Run(s.mutex)
+				}
 			}
 		}
 

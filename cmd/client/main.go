@@ -62,7 +62,7 @@ func main() {
 	nodeClient := api.NewNodeClient(conn)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	switch *cmd {
@@ -107,7 +107,7 @@ func main() {
 			log.Print(prototext.Format(id))
 		}
 	case "wait":
-		updates, err := nodeClient.WaitRunEnd(ctx, &api.NodeIdentifier{Id: id})
+		updates, err := nodeClient.WaitDone(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
 			log.Fatal(err.Error())
 		}

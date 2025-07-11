@@ -45,7 +45,7 @@ func (holder *GraphHolder) Save(ctx context.Context, path *Path) error {
 		return err
 	}
 
-	marshalled, err := prototext.Marshal(holder.Config)
+	marshalled, err := prototext.MarshalOptions{Multiline: true}.Marshal(holder.Config)
 	if err != nil {
 		return err
 	}

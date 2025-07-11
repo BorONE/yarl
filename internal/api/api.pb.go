@@ -321,11 +321,10 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\fRunReadyNode\x12\f.api.Nothing\x1a\x13.api.NodeIdentifier\x12*\n" +
 	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates\x12-\n" +
 	"\n" +
-	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates2\x92\x02\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates2\x90\x02\n" +
 	"\x04Node\x12(\n" +
-	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12/\n" +
-	"\n" +
-	"WaitRunEnd\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12*\n" +
+	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
+	"\bWaitDone\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12*\n" +
 	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12-\n" +
 	"\x03Add\x12\x11.graph.NodeConfig\x1a\x13.api.NodeIdentifier\x12'\n" +
 	"\x04Edit\x12\x11.graph.NodeConfig\x1a\f.api.Nothing\x12+\n" +
@@ -368,7 +367,7 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	7,  // 8: api.Graph.Connect:input_type -> graph.EdgeConfig
 	7,  // 9: api.Graph.Disconnect:input_type -> graph.EdgeConfig
 	1,  // 10: api.Node.Run:input_type -> api.NodeIdentifier
-	1,  // 11: api.Node.WaitRunEnd:input_type -> api.NodeIdentifier
+	1,  // 11: api.Node.WaitDone:input_type -> api.NodeIdentifier
 	1,  // 12: api.Node.Reset:input_type -> api.NodeIdentifier
 	8,  // 13: api.Node.Add:input_type -> graph.NodeConfig
 	8,  // 14: api.Node.Edit:input_type -> graph.NodeConfig
@@ -382,7 +381,7 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	3,  // 22: api.Graph.Connect:output_type -> api.Updates
 	3,  // 23: api.Graph.Disconnect:output_type -> api.Updates
 	0,  // 24: api.Node.Run:output_type -> api.Nothing
-	3,  // 25: api.Node.WaitRunEnd:output_type -> api.Updates
+	3,  // 25: api.Node.WaitDone:output_type -> api.Updates
 	3,  // 26: api.Node.Reset:output_type -> api.Updates
 	1,  // 27: api.Node.Add:output_type -> api.NodeIdentifier
 	0,  // 28: api.Node.Edit:output_type -> api.Nothing

@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"log"
 	"pipegraph/internal/job"
+	"pipegraph/internal/util"
 	"sync"
+
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 )
 
 type Node struct {
@@ -13,119 +17,88 @@ type Node struct {
 	Input  []NodeId
 	graph  *Graph
 
-	Status NodeStatus
+	state isNodeState_State
 
-	EndListeners []func()
+	DoneEvent util.Event
 
-	Job     job.Job
-	ErrChan chan error
-	Err     error
-	Arts    job.Artifacts
+	Job job.Job
 }
 
 func NewNode(graph *Graph, config *NodeConfig) *Node {
-	return &Node{
+	node := &Node{
 		Config: config,
 		graph:  graph,
 	}
+	node.SetState(&NodeState_IdleState{})
+	return node
 }
 
 func (node *Node) Run(endGuard *sync.Mutex) error {
-	err := node.startJob()
-	if err != nil {
-		return err
+	if state, isIdle := node.GetState().State.(*NodeState_Idle); !isIdle || !state.Idle.GetIsReady() {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
 	}
 
+	createdJob, err := job.Create(node.Config.Job)
+	if err != nil {
+		return fmt.Errorf("job creation failed: %s", err.Error())
+	}
+
+	log.Printf("job(id=%v) is starting...", node.Config.GetId())
+	node.SetState(&NodeState_InProgressState{Status: NodeState_InProgressState_Running.Enum()})
+	node.Job = createdJob
+
 	go func() {
-		node.Err = <-node.ErrChan
+		jobErr := node.Job.Run()
+
 		endGuard.Lock()
-		node.endJob()
-		endGuard.Unlock()
+		defer endGuard.Unlock()
+
+		log.Printf("job(id=%v) finished", node.Config.GetId())
+
+		state := node.state.(*NodeState_InProgress)
+		node.SetState(&NodeState_DoneState{
+			Error:     asStringPtr(jobErr),
+			Arts:      node.Job.CollectArtifacts(),
+			IsStopped: *state.InProgress.Status == NodeState_InProgressState_Stopping,
+		})
+
+		node.DoneEvent.Trigger()
+
+		node.Job = nil
 	}()
 	return nil
 }
 
-func (node *Node) startJob() error {
-	if !node.IsReady() {
-		return fmt.Errorf("node is not ready")
+func asStringPtr(err error) *string {
+	if err == nil {
+		return nil
 	}
-
-	switch node.Status {
-	case NodeStatus_Idle:
-		// noop
-	case NodeStatus_Running, NodeStatus_Success, NodeStatus_Failed, NodeStatus_Stopped:
-		return fmt.Errorf("invalid operation for node with state %s", node.Status.String())
-	default:
-		log.Panicln("unexpected state: ", node.Status.String())
-	}
-
-	var err error
-	node.Job, err = job.Create(node.Config.Job)
-	if err != nil {
-		return err
-	}
-
-	node.ErrChan = make(chan error)
-	log.Printf("job(id=%v) is starting...", node.Config.GetId())
-	go func() { node.ErrChan <- node.Job.Run() }()
-	node.Status = NodeStatus_Running
-	return nil
-}
-
-func (node *Node) endJob() {
-	var err error
-	node.Arts, err = node.Job.CollectArtifacts()
-	if err != nil {
-		log.Printf("failed to get arts of node(id=%v): %v", node.Config.Id, err)
-	}
-	log.Printf("job(id=%v) finished: err=%v artifacts=%v", node.Config.GetId(), node.Err, node.Arts)
-
-	node.Job = nil
-
-	switch node.Status {
-	case NodeStatus_Stopped:
-		for _, listener := range node.EndListeners {
-			listener()
-		}
-		node.EndListeners = nil
-
-		node.Err = nil
-		node.Arts = nil
-		node.Status = NodeStatus_Idle
-	case NodeStatus_Running:
-		if node.Err != nil {
-			node.Status = NodeStatus_Failed
-		} else {
-			node.Status = NodeStatus_Success
-		}
-
-		for _, listener := range node.EndListeners {
-			listener()
-		}
-		node.EndListeners = nil
-	default:
-		log.Panicln("unexpected state: ", node.Status.String())
-	}
+	str := err.Error()
+	return &str
 }
 
 func (node *Node) Reset() error {
-	switch node.Status {
-	case NodeStatus_Stopped:
-		return nil
-	case NodeStatus_Running:
-		node.Status = NodeStatus_Stopped
-		node.Job.Reset()
+	defer func() {
 		node.graph.Updates = append(node.graph.Updates, node.GetState())
-	case NodeStatus_Success, NodeStatus_Failed:
-		node.Err = nil
-		node.Arts = nil
-		node.Status = NodeStatus_Idle
-		node.graph.Updates = append(node.graph.Updates, node.GetState())
-	case NodeStatus_Idle:
-		node.graph.Updates = append(node.graph.Updates, node.GetState())
-		return fmt.Errorf("invalid operation for node with state %s", node.Status.String())
+	}()
+
+	switch state := node.state.(type) {
+	case *NodeState_Idle:
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	case *NodeState_InProgress:
+		switch *state.InProgress.Status {
+		case NodeState_InProgressState_Stopping:
+			return nil
+		case NodeState_InProgressState_Running:
+			state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
+			node.Job.Reset()
+		default:
+			log.Panicln("unexpected state: ", node.GetStateString())
+		}
+	case *NodeState_Done:
+		node.SetState(&NodeState_IdleState{})
 	default:
-		log.Panicln("unexpected state: ", node.Status.String())
+		log.Panicln("unexpected state: ", node.GetStateString())
 	}
 
 	for _, output := range node.Output {
@@ -135,25 +108,42 @@ func (node *Node) Reset() error {
 	return nil
 }
 
-func (node *Node) IsReady() bool {
+func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
-		if node.graph.Nodes[inputId].Status != NodeStatus_Success {
+		input := node.graph.Nodes[inputId]
+		if state, isDone := input.state.(*NodeState_Done); !isDone || state.Done.Error != nil {
 			return false
 		}
 	}
 	return true
 }
 
-func asPtr[T any](x T) *T {
-	p := new(T)
-	*p = x
-	return p
+func (node *Node) GetState() *NodeState {
+	switch state := node.state.(type) {
+	case *NodeState_Idle:
+		isReady := node.isReady()
+		state.Idle.IsReady = &isReady
+	}
+
+	return &NodeState{
+		Id:    node.Config.Id,
+		State: node.state,
+	}
 }
 
-func (node *Node) GetState() *NodeState {
-	return &NodeState{
-		Id:      node.Config.Id,
-		Status:  node.Status.Enum(),
-		IsReady: asPtr(node.IsReady()),
+func (node *Node) GetStateString() string {
+	return prototext.MarshalOptions{}.Format(node.GetState())
+}
+
+func (node *Node) SetState(message proto.Message) {
+	switch state := message.(type) {
+	case *NodeState_IdleState:
+		node.state = &NodeState_Idle{state}
+	case *NodeState_InProgressState:
+		node.state = &NodeState_InProgress{state}
+	case *NodeState_DoneState:
+		node.state = &NodeState_Done{state}
+	default:
+		log.Panicln("invalid state: ", prototext.MarshalOptions{}.Format(message))
 	}
 }

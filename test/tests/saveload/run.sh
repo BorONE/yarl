@@ -13,6 +13,10 @@ client config
 client load --path $OUTPUTDIR/graph.proto.txt
 client config
 
+temp=$(mktemp)
+cat $OUTPUTDIR/graph.proto.txt | stabilize_prototext > $temp
+mv $temp $OUTPUTDIR/graph.proto.txt
+
 if [[ $1 == canonize ]]; then
     test-canonize
 else

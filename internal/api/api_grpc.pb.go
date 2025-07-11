@@ -388,12 +388,12 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Node_Run_FullMethodName        = "/api.Node/Run"
-	Node_WaitRunEnd_FullMethodName = "/api.Node/WaitRunEnd"
-	Node_Reset_FullMethodName      = "/api.Node/Reset"
-	Node_Add_FullMethodName        = "/api.Node/Add"
-	Node_Edit_FullMethodName       = "/api.Node/Edit"
-	Node_Delete_FullMethodName     = "/api.Node/Delete"
+	Node_Run_FullMethodName      = "/api.Node/Run"
+	Node_WaitDone_FullMethodName = "/api.Node/WaitDone"
+	Node_Reset_FullMethodName    = "/api.Node/Reset"
+	Node_Add_FullMethodName      = "/api.Node/Add"
+	Node_Edit_FullMethodName     = "/api.Node/Edit"
+	Node_Delete_FullMethodName   = "/api.Node/Delete"
 )
 
 // NodeClient is the client API for Node service.
@@ -401,7 +401,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
 	Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
-	WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
+	WaitDone(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
 	Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
 	Add(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	Edit(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*Nothing, error)
@@ -426,10 +426,10 @@ func (c *nodeClient) Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.C
 	return out, nil
 }
 
-func (c *nodeClient) WaitRunEnd(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error) {
+func (c *nodeClient) WaitDone(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Updates)
-	err := c.cc.Invoke(ctx, Node_WaitRunEnd_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Node_WaitDone_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -481,7 +481,7 @@ func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grp
 // for forward compatibility.
 type NodeServer interface {
 	Run(context.Context, *NodeIdentifier) (*Nothing, error)
-	WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error)
+	WaitDone(context.Context, *NodeIdentifier) (*Updates, error)
 	Reset(context.Context, *NodeIdentifier) (*Updates, error)
 	Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error)
 	Edit(context.Context, *graph.NodeConfig) (*Nothing, error)
@@ -499,8 +499,8 @@ type UnimplementedNodeServer struct{}
 func (UnimplementedNodeServer) Run(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
-func (UnimplementedNodeServer) WaitRunEnd(context.Context, *NodeIdentifier) (*Updates, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WaitRunEnd not implemented")
+func (UnimplementedNodeServer) WaitDone(context.Context, *NodeIdentifier) (*Updates, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WaitDone not implemented")
 }
 func (UnimplementedNodeServer) Reset(context.Context, *NodeIdentifier) (*Updates, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reset not implemented")
@@ -553,20 +553,20 @@ func _Node_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Node_WaitRunEnd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_WaitDone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NodeIdentifier)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodeServer).WaitRunEnd(ctx, in)
+		return srv.(NodeServer).WaitDone(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Node_WaitRunEnd_FullMethodName,
+		FullMethod: Node_WaitDone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).WaitRunEnd(ctx, req.(*NodeIdentifier))
+		return srv.(NodeServer).WaitDone(ctx, req.(*NodeIdentifier))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -655,8 +655,8 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Node_Run_Handler,
 		},
 		{
-			MethodName: "WaitRunEnd",
-			Handler:    _Node_WaitRunEnd_Handler,
+			MethodName: "WaitDone",
+			Handler:    _Node_WaitDone_Handler,
 		},
 		{
 			MethodName: "Reset",
