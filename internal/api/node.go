@@ -61,7 +61,7 @@ func (s ImplementedNodeServer) WaitDone(ctx context.Context, id *NodeIdentifier)
 	case *graph.NodeState_Idle:
 		return nil, fmt.Errorf("unexepected state: %s", node.GetStateString())
 	case *graph.NodeState_InProgress:
-		node.EndListeners = append(node.EndListeners, func() { genUpdates() })
+		node.DoneEvent.OnTrigger(genUpdates)
 	case *graph.NodeState_Done:
 		genUpdates()
 	default:

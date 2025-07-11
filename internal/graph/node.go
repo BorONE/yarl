@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"pipegraph/internal/job"
+	"pipegraph/internal/util"
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -18,7 +19,7 @@ type Node struct {
 
 	state isNodeState_State
 
-	EndListeners []func()
+	DoneEvent util.Event
 
 	Job job.Job
 }
@@ -66,10 +67,7 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 			IsStopped: *state.InProgress.Status == NodeState_InProgressState_Stopping,
 		})
 
-		for _, listener := range node.EndListeners {
-			listener()
-		}
-		node.EndListeners = nil
+		node.DoneEvent.Trigger()
 
 		node.Job = nil
 	}()

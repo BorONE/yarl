@@ -68,7 +68,7 @@ func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*
 		for _, node := range s.graph.Nodes {
 			switch state := node.GetState().State.(type) {
 			case *graph.NodeState_InProgress:
-				node.EndListeners = append(node.EndListeners, waitAny.Done)
+				node.DoneEvent.OnTrigger(waitAny.Done)
 				isRunning = true
 			case *graph.NodeState_Idle:
 				if state.Idle.GetIsReady() {
