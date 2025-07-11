@@ -34,13 +34,8 @@ func NewNode(graph *Graph, config *NodeConfig) *Node {
 }
 
 func (node *Node) Run(endGuard *sync.Mutex) error {
-	state, ok := node.GetState().State.(*NodeState_Idle)
-	if !ok {
+	if state, isIdle := node.GetState().State.(*NodeState_Idle); !isIdle || !state.Idle.GetIsReady() {
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
-	}
-
-	if !state.Idle.GetIsReady() {
-		return fmt.Errorf("node is not ready")
 	}
 
 	createdJob, err := job.Create(node.Config.Job)
@@ -116,7 +111,7 @@ func (node *Node) Reset() error {
 func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
 		input := node.graph.Nodes[inputId]
-		if state, ok := input.state.(*NodeState_Done); !ok || state.Done.Error != nil {
+		if state, isDone := input.state.(*NodeState_Done); !isDone || state.Done.Error != nil {
 			return false
 		}
 	}
