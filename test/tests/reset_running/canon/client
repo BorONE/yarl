@@ -37,12 +37,6 @@ $ go run cmd/client/main.go --cmd run-ready
 Id: 1
 $ go run cmd/client/main.go --cmd reset 0
 NodeStates: {
-  Id: 1
-  InProgress: {
-    Status: Stopping
-  }
-}
-NodeStates: {
   Id: 0
   Idle: {
     IsReady: true

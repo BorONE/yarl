@@ -24,8 +24,8 @@ serving node{Id:2}.WaitDone()
 job(id=2) finished
 serving RunReadyNode()
 job(id=1) is starting...
-serving node{Id:1}.WaitDone()
 job(id=1) finished
+serving node{Id:1}.WaitDone()
 serving RunReadyNode()
 serving Disconnect(FromNodeId:2 ToNodeId:1)
 running node{Id:2}.Reset()
