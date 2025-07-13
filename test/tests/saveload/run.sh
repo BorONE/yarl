@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
-source test/lib.sh
+source test/init.sh
+trap 'finish-test' EXIT
 
 client new
 client add --node-config 'Job:{[type.googleapis.com/register.ShellScriptConfig]:{}}'
@@ -16,9 +17,3 @@ client config
 temp=$(mktemp)
 cat $OUTPUTDIR/graph.proto.txt | stabilize_prototext > $temp
 mv $temp $OUTPUTDIR/graph.proto.txt
-
-if [[ $1 == canonize ]]; then
-    test-canonize
-else
-    test-check
-fi

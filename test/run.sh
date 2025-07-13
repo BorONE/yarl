@@ -1,10 +1,13 @@
 #!/bin/bash -e
 
-ok=OK
+color_bold="\033[1m"
+color_red="\033[1;031m"
+color_green="\033[1;032m"
+color_reset="\033[0m"
+
 
 if [[ "$1" == "canonize" ]]; then
     mode="canonize"
-    ok="Canonized"
     shift
 fi
 
@@ -16,13 +19,46 @@ else
     done
 fi
 
+function check-nodiff {
+    canon=$1
+    output=$2
+    diff --color $canon $output && rm -rf $output
+}
+
+function canonize {
+    canon=$1
+    output=$2
+    rm -rf $canon
+    mv $output $canon
+}
+
+function prefix {
+    label=$1
+    color=$2
+    echo -e "${color}$label${color_reset}"
+}
+
 for test in $tests; do
     label=$(echo $test | sed 's|test/tests/\(.*\)/|\1|')
-    echo -e "\033[1mTEST\t\033[0m$label"
-    if OUTPUTDIR=$test/output $test/run.sh $mode; then
-        echo -e "\t\t\033[1;032m$ok\033[0m"
+    canon=$test/canon
+    output=$test/output
+
+    if ! OUTPUTDIR=$test/output $test/run.sh $mode; then
+        prefix $label $color_red
+        echo -e "\tFailed"
+        exitcode=1
+    fi
+
+    if check-nodiff $canon $output; then
+        prefix $label $color_green
+        echo -e "\tNo diff"
+    elif [[ "$mode" == canonize ]]; then
+        canonize $canon $output
+        prefix $label $color_green
+        echo -e "\tCanonized"
     else
-        echo -e "\t\t\033[1;031mFailed\033[0m"
+        prefix $label $color_red
+        echo -e "\tUnexpected diff"
         exitcode=1
     fi
 done
