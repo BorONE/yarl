@@ -34,5 +34,5 @@ trap 'kill $pid &> /dev/null || true' EXIT
 function finish-test {
     kill $pid
     wait
-    exit 0
 }
+trap 'finish-test' EXIT

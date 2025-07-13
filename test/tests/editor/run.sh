@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 source test/init.sh
-trap 'finish-test' EXIT
 
 client load --path test/graphs/empty.proto.txt
 client config
