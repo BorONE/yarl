@@ -33,6 +33,20 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 	return nil, node.Run(s.mutex)
 }
 
+func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+	log.Printf("running node{%v}.Stop()\n", prototext.MarshalOptions{}.Format(id))
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	return nil, node.Stop()
+}
+
 // in case of simultaneous calls the first call will collect all of the updates, and the rest will be empty
 func (s ImplementedNodeServer) WaitDone(ctx context.Context, id *NodeIdentifier) (*Updates, error) {
 	log.Printf("serving node{%v}.WaitDone()\n", prototext.MarshalOptions{}.Format(id))

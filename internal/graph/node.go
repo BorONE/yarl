@@ -82,19 +82,11 @@ func (node *Node) Reset() error {
 		node.graph.Updates = append(node.graph.Updates, node.GetState())
 	}()
 
-	switch state := node.state.(type) {
+	switch node.state.(type) {
 	case *NodeState_Idle:
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
 	case *NodeState_InProgress:
-		switch *state.InProgress.Status {
-		case NodeState_InProgressState_Stopping:
-			return nil
-		case NodeState_InProgressState_Running:
-			state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
-			node.Job.Reset()
-		default:
-			log.Panicln("unexpected state: ", node.GetStateString())
-		}
+		node.Stop()
 	case *NodeState_Done:
 		node.SetState(&NodeState_IdleState{})
 	default:
@@ -108,6 +100,24 @@ func (node *Node) Reset() error {
 	return nil
 }
 
+func (node *Node) Stop() error {
+	state, isInProgress := node.state.(*NodeState_InProgress)
+	if !isInProgress {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	}
+
+	switch *state.InProgress.Status {
+	case NodeState_InProgressState_Stopping:
+		// already stopping
+	case NodeState_InProgressState_Running:
+		state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
+		node.Job.Reset()
+	default:
+		log.Panicln("unexpected state: ", node.GetStateString())
+	}
+
+	return nil
+}
 func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
 		input := node.graph.Nodes[inputId]

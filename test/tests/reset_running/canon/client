@@ -1,0 +1,66 @@
+$ go run cmd/client/main.go --cmd new
+
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"echo \"hello world\""}}
+Id: 0
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"echo \"sleeping...\" ; sleep 5 ; echo \"done\""}}
+Id: 1
+$ go run cmd/client/main.go --cmd connect --id 0 --id2 1
+NodeStates: {
+  Id: 1
+  Idle: {
+    IsReady: false
+  }
+}
+$ go run cmd/client/main.go --cmd run-ready
+Id: 0
+$ go run cmd/client/main.go --cmd wait --id 0
+NodeStates: {
+  Id: 0
+  Done: {
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: "hello world\n"
+    }
+  }
+}
+NodeStates: {
+  Id: 1
+  Idle: {
+    IsReady: true
+  }
+}
+$ go run cmd/client/main.go --cmd run-ready
+Id: 1
+$ go run cmd/client/main.go --cmd reset 0
+NodeStates: {
+  Id: 1
+  InProgress: {
+    Status: Stopping
+  }
+}
+NodeStates: {
+  Id: 0
+  Idle: {
+    IsReady: true
+  }
+}
+$ go run cmd/client/main.go --cmd wait --id 1
+NodeStates: {
+  Id: 1
+  Done: {
+    Error: "signal: killed"
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: "sleeping...\n"
+    }
+    IsStopped: true
+  }
+}

@@ -133,15 +133,15 @@ NodeStates: {
 }
 $ go run cmd/client/main.go --cmd reset --id 2
 NodeStates: {
-  Id: 1
-  Idle: {
-    IsReady: false
-  }
-}
-NodeStates: {
   Id: 2
   Idle: {
     IsReady: true
+  }
+}
+NodeStates: {
+  Id: 1
+  Idle: {
+    IsReady: false
   }
 }
 $ go run cmd/client/main.go --cmd run-ready
