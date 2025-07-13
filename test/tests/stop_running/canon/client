@@ -1,0 +1,24 @@
+$ go run cmd/client/main.go --cmd new
+
+$ go run cmd/client/main.go --cmd add --node-config Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"sleep 5"}}
+Id: 0
+$ go run cmd/client/main.go --cmd run-ready
+Id: 0
+$ go run cmd/client/main.go --cmd stop --id 0
+
+$ go run cmd/client/main.go --cmd wait --id 0
+NodeStates: {
+  Id: 0
+  Done: {
+    Error: "signal: killed"
+    Arts: {
+      key: "stderr"
+      value: ""
+    }
+    Arts: {
+      key: "stdout"
+      value: ""
+    }
+    IsStopped: true
+  }
+}

@@ -78,36 +78,49 @@ func asStringPtr(err error) *string {
 }
 
 func (node *Node) Reset() error {
-	defer func() {
-		node.graph.Updates = append(node.graph.Updates, node.GetState())
-	}()
-
-	switch state := node.state.(type) {
-	case *NodeState_Idle:
+	_, isDone := node.state.(*NodeState_Done)
+	if !isDone {
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
-	case *NodeState_InProgress:
-		switch *state.InProgress.Status {
-		case NodeState_InProgressState_Stopping:
-			return nil
-		case NodeState_InProgressState_Running:
-			state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
-			node.Job.Reset()
+	}
+
+	node.SetState(&NodeState_IdleState{})
+	node.graph.Updates = append(node.graph.Updates, node.GetState())
+
+	for _, outputId := range node.Output {
+		output := node.graph.Nodes[outputId]
+		switch output.state.(type) {
+		case *NodeState_Idle:
+			node.graph.Updates = append(node.graph.Updates, output.GetState())
+		case *NodeState_InProgress:
+			output.Stop()
+		case *NodeState_Done:
+			output.Reset()
 		default:
 			log.Panicln("unexpected state: ", node.GetStateString())
 		}
-	case *NodeState_Done:
-		node.SetState(&NodeState_IdleState{})
-	default:
-		log.Panicln("unexpected state: ", node.GetStateString())
-	}
-
-	for _, output := range node.Output {
-		node.graph.Nodes[output].Reset()
 	}
 
 	return nil
 }
 
+func (node *Node) Stop() error {
+	state, isInProgress := node.state.(*NodeState_InProgress)
+	if !isInProgress {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	}
+
+	switch *state.InProgress.Status {
+	case NodeState_InProgressState_Stopping:
+		// already stopping
+	case NodeState_InProgressState_Running:
+		state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
+		node.Job.Reset()
+	default:
+		log.Panicln("unexpected state: ", node.GetStateString())
+	}
+
+	return nil
+}
 func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
 		input := node.graph.Nodes[inputId]

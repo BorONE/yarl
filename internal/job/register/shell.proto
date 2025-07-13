@@ -4,5 +4,10 @@ package register;
 option go_package = "pipegraph/register";
 
 message ShellScriptConfig {
-    optional string Path = 1;
+    string Path = 1;
+    repeated string Args = 2;
+}
+
+message ShellCommandConfig {
+    optional string Command = 1;
 }

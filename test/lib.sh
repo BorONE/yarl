@@ -10,10 +10,10 @@ function stabilize_prototext {
 }
 
 function client {
-    cmd="go run cmd/client/main.go --cmd $@"
-    echo "$ ${cmd}" >> $output/client
+    cmd=(go run cmd/client/main.go --cmd "$@")
+    echo "$ ${cmd[@]}" >> $output/client
 
-    $cmd 2>&1 | rm_ts | stabilize_prototext >> $output/client
+    "${cmd[@]}" 2>&1 | rm_ts | stabilize_prototext >> $output/client
     return ${PIPESTATUS[0]}
 }
 

@@ -1,0 +1,15 @@
+server listening at [::]:9000
+serving New()
+adding node{Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"echo \"hello world\""}}}
+adding node{Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"echo \"sleeping...\" ; sleep 5 ; echo \"done\""}}}
+serving Connect(FromNodeId:0 ToNodeId:1)
+serving RunReadyNode()
+job(id=0) is starting...
+job(id=0) finished
+serving node{Id:0}.WaitDone()
+serving RunReadyNode()
+job(id=1) is starting...
+running node{Id:0}.Reset()
+job(id=1) finished
+serving node{Id:1}.WaitDone()
+signal: terminated

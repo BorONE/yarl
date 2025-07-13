@@ -46,6 +46,7 @@ service Graph {
 
 service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
+    rpc Stop(NodeIdentifier) returns (Nothing);
     rpc WaitDone(NodeIdentifier) returns (Updates);
     rpc Reset(NodeIdentifier) returns (Updates);
 

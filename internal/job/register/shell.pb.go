@@ -2,17 +2,16 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.12.4
-// source: job/register/shell.proto
+// source: internal/job/register/shell.proto
 
 package register
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -24,14 +23,15 @@ const (
 
 type ShellScriptConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          *string                `protobuf:"bytes,1,opt,name=Path,proto3,oneof" json:"Path,omitempty"`
+	Path          string                 `protobuf:"bytes,1,opt,name=Path,proto3" json:"Path,omitempty"`
+	Args          []string               `protobuf:"bytes,2,rep,name=Args,proto3" json:"Args,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ShellScriptConfig) Reset() {
 	*x = ShellScriptConfig{}
-	mi := &file_job_register_shell_proto_msgTypes[0]
+	mi := &file_internal_job_register_shell_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *ShellScriptConfig) String() string {
 func (*ShellScriptConfig) ProtoMessage() {}
 
 func (x *ShellScriptConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_job_register_shell_proto_msgTypes[0]
+	mi := &file_internal_job_register_shell_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,42 +56,98 @@ func (x *ShellScriptConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShellScriptConfig.ProtoReflect.Descriptor instead.
 func (*ShellScriptConfig) Descriptor() ([]byte, []int) {
-	return file_job_register_shell_proto_rawDescGZIP(), []int{0}
+	return file_internal_job_register_shell_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ShellScriptConfig) GetPath() string {
-	if x != nil && x.Path != nil {
-		return *x.Path
+	if x != nil {
+		return x.Path
 	}
 	return ""
 }
 
-var File_job_register_shell_proto protoreflect.FileDescriptor
+func (x *ShellScriptConfig) GetArgs() []string {
+	if x != nil {
+		return x.Args
+	}
+	return nil
+}
 
-const file_job_register_shell_proto_rawDesc = "" +
+type ShellCommandConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Command       *string                `protobuf:"bytes,1,opt,name=Command,proto3,oneof" json:"Command,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ShellCommandConfig) Reset() {
+	*x = ShellCommandConfig{}
+	mi := &file_internal_job_register_shell_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShellCommandConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShellCommandConfig) ProtoMessage() {}
+
+func (x *ShellCommandConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_job_register_shell_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ShellCommandConfig.ProtoReflect.Descriptor instead.
+func (*ShellCommandConfig) Descriptor() ([]byte, []int) {
+	return file_internal_job_register_shell_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ShellCommandConfig) GetCommand() string {
+	if x != nil && x.Command != nil {
+		return *x.Command
+	}
+	return ""
+}
+
+var File_internal_job_register_shell_proto protoreflect.FileDescriptor
+
+const file_internal_job_register_shell_proto_rawDesc = "" +
 	"\n" +
-	"\x18job/register/shell.proto\x12\bregister\"5\n" +
-	"\x11ShellScriptConfig\x12\x17\n" +
-	"\x04Path\x18\x01 \x01(\tH\x00R\x04Path\x88\x01\x01B\a\n" +
-	"\x05_PathB\x14Z\x12pipegraph/registerb\x06proto3"
+	"!internal/job/register/shell.proto\x12\bregister\";\n" +
+	"\x11ShellScriptConfig\x12\x12\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path\x12\x12\n" +
+	"\x04Args\x18\x02 \x03(\tR\x04Args\"?\n" +
+	"\x12ShellCommandConfig\x12\x1d\n" +
+	"\aCommand\x18\x01 \x01(\tH\x00R\aCommand\x88\x01\x01B\n" +
+	"\n" +
+	"\b_CommandB\x14Z\x12pipegraph/registerb\x06proto3"
 
 var (
-	file_job_register_shell_proto_rawDescOnce sync.Once
-	file_job_register_shell_proto_rawDescData []byte
+	file_internal_job_register_shell_proto_rawDescOnce sync.Once
+	file_internal_job_register_shell_proto_rawDescData []byte
 )
 
-func file_job_register_shell_proto_rawDescGZIP() []byte {
-	file_job_register_shell_proto_rawDescOnce.Do(func() {
-		file_job_register_shell_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_job_register_shell_proto_rawDesc), len(file_job_register_shell_proto_rawDesc)))
+func file_internal_job_register_shell_proto_rawDescGZIP() []byte {
+	file_internal_job_register_shell_proto_rawDescOnce.Do(func() {
+		file_internal_job_register_shell_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_job_register_shell_proto_rawDesc), len(file_internal_job_register_shell_proto_rawDesc)))
 	})
-	return file_job_register_shell_proto_rawDescData
+	return file_internal_job_register_shell_proto_rawDescData
 }
 
-var file_job_register_shell_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_job_register_shell_proto_goTypes = []any{
-	(*ShellScriptConfig)(nil), // 0: register.ShellScriptConfig
+var file_internal_job_register_shell_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_internal_job_register_shell_proto_goTypes = []any{
+	(*ShellScriptConfig)(nil),  // 0: register.ShellScriptConfig
+	(*ShellCommandConfig)(nil), // 1: register.ShellCommandConfig
 }
-var file_job_register_shell_proto_depIdxs = []int32{
+var file_internal_job_register_shell_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -99,27 +155,27 @@ var file_job_register_shell_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_job_register_shell_proto_init() }
-func file_job_register_shell_proto_init() {
-	if File_job_register_shell_proto != nil {
+func init() { file_internal_job_register_shell_proto_init() }
+func file_internal_job_register_shell_proto_init() {
+	if File_internal_job_register_shell_proto != nil {
 		return
 	}
-	file_job_register_shell_proto_msgTypes[0].OneofWrappers = []any{}
+	file_internal_job_register_shell_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_job_register_shell_proto_rawDesc), len(file_job_register_shell_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_job_register_shell_proto_rawDesc), len(file_internal_job_register_shell_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_job_register_shell_proto_goTypes,
-		DependencyIndexes: file_job_register_shell_proto_depIdxs,
-		MessageInfos:      file_job_register_shell_proto_msgTypes,
+		GoTypes:           file_internal_job_register_shell_proto_goTypes,
+		DependencyIndexes: file_internal_job_register_shell_proto_depIdxs,
+		MessageInfos:      file_internal_job_register_shell_proto_msgTypes,
 	}.Build()
-	File_job_register_shell_proto = out.File
-	file_job_register_shell_proto_goTypes = nil
-	file_job_register_shell_proto_depIdxs = nil
+	File_internal_job_register_shell_proto = out.File
+	file_internal_job_register_shell_proto_goTypes = nil
+	file_internal_job_register_shell_proto_depIdxs = nil
 }

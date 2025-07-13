@@ -48,7 +48,7 @@ func main() {
 	nodeConfig := graph.NodeConfig{}
 	err := prototext.Unmarshal([]byte(*nodeConfigText), &nodeConfig)
 	if err != nil {
-		log.Fatalf("failed to parse node config: %v", err)
+		log.Fatalf("failed to parse node config: text=%v err=%v", *nodeConfigText, err)
 	}
 
 	// Set up a connection to the server.
@@ -62,7 +62,7 @@ func main() {
 	nodeClient := api.NewNodeClient(conn)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	switch *cmd {
@@ -124,6 +124,12 @@ func main() {
 			log.Fatal(err.Error())
 		}
 		log.Print(prototext.Format(updates))
+	case "stop":
+		msg, err := nodeClient.Stop(ctx, &api.NodeIdentifier{Id: id})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.Print(prototext.Format(msg))
 	case "reset":
 		updates, err := nodeClient.Reset(ctx, &api.NodeIdentifier{Id: id})
 		if err != nil {
