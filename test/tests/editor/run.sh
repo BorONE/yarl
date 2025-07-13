@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source test/lib.sh
+source test/init.sh
 
 client load --path test/graphs/empty.proto.txt
 client config
@@ -17,9 +17,3 @@ client connect --id 2 --id2 1
 client delete --id 2
 client config
 client state
-
-if [[ $1 == canonize ]]; then
-    test-canonize
-else
-    test-check
-fi

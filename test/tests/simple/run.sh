@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source test/lib.sh
+source test/init.sh
 
 client load --path test/graphs/graph.proto.txt
 client config
@@ -11,9 +11,3 @@ client run-ready
 client run-ready
 client wait --id 1
 client wait --id 2
-
-if [[ $1 == canonize ]]; then
-    test-canonize
-else
-    test-check
-fi

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source test/lib.sh
+source test/init.sh
 
 client new
 client add --node-config 'Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"echo \"hello world\""}}'
@@ -12,9 +12,3 @@ client run-ready
 sleep 1
 client reset 0
 client wait --id 1
-
-if [[ $1 == canonize ]]; then
-    test-canonize
-else
-    test-check
-fi

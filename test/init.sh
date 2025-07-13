@@ -31,17 +31,8 @@ trap 'kill $pid &> /dev/null || true' EXIT
 
 > $output/client
 
-function test-check {
+function finish-test {
     kill $pid
     wait
-
-    diff --color $canon $output && rm -rf $output
 }
-
-function test-canonize {
-    kill $pid
-    wait
-
-    rm -rf $canon
-    mv $output $canon
-}
+trap 'finish-test' EXIT
