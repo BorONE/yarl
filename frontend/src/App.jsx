@@ -49,8 +49,20 @@ export default function App() {
     [],
   );
 
+  const addNode = useCallback(() => {
+    const node = {
+      id: `${nodes.length + 1}`,
+      position: { x: 100, y: 0 },
+      data: { label: `Node ${nodes.length + 1}` },
+      sourcePosition: 'right',
+      targetPosition: 'left'
+    };
+
+    setNodes((nodesSnapshot) => [...nodesSnapshot, node]);
+  }, [nodes]);
+
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: '100vw', height: '80vh' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -62,6 +74,10 @@ export default function App() {
         <Background />
         <Controls />
       </ReactFlow>
+
+      <button onClick={addNode}>
+        Add
+      </button>
     </div>
   );
 }
