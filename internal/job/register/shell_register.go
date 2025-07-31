@@ -75,7 +75,7 @@ func init() {
 			return nil, err
 		}
 
-		job := &BashJob{args: append([]string{cfg.Path}, cfg.Args...)}
+		job := &BashJob{args: append([]string{*cfg.Path}, cfg.Args...)}
 		job.reset()
 		return job, nil
 	})

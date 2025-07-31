@@ -23,8 +23,8 @@ const (
 
 type ShellScriptConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=Path,proto3" json:"Path,omitempty"`
-	Args          []string               `protobuf:"bytes,2,rep,name=Args,proto3" json:"Args,omitempty"`
+	Path          *string                `protobuf:"bytes,1,req,name=Path" json:"Path,omitempty"`
+	Args          []string               `protobuf:"bytes,2,rep,name=Args" json:"Args,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -60,8 +60,8 @@ func (*ShellScriptConfig) Descriptor() ([]byte, []int) {
 }
 
 func (x *ShellScriptConfig) GetPath() string {
-	if x != nil {
-		return x.Path
+	if x != nil && x.Path != nil {
+		return *x.Path
 	}
 	return ""
 }
@@ -75,7 +75,7 @@ func (x *ShellScriptConfig) GetArgs() []string {
 
 type ShellCommandConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Command       *string                `protobuf:"bytes,1,opt,name=Command,proto3,oneof" json:"Command,omitempty"`
+	Command       *string                `protobuf:"bytes,1,opt,name=Command" json:"Command,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,12 +123,10 @@ const file_internal_job_register_shell_proto_rawDesc = "" +
 	"\n" +
 	"!internal/job/register/shell.proto\x12\bregister\";\n" +
 	"\x11ShellScriptConfig\x12\x12\n" +
-	"\x04Path\x18\x01 \x01(\tR\x04Path\x12\x12\n" +
-	"\x04Args\x18\x02 \x03(\tR\x04Args\"?\n" +
-	"\x12ShellCommandConfig\x12\x1d\n" +
-	"\aCommand\x18\x01 \x01(\tH\x00R\aCommand\x88\x01\x01B\n" +
-	"\n" +
-	"\b_CommandB\x14Z\x12pipegraph/registerb\x06proto3"
+	"\x04Path\x18\x01 \x02(\tR\x04Path\x12\x12\n" +
+	"\x04Args\x18\x02 \x03(\tR\x04Args\".\n" +
+	"\x12ShellCommandConfig\x12\x18\n" +
+	"\aCommand\x18\x01 \x01(\tR\aCommandB\x14Z\x12pipegraph/register"
 
 var (
 	file_internal_job_register_shell_proto_rawDescOnce sync.Once
@@ -160,7 +158,6 @@ func file_internal_job_register_shell_proto_init() {
 	if File_internal_job_register_shell_proto != nil {
 		return
 	}
-	file_internal_job_register_shell_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

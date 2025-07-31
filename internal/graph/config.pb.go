@@ -66,6 +66,16 @@ func (x NodeState_InProgressState_InProgressStatus) Number() protoreflect.EnumNu
 	return protoreflect.EnumNumber(x)
 }
 
+// Deprecated: Do not use.
+func (x *NodeState_InProgressState_InProgressStatus) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = NodeState_InProgressState_InProgressStatus(num)
+	return nil
+}
+
 // Deprecated: Use NodeState_InProgressState_InProgressStatus.Descriptor instead.
 func (NodeState_InProgressState_InProgressStatus) EnumDescriptor() ([]byte, []int) {
 	return file_internal_graph_config_proto_rawDescGZIP(), []int{0, 1, 0}
@@ -73,7 +83,7 @@ func (NodeState_InProgressState_InProgressStatus) EnumDescriptor() ([]byte, []in
 
 type NodeState struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    *uint64                `protobuf:"varint,1,opt,name=Id,proto3,oneof" json:"Id,omitempty"`
+	Id    *uint64                `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
 	// Types that are valid to be assigned to State:
 	//
 	//	*NodeState_Idle
@@ -160,15 +170,15 @@ type isNodeState_State interface {
 }
 
 type NodeState_Idle struct {
-	Idle *NodeState_IdleState `protobuf:"bytes,2,opt,name=Idle,proto3,oneof"`
+	Idle *NodeState_IdleState `protobuf:"bytes,2,opt,name=Idle,oneof"`
 }
 
 type NodeState_InProgress struct {
-	InProgress *NodeState_InProgressState `protobuf:"bytes,3,opt,name=InProgress,proto3,oneof"`
+	InProgress *NodeState_InProgressState `protobuf:"bytes,3,opt,name=InProgress,oneof"`
 }
 
 type NodeState_Done struct {
-	Done *NodeState_DoneState `protobuf:"bytes,4,opt,name=Done,proto3,oneof"`
+	Done *NodeState_DoneState `protobuf:"bytes,4,opt,name=Done,oneof"`
 }
 
 func (*NodeState_Idle) isNodeState_State() {}
@@ -179,8 +189,8 @@ func (*NodeState_Done) isNodeState_State() {}
 
 type Config struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Nodes         []*NodeConfig          `protobuf:"bytes,1,rep,name=Nodes,proto3" json:"Nodes,omitempty"`
-	Edges         []*EdgeConfig          `protobuf:"bytes,2,rep,name=Edges,proto3" json:"Edges,omitempty"`
+	Nodes         []*NodeConfig          `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
+	Edges         []*EdgeConfig          `protobuf:"bytes,2,rep,name=Edges" json:"Edges,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -231,9 +241,9 @@ func (x *Config) GetEdges() []*EdgeConfig {
 
 type NodeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint64                `protobuf:"varint,1,opt,name=Id,proto3,oneof" json:"Id,omitempty"`
-	Name          *string                `protobuf:"bytes,2,opt,name=Name,proto3,oneof" json:"Name,omitempty"`
-	Job           *any1.Any              `protobuf:"bytes,3,opt,name=Job,proto3,oneof" json:"Job,omitempty"`
+	Id            *uint64                `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
+	Name          *string                `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
+	Job           *any1.Any              `protobuf:"bytes,3,opt,name=Job" json:"Job,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -291,8 +301,8 @@ func (x *NodeConfig) GetJob() *any1.Any {
 
 type EdgeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FromNodeId    *uint64                `protobuf:"varint,1,opt,name=FromNodeId,proto3,oneof" json:"FromNodeId,omitempty"`
-	ToNodeId      *uint64                `protobuf:"varint,2,opt,name=ToNodeId,proto3,oneof" json:"ToNodeId,omitempty"`
+	FromNodeId    *uint64                `protobuf:"varint,1,opt,name=FromNodeId" json:"FromNodeId,omitempty"`
+	ToNodeId      *uint64                `protobuf:"varint,2,opt,name=ToNodeId" json:"ToNodeId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -343,7 +353,7 @@ func (x *EdgeConfig) GetToNodeId() uint64 {
 
 type NodeState_IdleState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	IsReady       *bool                  `protobuf:"varint,1,opt,name=IsReady,proto3,oneof" json:"IsReady,omitempty"`
+	IsReady       *bool                  `protobuf:"varint,1,opt,name=IsReady" json:"IsReady,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -387,7 +397,7 @@ func (x *NodeState_IdleState) GetIsReady() bool {
 
 type NodeState_InProgressState struct {
 	state         protoimpl.MessageState                      `protogen:"open.v1"`
-	Status        *NodeState_InProgressState_InProgressStatus `protobuf:"varint,1,opt,name=Status,proto3,enum=graph.NodeState_InProgressState_InProgressStatus,oneof" json:"Status,omitempty"`
+	Status        *NodeState_InProgressState_InProgressStatus `protobuf:"varint,1,opt,name=Status,enum=graph.NodeState_InProgressState_InProgressStatus" json:"Status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -431,9 +441,9 @@ func (x *NodeState_InProgressState) GetStatus() NodeState_InProgressState_InProg
 
 type NodeState_DoneState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Error         *string                `protobuf:"bytes,1,opt,name=Error,proto3,oneof" json:"Error,omitempty"`
-	Arts          map[string]string      `protobuf:"bytes,2,rep,name=Arts,proto3" json:"Arts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	IsStopped     bool                   `protobuf:"varint,3,opt,name=IsStopped,proto3" json:"IsStopped,omitempty"`
+	Error         *string                `protobuf:"bytes,1,opt,name=Error" json:"Error,omitempty"`
+	Arts          map[string]string      `protobuf:"bytes,2,rep,name=Arts" json:"Arts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	IsStopped     *bool                  `protobuf:"varint,3,req,name=IsStopped" json:"IsStopped,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -483,8 +493,8 @@ func (x *NodeState_DoneState) GetArts() map[string]string {
 }
 
 func (x *NodeState_DoneState) GetIsStopped() bool {
-	if x != nil {
-		return x.IsStopped
+	if x != nil && x.IsStopped != nil {
+		return *x.IsStopped
 	}
 	return false
 }
@@ -493,54 +503,44 @@ var File_internal_graph_config_proto protoreflect.FileDescriptor
 
 const file_internal_graph_config_proto_rawDesc = "" +
 	"\n" +
-	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\x81\x05\n" +
-	"\tNodeState\x12\x13\n" +
-	"\x02Id\x18\x01 \x01(\x04H\x01R\x02Id\x88\x01\x01\x120\n" +
+	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\xc5\x04\n" +
+	"\tNodeState\x12\x0e\n" +
+	"\x02Id\x18\x01 \x01(\x04R\x02Id\x120\n" +
 	"\x04Idle\x18\x02 \x01(\v2\x1a.graph.NodeState.IdleStateH\x00R\x04Idle\x12B\n" +
 	"\n" +
 	"InProgress\x18\x03 \x01(\v2 .graph.NodeState.InProgressStateH\x00R\n" +
 	"InProgress\x120\n" +
-	"\x04Done\x18\x04 \x01(\v2\x1a.graph.NodeState.DoneStateH\x00R\x04Done\x1a6\n" +
-	"\tIdleState\x12\x1d\n" +
-	"\aIsReady\x18\x01 \x01(\bH\x00R\aIsReady\x88\x01\x01B\n" +
-	"\n" +
-	"\b_IsReady\x1a\xaa\x01\n" +
-	"\x0fInProgressState\x12N\n" +
-	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusH\x00R\x06Status\x88\x01\x01\"<\n" +
+	"\x04Done\x18\x04 \x01(\v2\x1a.graph.NodeState.DoneStateH\x00R\x04Done\x1a%\n" +
+	"\tIdleState\x12\x18\n" +
+	"\aIsReady\x18\x01 \x01(\bR\aIsReady\x1a\x9a\x01\n" +
+	"\x0fInProgressState\x12I\n" +
+	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusR\x06Status\"<\n" +
 	"\x10InProgressStatus\x12\r\n" +
 	"\tScheduled\x10\x00\x12\v\n" +
 	"\aRunning\x10\x01\x12\f\n" +
-	"\bStopping\x10\x02B\t\n" +
-	"\a_Status\x1a\xc1\x01\n" +
-	"\tDoneState\x12\x19\n" +
-	"\x05Error\x18\x01 \x01(\tH\x00R\x05Error\x88\x01\x01\x128\n" +
+	"\bStopping\x10\x02\x1a\xb2\x01\n" +
+	"\tDoneState\x12\x14\n" +
+	"\x05Error\x18\x01 \x01(\tR\x05Error\x128\n" +
 	"\x04Arts\x18\x02 \x03(\v2$.graph.NodeState.DoneState.ArtsEntryR\x04Arts\x12\x1c\n" +
-	"\tIsStopped\x18\x03 \x01(\bR\tIsStopped\x1a7\n" +
+	"\tIsStopped\x18\x03 \x02(\bR\tIsStopped\x1a7\n" +
 	"\tArtsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
-	"\x06_ErrorB\a\n" +
-	"\x05StateB\x05\n" +
-	"\x03_Id\"Z\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
+	"\x05State\"Z\n" +
 	"\x06Config\x12'\n" +
 	"\x05Nodes\x18\x01 \x03(\v2\x11.graph.NodeConfigR\x05Nodes\x12'\n" +
-	"\x05Edges\x18\x02 \x03(\v2\x11.graph.EdgeConfigR\x05Edges\"\x7f\n" +
+	"\x05Edges\x18\x02 \x03(\v2\x11.graph.EdgeConfigR\x05Edges\"X\n" +
 	"\n" +
-	"NodeConfig\x12\x13\n" +
-	"\x02Id\x18\x01 \x01(\x04H\x00R\x02Id\x88\x01\x01\x12\x17\n" +
-	"\x04Name\x18\x02 \x01(\tH\x01R\x04Name\x88\x01\x01\x12+\n" +
-	"\x03Job\x18\x03 \x01(\v2\x14.google.protobuf.AnyH\x02R\x03Job\x88\x01\x01B\x05\n" +
-	"\x03_IdB\a\n" +
-	"\x05_NameB\x06\n" +
-	"\x04_Job\"n\n" +
+	"NodeConfig\x12\x0e\n" +
+	"\x02Id\x18\x01 \x01(\x04R\x02Id\x12\x12\n" +
+	"\x04Name\x18\x02 \x01(\tR\x04Name\x12&\n" +
+	"\x03Job\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x03Job\"H\n" +
 	"\n" +
-	"EdgeConfig\x12#\n" +
+	"EdgeConfig\x12\x1e\n" +
 	"\n" +
-	"FromNodeId\x18\x01 \x01(\x04H\x00R\n" +
-	"FromNodeId\x88\x01\x01\x12\x1f\n" +
-	"\bToNodeId\x18\x02 \x01(\x04H\x01R\bToNodeId\x88\x01\x01B\r\n" +
-	"\v_FromNodeIdB\v\n" +
-	"\t_ToNodeIdB\x1aZ\x18pipegraph/internal/graphb\x06proto3"
+	"FromNodeId\x18\x01 \x01(\x04R\n" +
+	"FromNodeId\x12\x1a\n" +
+	"\bToNodeId\x18\x02 \x01(\x04R\bToNodeIdB\x1aZ\x18pipegraph/internal/graph"
 
 var (
 	file_internal_graph_config_proto_rawDescOnce sync.Once
@@ -594,11 +594,6 @@ func file_internal_graph_config_proto_init() {
 		(*NodeState_InProgress)(nil),
 		(*NodeState_Done)(nil),
 	}
-	file_internal_graph_config_proto_msgTypes[2].OneofWrappers = []any{}
-	file_internal_graph_config_proto_msgTypes[3].OneofWrappers = []any{}
-	file_internal_graph_config_proto_msgTypes[4].OneofWrappers = []any{}
-	file_internal_graph_config_proto_msgTypes[5].OneofWrappers = []any{}
-	file_internal_graph_config_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

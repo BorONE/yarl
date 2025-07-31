@@ -1,10 +1,10 @@
-syntax = "proto3";
+syntax = "proto2";
 
 package register;
 option go_package = "pipegraph/register";
 
 message ShellScriptConfig {
-    string Path = 1;
+    required string Path = 1;
     repeated string Args = 2;
 }
 
