@@ -1,23 +1,17 @@
 import React, { useCallback, type JSX } from 'react';
 import { applyNodeChanges, useStore } from '@xyflow/react';
 import { create, fromBinary, toBinary, toJsonString } from '@bufbuild/protobuf';
-import {
-    type Node
-} from '@xyflow/react';
+import { type Node } from '@xyflow/react';
 import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
-// import MyDropdown from './Dropdown';
-// import { MyDropDown }
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { EllipsisVertical } from 'lucide-react';
 import { AnySchema, type Any } from '@bufbuild/protobuf/wkt';
 
 import * as client from './client'
@@ -25,8 +19,6 @@ import { Input } from './components/ui/input';
 import { Label } from './components/ui/label';
 import { Separator } from './components/ui/separator';
 
-
-const transformSelector = (state) => state.transform;
 
 type TypeInfo = {
     type: string,
@@ -56,9 +48,6 @@ function getTypeInfo(typeUrl: string) {
 }
 
 export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void, style: any }) => {
-  const transform = useStore(transformSelector);
-
-  const foo = (nodes: Node[]) => {
     const replaceJob = (node: Node, info: TypeInfo) => {
         node.data.config.Job = create(AnySchema, {
             typeUrl: info.typeUrl,
@@ -94,7 +83,7 @@ export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: 
 
     const items = Object.keys(typeInfos).map((key) => <DropdownMenuItem key={key} onSelect={onJobSelected(typeInfos[key])}>{key}</DropdownMenuItem>)
 
-    const onShellCommandChange = useCallback(
+    const onShellCommandChange : React.ChangeEventHandler<HTMLInputElement> = useCallback(
         (evt) => setNodes(
             (nds: Node[]) => {
                 return nds.map((nd) => {
@@ -113,7 +102,7 @@ export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: 
         ),
         [setNodes],
     )
-    const onNameChange = useCallback(
+    const onNameChange : React.ChangeEventHandler<HTMLInputElement> = useCallback(
         (evt) => setNodes(
             (nds: Node[]) => nds.map((nd) => {
                 if (nd.selected) {
@@ -139,20 +128,13 @@ export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: 
         </div>
     }
 
-    const onChange = useCallback((evt) => {
-        console.log(evt.target.value);
-    }, []);
-    
     if (selectedNodes.length == 0) {
-        // render new node editor
         return <></>
     } else if (selectedNodes.length > 1) {
-        // impossible ?
         return <>More than one node is selected</>
     }
-    // render selected node editor
 
-    return <>
+    return <aside style={style}>
         <Input
             id="ShellCommand.Command"
             onChange={onNameChange}
@@ -177,15 +159,6 @@ export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: 
             </DropdownMenu>
         </div>
 
-        {/* <Separator/> */}
-
         {editor()}
-    </>
-  }
-
-  return (
-    <aside style={style}>
-        {foo(nodes)}
     </aside>
-  );
 };

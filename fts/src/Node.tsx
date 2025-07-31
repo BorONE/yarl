@@ -29,6 +29,30 @@ import { extractJobType } from './util';
 
 
 export default memo(({ data }) => {
+    const applyUpdates = (nds: Node[], updates: api.Updates) => {
+        return nds.map((nd) => {
+            const state = updates.NodeStates.find((state) => state.Id == nd.data.id);
+            return state ? { ...nd, data: { ...nd.data, state }} : nd;
+        })
+    }
+
+    const applyUpdatesEdges = (eds: Edge[], updates: api.Updates) => {
+        console.log('applyUpdatesEdges')
+        return eds.map((ed) => {
+            const state = updates.NodeStates.find((state) => state.Id == BigInt(ed.source));
+            console.log(state, ed)
+            return state ? { ...ed, animated: state.State.case == "Done" && !state.State.value.Error } : ed;
+        })
+    }
+
+    const onUpdates = useCallback(
+        (updates: api.Updates) => {
+            data.hooks.setNodes((nds) => applyUpdates(nds, updates))
+            data.hooks.setEdges((eds) => applyUpdatesEdges(eds, updates))
+        },
+        [data.hooks.setNodes, data.hooks.setEdges],
+    );
+
     const genButton = (onClick: () => void, icon: string, index: number) => {
         return <button
             onClick={onClick}
@@ -43,10 +67,9 @@ export default memo(({ data }) => {
             await client.node.run({Id: data.id})
             const inProgressState : config.NodeState_InProgressState = {Status: config.NodeState_InProgressState_InProgressStatus.Running}
             const update = create(config.NodeStateSchema, { Id: data.id, State: { case: "InProgress", value: inProgressState } })
-            data.hooks.setNodes((nds: Node[]) => applyUpdates(nds, create(api.UpdatesSchema, {NodeStates: [update]})))
+            onUpdates(create(api.UpdatesSchema, {NodeStates: [update]}))
             
-            // client.node.waitDone({Id: data.id}).then((updates) => data.hooks.setNodes((nds: Node[]) => applyUpdates(nds, updates)))
-            client.node.waitDone({Id: data.id}).then((updates) => data.hooks.setNodes((nds: Node[]) => {console.log(updates); return applyUpdates(nds, updates)}))
+            client.node.waitDone({Id: data.id}).then(onUpdates)
         }
 
         const onClickStop = async () => {
@@ -54,8 +77,7 @@ export default memo(({ data }) => {
         }
 
         const onClickReset = async () => {
-            const updates = await client.node.reset({Id: data.id})
-            data.hooks.setNodes((nds: Node[]) => applyUpdates(nds, updates))
+            client.node.reset({Id: data.id}).then(onUpdates)
         }
         
         const st : config.NodeState = data.state;
@@ -65,13 +87,6 @@ export default memo(({ data }) => {
             {state.case == "InProgress" ? genButton(onClickStop, stopIcon, 0) : <></>}
             {state.case == "Done" ? genButton(onClickReset, resetIcon, 0) : <></>}
         </>
-    }
-
-    const applyUpdates = (nds: Node[], updates: api.Updates) => {
-        return nds.map((nd) => {
-            const state = updates.NodeStates.find((state) => state.Id == nd.data.id);
-            return state ? { ...nd, data: { ...nd.data, state }} : nd;
-        })
     }
 
     const getJobType = () => {
@@ -104,7 +119,8 @@ export default memo(({ data }) => {
         return {icon: statusIcon, alt: data.state.case}
     }
 
-    return (<>
+    return <div style={{borderRadius: 100}}>
+    {/* return <div className='border-radius'> */}
         <Handle
             type="target"
             position={Position.Left}
@@ -142,5 +158,5 @@ export default memo(({ data }) => {
             type="source"
             position={Position.Right}
         />
-    </>);
+    </div>
 });

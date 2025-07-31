@@ -13,9 +13,7 @@ import {
   type OnNodesDelete,
   type OnNodesChange,
   type OnEdgesChange,
-  type OnNodeDrag,
   type DefaultEdgeOptions,
-  type Connection,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -25,14 +23,12 @@ import JobNode from './Node';
 
 import * as client from './client'
 
-// import { Node as apiNode, Graph as apiGraph } from './gen/internal/api/api_pb';
 import * as api from './gen/internal/api/api_pb'
 import * as config from './gen/internal/graph/config_pb'
 import { create, toBinary } from '@bufbuild/protobuf';
 import { NodeConfigSchema, NodeStateSchema, type Config } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema } from './gen/internal/job/register/shell_pb';
 import { AnySchema } from '@bufbuild/protobuf/wkt';
-import { ConnectError } from '@connectrpc/connect';
 
 import {
   ResizableHandle,
@@ -46,24 +42,21 @@ const fitViewOptions: FitViewOptions = {
 };
  
 const defaultEdgeOptions: DefaultEdgeOptions = {
-  animated: true,
-};
- 
-const onNodeDrag: OnNodeDrag = (_, node) => {
-  // console.log('drag event', node.data);
+  animated: false,
 };
 
-const nodeTypes = {
-  JobNode
-};
-
-const graphConfig = await client.graph.getConfig({})
-const graphState = await client.graph.collectState({})
 
 const applyUpdates = (nds: Node[], updates: api.Updates) => {
   return nds.map((nd) => {
     const state = updates.NodeStates.find((state) => state.Id == nd.data.id);
     return state ? { ...nd, data: { ...nd.data, state }} : nd;
+  })
+}
+
+const applyUpdatesEdges = (eds: Edge[], updates: api.Updates) => {
+  return eds.map((ed) => {
+    const state = updates.NodeStates.find((state) => state.Id == BigInt(ed.source));
+    return state ? { ...ed, animated: !(state.State.case == "Done" && !state.State.value.Error) } : ed;
   })
 }
 
@@ -77,7 +70,10 @@ var hooks : Hooks = {
   setEdges: null,
 }
 
-const initialNodesWithoutStates: Node[] = graphConfig.Nodes.map((config) => ({
+const graphConfig = await client.graph.getConfig({})
+const graphState = await client.graph.collectState({})
+
+const initialNodes: Node[] = graphConfig.Nodes.map((config) => ({
   id: `${config.Id}`,
   type: 'JobNode',
   position: { x: 100, y: 0 },
@@ -92,29 +88,27 @@ const initialNodesWithoutStates: Node[] = graphConfig.Nodes.map((config) => ({
   height: 70,
 }))
 
-const initialNodes: Node[] = applyUpdates(initialNodesWithoutStates, graphState)
 const initialEdges: Edge[] = graphConfig.Edges.map((edge) => ({
   id: `${edge.FromNodeId}-${edge.ToNodeId}`,
   source: `${edge.FromNodeId}`,
   target: `${edge.ToNodeId}`
 }))
-// setNodes((nds) => applyUpdates(nds, graphState))
 
 function Flow() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>(applyUpdates(initialNodes, graphState));
+  const [edges, setEdges] = useState<Edge[]>(applyUpdatesEdges(initialEdges, graphState));
 
   hooks.setNodes = setNodes
   hooks.setEdges = setEdges
 
-  // setNodes((nds) => nds.map((nd) => ({
-  //   ...nd,
-  //   data: {
-  //     ...nd.data,
-  //     hooks: { setNodes, setEdges },
-  //   }
-  // })))
- 
+  const onUpdates = useCallback(
+    (updates: api.Updates) => {
+      setNodes((nds) => applyUpdates(nds, updates))
+      setEdges((eds) => applyUpdatesEdges(eds, updates))
+    },
+    [setNodes, setEdges],
+  );
+
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes],
@@ -134,16 +128,16 @@ function Flow() {
   const onConnect: OnConnect = useCallback(
     async (connection) => {
       const updates = await client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
-      setNodes((nds) => applyUpdates(nds, updates))
       setEdges((eds) => addEdge(connection, eds))
+      onUpdates(updates)
     },
     [setEdges, setNodes],
   );
   const onDisconnect = useCallback(
     async (connection: Edge) => {
       const updates = await client.graph.disconnect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
-      setNodes((nds) => applyUpdates(nds, updates))
       setEdges((eds) => eds.filter((ed) => ed != connection))
+      onUpdates(updates)
     },
     [setEdges, setNodes],
   );
@@ -176,12 +170,8 @@ function Flow() {
 
   const addNewNode = useCallback(async () => {
     const job = toBinary(ShellCommandConfigSchema, create(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }))
-    // const job = toBinary(ShellCommandConfigSchema, create(ShellCommandConfigSchema, { Command: "[[ 0 == 1 ]]" }))
-    // const job = toBinary(ShellCommandConfigSchema, create(ShellCommandConfigSchema, { Command: "sleep 5" }))
-    // const job = toBinary(ShellCommandConfigSchema, create(ShellCommandConfigSchema, { Command: "echo \"hello world\"" }))
     var config = create(NodeConfigSchema, {
       Name: `Node`,
-      // Name: `Node ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Date.now() % 26]}`,
       Job: create(AnySchema, {
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
         value: job,
@@ -204,30 +194,15 @@ function Flow() {
       if (id.Id == 0n) {
         break
       }
-      
       const inProgressState : config.NodeState_InProgressState = {Status: config.NodeState_InProgressState_InProgressStatus.Running}
       const update = create(config.NodeStateSchema, { Id: id.Id, State: { case: "InProgress", value: inProgressState } })
-      setNodes((nds: Node[]) => applyUpdates(nds, create(api.UpdatesSchema, {NodeStates: [update]})))
-      client.node.waitDone(id).then((updates) => setNodes((nds: Node[]) => applyUpdates(nds, updates)))
+      onUpdates(create(api.UpdatesSchema, {NodeStates: [update]}))
+      client.node.waitDone(id).then(onUpdates)
     }
   }
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#CCC' }}>
-      <div style={{ height: '45px' }}>
-        <button onClick={newGraph}>
-          New Graph
-        </button>
-
-        <button onClick={addNewNode}>
-          Add New Node
-        </button>
-
-        <button onClick={runAll}>
-          Run All
-        </button>
-      </div>
-        
       <div className="providerflow" style={{ height: '100vh' }}>
         <ReactFlowProvider>
 
@@ -240,19 +215,24 @@ function Flow() {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
-              onNodeDrag={onNodeDrag}
               onNodesDelete={onNodesDelete}
-              nodeTypes={nodeTypes}
+              nodeTypes={{JobNode}}
               fitView
               fitViewOptions={fitViewOptions}
               defaultEdgeOptions={defaultEdgeOptions}
-              // style={{ width: '50vw' }}
-              // style={{ background: '#c9f1dd' }}
             />
-            
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel>
+            <button onClick={newGraph}>
+              New Graph
+            </button>
+            <button onClick={addNewNode}>
+              Add New Node
+            </button>
+            <button onClick={runAll}>
+              Run All
+            </button>
             <Sidebar
               nodes={nodes}
               setNodes={setNodes}
