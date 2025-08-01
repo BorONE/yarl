@@ -160,3 +160,11 @@ export default memo(({ data }) => {
         />
     </div>
 });
+
+export const nodeInitParams : Partial<Node> = {
+  width: 103,
+  height: 70,
+  style: {
+    borderRadius: '4px'
+  }
+}

@@ -1,10 +1,9 @@
 /* xyflow theme files. Delete these to start from our base */
-
 .react-flow {
     --xy-background-color: #f7f9fb;
     /* Custom Variables */
     --xy-theme-selected: #646cff;
-    --xy-theme-hover: #c5c5c5;
+    --xy-theme-hover: #646cff;
     --xy-theme-edge-hover: black;
     --xy-theme-color-focus: #e8e8e8;
   
@@ -41,11 +40,12 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 10px;
+    /* padding: 10px; */
     font-size: 12px;
     flex-direction: column;
-    border: var(--xy-node-border-default);
+    border: 1px solid #ededed;
     color: var(--xy-node-color, var(--xy-node-color-default));
+    transition: border-color 0.25s;
   }
   
   .react-flow__node.selectable:focus {
@@ -106,93 +106,11 @@
     height: 5px;
   }
   
-  /* 
-    Custom Example CSS  - This CSS is to improve the example experience.
-    You can remove it if you want to use the default styles.
-  
-    New Theme Classes:
-      .xy-theme__button   - Styles for buttons.
-      .xy-theme__input    - Styles for text inputs.
-      .xy-theme__checkbox - Styles for checkboxes.
-      .xy-theme__select   - Styles for dropdown selects.
-      .xy-theme__label    - Styles for labels.
-    
-    Use these classes to apply consistent theming across your components.
-  */
-  
   :root {
     --color-primary: #ff0073;
     --color-background: #fefefe;
     --color-hover-bg: #f6f6f6;
     --color-disabled: #76797e;
-  }
-  
-  .xy-theme__button-group {
-    display: flex;
-    align-items: center;
-  
-    .xy-theme__button:first-child {
-      border-radius: 100px 0 0 100px;
-    }
-  
-    .xy-theme__button:last-child {
-      border-radius: 0 100px 100px 0;
-      margin: 0;
-    }
-  }
-  
-  /* Custom Button Styling */
-  .xy-theme__button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 2.5rem;
-    padding: 0 1rem;
-    border-radius: 100px;
-    border: 1px solid var(--color-primary);
-    background-color: var(--color-background);
-    color: var(--color-primary);
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease;
-    box-shadow: var(--xy-node-boxshadow-default);
-    cursor: pointer;
-  }
-  
-  .xy-theme__button.active {
-    background-color: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-  }
-  
-  .xy-theme__button.active:hover,
-  .xy-theme__button.active:active {
-    background-color: var(--color-primary);
-    opacity: 0.9;
-  }
-  
-  .xy-theme__button:hover {
-    background-color: var(--xy-controls-button-background-color-hover-default);
-  }
-  
-  .xy-theme__button:active {
-    background-color: var(--color-hover-bg);
-  }
-  
-  .xy-theme__button:disabled {
-    color: var(--color-disabled);
-    opacity: 0.8;
-    cursor: not-allowed;
-    border: 1px solid var(--color-disabled);
-  }
-  
-  .xy-theme__button > span {
-    margin-right: 0.2rem;
-  }
-  
-  /* Add gap between adjacent buttons */
-  .xy-theme__button + .xy-theme__button {
-    margin-left: 0.3rem;
   }
   
   /* Example Input Styling */

@@ -19,7 +19,8 @@ import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
 
-import JobNode from './Node';
+import JobNode from './Node2';
+import { nodeInitParams } from './Node2';
 
 import * as client from './client'
 
@@ -38,40 +39,63 @@ import {
 
 
 const fitViewOptions: FitViewOptions = {
-  padding: 0.2,
+  // padding: 0.2,
 };
  
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
 };
 
+function getBorderColor(nodeState: config.NodeState) {
+  const stateCase = nodeState.State.case;
+  const state = nodeState.State.value;
+  switch (stateCase) {
+  case "Idle":
+      return "#D9D9D9"
+  case "InProgress":
+      return "#5773E4"
+  case "Done":
+      if (state.IsStopped) {
+          return "#DD5274"
+      } else if (state.Error) {
+          return "#DD5274"
+      } else {
+          return "#6DDD52"
+      }
+  }
+  return "#D9D9D9"
+}
 
 const applyUpdates = (nds: Node[], updates: api.Updates) => {
+  console.log(updates)
   return nds.map((nd) => {
     const state = updates.NodeStates.find((state) => state.Id == nd.data.id);
-    return state ? { ...nd, data: { ...nd.data, state }} : nd;
+    if (state) {
+      const borderColor = getBorderColor(state)
+      return { ...nd, data: { ...nd.data, state }, style: { ...nd.style, borderColor} };
+    }
+    return nd;
   })
 }
 
 const applyUpdatesEdges = (eds: Edge[], updates: api.Updates) => {
   return eds.map((ed) => {
     const state = updates.NodeStates.find((state) => state.Id == BigInt(ed.source));
-    return state ? { ...ed, animated: !(state.State.case == "Done" && !state.State.value.Error) } : ed;
+    return state ? { ...ed, animated: !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped) } : ed;
   })
 }
 
 type Hooks = {
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>> | null,
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>> | null,
+  onUpdates: ((updates: api.Updates) => void) | null
 }
 
 var hooks : Hooks = {
-  setNodes: null,
-  setEdges: null,
+  onUpdates: null,
 }
 
 const graphConfig = await client.graph.getConfig({})
 const graphState = await client.graph.collectState({})
+
 
 const initialNodes: Node[] = graphConfig.Nodes.map((config) => ({
   id: `${config.Id}`,
@@ -84,8 +108,7 @@ const initialNodes: Node[] = graphConfig.Nodes.map((config) => ({
   },
   sourcePosition: Position.Right,
   targetPosition: Position.Left,
-  width: 103,
-  height: 70,
+  ...nodeInitParams,
 }))
 
 const initialEdges: Edge[] = graphConfig.Edges.map((edge) => ({
@@ -98,9 +121,6 @@ function Flow() {
   const [nodes, setNodes] = useState<Node[]>(applyUpdates(initialNodes, graphState));
   const [edges, setEdges] = useState<Edge[]>(applyUpdatesEdges(initialEdges, graphState));
 
-  hooks.setNodes = setNodes
-  hooks.setEdges = setEdges
-
   const onUpdates = useCallback(
     (updates: api.Updates) => {
       setNodes((nds) => applyUpdates(nds, updates))
@@ -108,6 +128,8 @@ function Flow() {
     },
     [setNodes, setEdges],
   );
+
+  hooks.onUpdates = onUpdates
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -128,7 +150,12 @@ function Flow() {
   const onConnect: OnConnect = useCallback(
     async (connection) => {
       const updates = await client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
-      setEdges((eds) => addEdge(connection, eds))
+      setEdges((eds) => {
+        const node = nodes.find(nd => nd.id == connection.source)
+        console.log(connection, node)
+        const state : config.NodeState = node?.data.state
+        return addEdge({...connection, animated: state && !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped)}, eds)
+      })
       onUpdates(updates)
     },
     [setEdges, setNodes],
@@ -161,8 +188,7 @@ function Flow() {
       },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
-      width: 103,
-      height: 70,
+      ...nodeInitParams,
     };
 
     setNodes((nds) => [...nds, node]);
@@ -205,42 +231,42 @@ function Flow() {
     <div style={{ width: '100vw', height: '100vh', background: '#CCC' }}>
       <div className="providerflow" style={{ height: '100vh' }}>
         <ReactFlowProvider>
-
-        <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
-              onNodesDelete={onNodesDelete}
-              nodeTypes={{JobNode}}
-              fitView
-              fitViewOptions={fitViewOptions}
-              defaultEdgeOptions={defaultEdgeOptions}
-            />
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel>
-            <button onClick={newGraph}>
-              New Graph
-            </button>
-            <button onClick={addNewNode}>
-              Add New Node
-            </button>
-            <button onClick={runAll}>
-              Run All
-            </button>
-            <Sidebar
-              nodes={nodes}
-              setNodes={setNodes}
-              style={{}}
-            />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-
+          <ResizablePanelGroup direction="horizontal">
+            <ResizablePanel>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
+                onNodesDelete={onNodesDelete}
+                nodeTypes={{JobNode}}
+                fitView
+                fitViewOptions={fitViewOptions}
+                defaultEdgeOptions={defaultEdgeOptions}
+                snapToGrid
+                snapGrid={[20, 20]}
+              />
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel>
+              <button onClick={newGraph}>
+                New Graph
+              </button>
+              <button onClick={addNewNode}>
+                Add New Node
+              </button>
+              <button onClick={runAll}>
+                Run All
+              </button>
+              <Sidebar
+                nodes={nodes}
+                setNodes={setNodes}
+                style={{}}
+              />
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </ReactFlowProvider>
       </div>
     </div>
