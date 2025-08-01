@@ -121,7 +121,7 @@ export default memo(({ data }) => {
             top: 0,
             fontSize: 9,
             whiteSpace: "nowrap",
-            width: "53px",
+            width: "60px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "inline-block",
@@ -177,7 +177,6 @@ export const nodeInitParams : Partial<Node> = {
     }
 }
 
-
 const buttonStyle : React.CSSProperties = {
     position: "absolute",
     right: -borderWidth,
@@ -186,22 +185,3 @@ const buttonStyle : React.CSSProperties = {
     borderRadius: 10,
     borderWidth: borderWidth,
 }
-
-// export const nodeInitParams : Partial<Node> = {
-//     width: 120,
-//     height: 20,
-//     style: {
-//         borderRadius: 10 + 2 * borderWidth,
-//         borderWidth: borderWidth,
-//     }
-// }
-
-
-// const buttonStyle : React.CSSProperties = {
-//     position: "absolute",
-//     right: 0 - borderWidth,
-//     height: 20 + 2 * borderWidth,
-//     width: 20 + 2 * borderWidth,
-//     borderRadius: 11 + borderWidth,
-//     borderWidth: borderWidth,
-// }
