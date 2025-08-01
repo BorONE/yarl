@@ -67,7 +67,6 @@ function getBorderColor(nodeState: config.NodeState) {
 }
 
 const applyUpdates = (nds: Node[], updates: api.Updates) => {
-  console.log(updates)
   return nds.map((nd) => {
     const state = updates.NodeStates.find((state) => state.Id == nd.data.id);
     if (state) {
@@ -96,11 +95,12 @@ var hooks : Hooks = {
 const graphConfig = await client.graph.getConfig({})
 const graphState = await client.graph.collectState({})
 
+console.log(graphConfig)
 
 const initialNodes: Node[] = graphConfig.Nodes.map((config) => ({
   id: `${config.Id}`,
   type: 'JobNode',
-  position: { x: 100, y: 0 },
+  position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
   data: {
     id: config.Id,
     config,
@@ -110,6 +110,8 @@ const initialNodes: Node[] = graphConfig.Nodes.map((config) => ({
   targetPosition: Position.Left,
   ...nodeInitParams,
 }))
+
+console.log(initialNodes)
 
 const initialEdges: Edge[] = graphConfig.Edges.map((edge) => ({
   id: `${edge.FromNodeId}-${edge.ToNodeId}`,
@@ -152,7 +154,6 @@ function Flow() {
       const updates = await client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
       setEdges((eds) => {
         const node = nodes.find(nd => nd.id == connection.source)
-        console.log(connection, node)
         const state : config.NodeState = node?.data.state
         return addEdge({...connection, animated: state && !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped)}, eds)
       })
@@ -179,7 +180,7 @@ function Flow() {
     const node : Node = {
       id: `${config.Id}`,
       type: 'JobNode',
-      position: { x: 100, y: 0 },
+      position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
       data: {
         id: config.Id,
         config,
@@ -201,7 +202,8 @@ function Flow() {
       Job: create(AnySchema, {
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
         value: job,
-      })
+      }),
+      Position: { X: 0, Y: 0 },
     })
     const response = await client.node.add(config);
     config.Id = response.Id
@@ -241,6 +243,10 @@ function Flow() {
                 onConnect={onConnect}
                 onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
                 onNodesDelete={onNodesDelete}
+                onNodeDragStop={(event: React.MouseEvent, node: Node, nodes: Node[]) => {
+                  node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
+                  client.node.edit(node.data.config)
+                }}
                 nodeTypes={{JobNode}}
                 fitView
                 fitViewOptions={fitViewOptions}

@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/graph/config.proto.
  */
 export const file_internal_graph_config: GenFile = /*@__PURE__*/
-  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIvQDCglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAaHAoJSWRsZVN0YXRlEg8KB0lzUmVhZHkYASABKAgakgEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiPAoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhqOAQoJRG9uZVN0YXRlEg0KBUVycm9yGAEgASgJEjIKBEFydHMYAiADKAsyJC5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlLkFydHNFbnRyeRIRCglJc1N0b3BwZWQYAyACKAgaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFU3RhdGUiTAoGQ29uZmlnEiAKBU5vZGVzGAEgAygLMhEuZ3JhcGguTm9kZUNvbmZpZxIgCgVFZGdlcxgCIAMoCzIRLmdyYXBoLkVkZ2VDb25maWciSQoKTm9kZUNvbmZpZxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEiEKA0pvYhgDIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkiMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEQhpaGHBpcGVncmFwaC9pbnRlcm5hbC9ncmFwaA", [file_google_protobuf_any]);
+  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIvQDCglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAaHAoJSWRsZVN0YXRlEg8KB0lzUmVhZHkYASABKAgakgEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiPAoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhqOAQoJRG9uZVN0YXRlEg0KBUVycm9yGAEgASgJEjIKBEFydHMYAiADKAsyJC5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlLkFydHNFbnRyeRIRCglJc1N0b3BwZWQYAyACKAgaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFU3RhdGUiTAoGQ29uZmlnEiAKBU5vZGVzGAEgAygLMhEuZ3JhcGguTm9kZUNvbmZpZxIgCgVFZGdlcxgCIAMoCzIRLmdyYXBoLkVkZ2VDb25maWciIAoIUG9zaXRpb24SCQoBWBgBIAIoBRIJCgFZGAIgAigFImwKCk5vZGVDb25maWcSCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIhCgNKb2IYAyABKAsyFC5nb29nbGUucHJvdG9idWYuQW55EiEKCFBvc2l0aW9uGAQgASgLMg8uZ3JhcGguUG9zaXRpb24iMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEQhpaGHBpcGVncmFwaC9pbnRlcm5hbC9ncmFwaA", [file_google_protobuf_any]);
 
 /**
  * @generated from message graph.NodeState
@@ -166,6 +166,28 @@ export const ConfigSchema: GenMessage<Config> = /*@__PURE__*/
   messageDesc(file_internal_graph_config, 1);
 
 /**
+ * @generated from message graph.Position
+ */
+export type Position = Message<"graph.Position"> & {
+  /**
+   * @generated from field: required int32 X = 1;
+   */
+  X: number;
+
+  /**
+   * @generated from field: required int32 Y = 2;
+   */
+  Y: number;
+};
+
+/**
+ * Describes the message graph.Position.
+ * Use `create(PositionSchema)` to create a new message.
+ */
+export const PositionSchema: GenMessage<Position> = /*@__PURE__*/
+  messageDesc(file_internal_graph_config, 2);
+
+/**
  * @generated from message graph.NodeConfig
  */
 export type NodeConfig = Message<"graph.NodeConfig"> & {
@@ -183,6 +205,11 @@ export type NodeConfig = Message<"graph.NodeConfig"> & {
    * @generated from field: optional google.protobuf.Any Job = 3;
    */
   Job?: Any;
+
+  /**
+   * @generated from field: optional graph.Position Position = 4;
+   */
+  Position?: Position;
 };
 
 /**
@@ -190,7 +217,7 @@ export type NodeConfig = Message<"graph.NodeConfig"> & {
  * Use `create(NodeConfigSchema)` to create a new message.
  */
 export const NodeConfigSchema: GenMessage<NodeConfig> = /*@__PURE__*/
-  messageDesc(file_internal_graph_config, 2);
+  messageDesc(file_internal_graph_config, 3);
 
 /**
  * @generated from message graph.EdgeConfig
@@ -212,5 +239,5 @@ export type EdgeConfig = Message<"graph.EdgeConfig"> & {
  * Use `create(EdgeConfigSchema)` to create a new message.
  */
 export const EdgeConfigSchema: GenMessage<EdgeConfig> = /*@__PURE__*/
-  messageDesc(file_internal_graph_config, 3);
+  messageDesc(file_internal_graph_config, 4);
 
