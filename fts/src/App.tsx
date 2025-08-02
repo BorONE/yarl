@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   Position,
   ReactFlow,
@@ -26,8 +26,8 @@ import * as client from './client'
 
 import * as api from './gen/internal/api/api_pb'
 import * as config from './gen/internal/graph/config_pb'
-import { create, toBinary } from '@bufbuild/protobuf';
-import { NodeConfigSchema, NodeStateSchema, type Config } from './gen/internal/graph/config_pb';
+import { create } from '@bufbuild/protobuf';
+import { NodeConfigSchema, NodeStateSchema } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema } from './gen/internal/job/register/shell_pb';
 import { AnySchema } from '@bufbuild/protobuf/wkt';
 
@@ -36,6 +36,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { createBinary } from './util';
+import { Input } from './components/ui/input';
 
 
 const fitViewOptions: FitViewOptions = {
@@ -92,36 +94,41 @@ var hooks : Hooks = {
   onUpdates: null,
 }
 
-const graphConfig = await client.graph.getConfig({})
-const graphState = await client.graph.collectState({})
+async function updateGraph() {
+  const graphConfig = await client.graph.getConfig({})
+  const graphState = await client.graph.collectState({})
+  
+  const nodes: Node[] = graphConfig.Nodes.map((config) => ({
+    id: `${config.Id}`,
+    type: 'JobNode',
+    position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
+    data: {
+      id: config.Id,
+      config,
+      hooks,
+    },
+    sourcePosition: Position.Right,
+    targetPosition: Position.Left,
+    ...nodeInitParams,
+  }))
 
-console.log(graphConfig)
+  const edges: Edge[] = graphConfig.Edges.map((edge) => ({
+    id: `${edge.FromNodeId}-${edge.ToNodeId}`,
+    source: `${edge.FromNodeId}`,
+    target: `${edge.ToNodeId}`
+  }))
+  
+  return {
+    nodes: applyUpdates(nodes, graphState),
+    edges: applyUpdatesEdges(edges, graphState),
+  }
+}
 
-const initialNodes: Node[] = graphConfig.Nodes.map((config) => ({
-  id: `${config.Id}`,
-  type: 'JobNode',
-  position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
-  data: {
-    id: config.Id,
-    config,
-    hooks,
-  },
-  sourcePosition: Position.Right,
-  targetPosition: Position.Left,
-  ...nodeInitParams,
-}))
-
-console.log(initialNodes)
-
-const initialEdges: Edge[] = graphConfig.Edges.map((edge) => ({
-  id: `${edge.FromNodeId}-${edge.ToNodeId}`,
-  source: `${edge.FromNodeId}`,
-  target: `${edge.ToNodeId}`
-}))
+const initialGraph = await updateGraph()
 
 function Flow() {
-  const [nodes, setNodes] = useState<Node[]>(applyUpdates(initialNodes, graphState));
-  const [edges, setEdges] = useState<Edge[]>(applyUpdatesEdges(initialEdges, graphState));
+  const [nodes, setNodes] = useState<Node[]>(initialGraph.nodes);
+  const [edges, setEdges] = useState<Edge[]>(initialGraph.edges);
 
   const onUpdates = useCallback(
     (updates: api.Updates) => {
@@ -176,6 +183,17 @@ function Flow() {
     setEdges((_) => [])
   }, [setNodes, setEdges])
   
+  const saveGraph = useCallback(async () => {
+    await client.graph.save({Path: graphRef.current.value});
+  }, [])
+  
+  const loadGraph = useCallback(async () => {
+    await client.graph.load({Path: graphRef.current.value});
+    const graph = await updateGraph()
+    setNodes((_) => graph.nodes)
+    setEdges((_) => graph.edges)
+  }, [setNodes, setEdges])
+  
   const spawnNode = useCallback(async (config: config.NodeConfig, state: config.NodeState) => {
     const node : Node = {
       id: `${config.Id}`,
@@ -196,12 +214,11 @@ function Flow() {
   }, [nodes])
 
   const addNewNode = useCallback(async () => {
-    const job = toBinary(ShellCommandConfigSchema, create(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }))
     var config = create(NodeConfigSchema, {
       Name: `Node`,
       Job: create(AnySchema, {
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
-        value: job,
+        value: createBinary(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }),
       }),
       Position: { X: 0, Y: 0 },
     })
@@ -228,6 +245,9 @@ function Flow() {
       client.node.waitDone(id).then(onUpdates)
     }
   }
+
+  const graphInfo = {Path: "yarl.proto.txt"}
+  var graphRef = useRef(null)
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#CCC' }}>
@@ -257,9 +277,25 @@ function Flow() {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel>
+              <label>Graph</label>
               <button onClick={newGraph}>
-                New Graph
+                New
               </button>
+              <button onClick={saveGraph}>
+                Save
+              </button>
+              <button onClick={loadGraph}>
+                Load
+              </button>
+              <Input
+                  id="Graph.Path"
+                  ref={graphRef}
+                  className='max-w-sm'
+                  placeholder='yarl.proto.txt'
+                  defaultValue={graphInfo.Path}
+              />
+
+              <label>Node</label>
               <button onClick={addNewNode}>
                 Add New Node
               </button>
