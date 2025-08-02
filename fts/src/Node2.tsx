@@ -137,9 +137,8 @@ export default memo(({ data }) => {
             top: 8,
             fontSize: 6,
             color: "#747474",
-            // fontStyle: "italic",
         }}>
-            shell
+            Shell
             {/* {extractJobType(data.config.Job.typeUrl)} */}
         </label>
         

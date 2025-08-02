@@ -39,6 +39,15 @@ import {
 import { createBinary } from './util';
 import { Input } from './components/ui/input';
 
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar"
 
 const fitViewOptions: FitViewOptions = {
   // padding: 0.2,
@@ -162,7 +171,7 @@ function Flow() {
       setEdges((eds) => {
         const node = nodes.find(nd => nd.id == connection.source)
         const state : config.NodeState = node?.data.state
-        return addEdge({...connection, animated: state && !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped)}, eds)
+        return addEdge({...connection, animated: !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped)}, eds)
       })
       onUpdates(updates)
     },
@@ -250,11 +259,36 @@ function Flow() {
   var graphRef = useRef(null)
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#CCC' }}>
-      <div className="providerflow" style={{ height: '100vh' }}>
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <div className="providerflow">
+      {/* <div className="providerflow" style={{ height: '100vh' }}> */}
         <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal">
             <ResizablePanel>
+              <Menubar style={{ padding: 0 }}>
+                <MenubarMenu>
+                  <MenubarTrigger>Graph</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem onSelect={newGraph}>New</MenubarItem>
+                    <MenubarItem onSelect={saveGraph}>Save</MenubarItem>
+                    <MenubarItem onSelect={loadGraph}>Load</MenubarItem>
+                    <MenubarSeparator/>
+                    <MenubarItem onSelect={runAll}>Run</MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu><MenubarMenu>
+                  <MenubarTrigger>Node</MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem onSelect={addNewNode}>New</MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+                <Input
+                    id="Graph.Path"
+                    ref={graphRef}
+                    // className='max-w-sm'
+                    placeholder='yarl.proto.txt'
+                    defaultValue={graphInfo.Path}
+                />
+              </Menubar>
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -277,31 +311,6 @@ function Flow() {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel>
-              <label>Graph</label>
-              <button onClick={newGraph}>
-                New
-              </button>
-              <button onClick={saveGraph}>
-                Save
-              </button>
-              <button onClick={loadGraph}>
-                Load
-              </button>
-              <Input
-                  id="Graph.Path"
-                  ref={graphRef}
-                  className='max-w-sm'
-                  placeholder='yarl.proto.txt'
-                  defaultValue={graphInfo.Path}
-              />
-
-              <label>Node</label>
-              <button onClick={addNewNode}>
-                Add New Node
-              </button>
-              <button onClick={runAll}>
-                Run All
-              </button>
               <Sidebar
                 nodes={nodes}
                 setNodes={setNodes}
