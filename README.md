@@ -3,22 +3,17 @@
 ## Prerequsites
 
 - [install protobuf compiler](https://protobuf.dev/getting-started/gotutorial/)
-- You can install Run On Save and automatically generate code
-```
-    "emeraldwalk.runonsave": {
-      "commands": [
-        {
-          // match .proto-files
-          "match": ".*\\.proto",
-          // `. ~/.zshrc` -- add path to compiler to PATH
-          "cmd": ". ~/.zshrc; protoc -I${fileDirname} --go_out=${fileDirname} ${file}",
-        }
-      ]
-    },
-```
-- You can protect generated code from editing
-```
-    "files.readonlyInclude": {
-      "**/*.pb.go": true
-    }
-```
+- You can install Run On Save and automatically generate code (see .vscode/settings.json)
+- To run the app you need to run:
+  - frontend
+    ```
+    (cd fts; npm run dev)
+    ```
+  - backend
+    ```
+    go run cmd/server/main.go
+    ```
+  - proxy
+    ```
+    envoy -c envoy
+    ```
