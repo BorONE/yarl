@@ -60,7 +60,7 @@ func (*Nothing) Descriptor() ([]byte, []int) {
 
 type NodeIdentifier struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint64                `protobuf:"varint,1,opt,name=Id,proto3,oneof" json:"Id,omitempty"` // optional string Name = 2;
+	Id            *uint64                `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"` // optional string Name = 2;
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -104,8 +104,8 @@ func (x *NodeIdentifier) GetId() uint64 {
 
 type ArtifactsMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stdout        *string                `protobuf:"bytes,1,opt,name=Stdout,proto3,oneof" json:"Stdout,omitempty"`
-	Stderr        *string                `protobuf:"bytes,2,opt,name=Stderr,proto3,oneof" json:"Stderr,omitempty"`
+	Stdout        *string                `protobuf:"bytes,1,opt,name=Stdout" json:"Stdout,omitempty"`
+	Stderr        *string                `protobuf:"bytes,2,opt,name=Stderr" json:"Stderr,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -156,7 +156,7 @@ func (x *ArtifactsMessage) GetStderr() string {
 
 type Updates struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates,proto3" json:"NodeStates,omitempty"`
+	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates" json:"NodeStates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -200,7 +200,7 @@ func (x *Updates) GetNodeStates() []*graph.NodeState {
 
 type State struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates,proto3" json:"NodeStates,omitempty"`
+	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates" json:"NodeStates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -244,7 +244,7 @@ func (x *State) GetNodeStates() []*graph.NodeState {
 
 type Path struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          *string                `protobuf:"bytes,1,opt,name=Path,proto3,oneof" json:"Path,omitempty"`
+	Path          *string                `protobuf:"bytes,1,opt,name=Path" json:"Path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -291,15 +291,12 @@ var File_internal_api_api_proto protoreflect.FileDescriptor
 const file_internal_api_api_proto_rawDesc = "" +
 	"\n" +
 	"\x16internal/api/api.proto\x12\x03api\x1a\x1binternal/graph/config.proto\"\t\n" +
-	"\aNothing\",\n" +
-	"\x0eNodeIdentifier\x12\x13\n" +
-	"\x02Id\x18\x01 \x01(\x04H\x00R\x02Id\x88\x01\x01B\x05\n" +
-	"\x03_Id\"b\n" +
-	"\x10ArtifactsMessage\x12\x1b\n" +
-	"\x06Stdout\x18\x01 \x01(\tH\x00R\x06Stdout\x88\x01\x01\x12\x1b\n" +
-	"\x06Stderr\x18\x02 \x01(\tH\x01R\x06Stderr\x88\x01\x01B\t\n" +
-	"\a_StdoutB\t\n" +
-	"\a_Stderr\";\n" +
+	"\aNothing\" \n" +
+	"\x0eNodeIdentifier\x12\x0e\n" +
+	"\x02Id\x18\x01 \x01(\x04R\x02Id\"B\n" +
+	"\x10ArtifactsMessage\x12\x16\n" +
+	"\x06Stdout\x18\x01 \x01(\tR\x06Stdout\x12\x16\n" +
+	"\x06Stderr\x18\x02 \x01(\tR\x06Stderr\";\n" +
 	"\aUpdates\x120\n" +
 	"\n" +
 	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
@@ -307,10 +304,9 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x05State\x120\n" +
 	"\n" +
 	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
-	"NodeStates\"(\n" +
-	"\x04Path\x12\x17\n" +
-	"\x04Path\x18\x01 \x01(\tH\x00R\x04Path\x88\x01\x01B\a\n" +
-	"\x05_Path2\xce\x02\n" +
+	"NodeStates\"\x1a\n" +
+	"\x04Path\x12\x12\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path2\xce\x02\n" +
 	"\x05Graph\x12!\n" +
 	"\x03New\x12\f.api.Nothing\x1a\f.api.Nothing\x12\x1f\n" +
 	"\x04Load\x12\t.api.Path\x1a\f.api.Nothing\x12\x1f\n" +
@@ -329,7 +325,7 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12-\n" +
 	"\x03Add\x12\x11.graph.NodeConfig\x1a\x13.api.NodeIdentifier\x12'\n" +
 	"\x04Edit\x12\x11.graph.NodeConfig\x1a\f.api.Nothing\x12+\n" +
-	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.UpdatesB\x18Z\x16pipegraph/internal/apib\x06proto3"
+	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.UpdatesB\x18Z\x16pipegraph/internal/api"
 
 var (
 	file_internal_api_api_proto_rawDescOnce sync.Once
@@ -401,9 +397,6 @@ func file_internal_api_api_proto_init() {
 	if File_internal_api_api_proto != nil {
 		return
 	}
-	file_internal_api_api_proto_msgTypes[1].OneofWrappers = []any{}
-	file_internal_api_api_proto_msgTypes[2].OneofWrappers = []any{}
-	file_internal_api_api_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

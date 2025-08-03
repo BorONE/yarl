@@ -56,10 +56,11 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 		log.Printf("job(id=%v) finished", node.Config.GetId())
 
 		state := node.state.(*NodeState_InProgress)
+		isStopped := *state.InProgress.Status == NodeState_InProgressState_Stopping
 		node.SetState(&NodeState_DoneState{
 			Error:     asStringPtr(jobErr),
 			Arts:      node.Job.CollectArtifacts(),
-			IsStopped: *state.InProgress.Status == NodeState_InProgressState_Stopping,
+			IsStopped: &isStopped,
 		})
 
 		node.DoneEvent.Trigger()

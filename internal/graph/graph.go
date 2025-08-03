@@ -110,6 +110,7 @@ func (graph *Graph) Disconnect(edge *EdgeConfig) error {
 }
 
 func (graph *Graph) getFreeNodeId() NodeId {
+	graph.nextNodeId += 1 // start with 1
 	for graph.Nodes[graph.nextNodeId] != nil {
 		graph.nextNodeId += 1
 	}
