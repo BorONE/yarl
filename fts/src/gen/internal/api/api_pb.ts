@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/api/api.proto.
  */
 export const file_internal_api_api: GenFile = /*@__PURE__*/
-  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJIpoBCgZVcGRhdGUSHQoEVHlwZRgBIAEoDjIPLmFwaS5VcGRhdGVUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypHCgpVcGRhdGVUeXBlEgwKCEluaXROb2RlEAESDAoISW5pdEVkZ2UQAhIMCghJbml0RG9uZRADEg8KC1VwZGF0ZVN0YXRlEAQyoAIKBUdyYXBoEiQKBVdhdGNoEgwuYXBpLk5vdGhpbmcaCy5hcGkuVXBkYXRlMAESIQoDTmV3EgwuYXBpLk5vdGhpbmcaDC5hcGkuTm90aGluZxIfCgRMb2FkEgkuYXBpLlBhdGgaDC5hcGkuTm90aGluZxIfCgRTYXZlEgkuYXBpLlBhdGgaDC5hcGkuTm90aGluZxIxCgxSdW5SZWFkeU5vZGUSDC5hcGkuTm90aGluZxoTLmFwaS5Ob2RlSWRlbnRpZmllchIqCgdDb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nEi0KCkRpc2Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcyjAIKBE5vZGUSKAoDUnVuEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKQoEU3RvcBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEioKBVJlc2V0EhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSLQoDQWRkEhEuZ3JhcGguTm9kZUNvbmZpZxoTLmFwaS5Ob2RlSWRlbnRpZmllchInCgRFZGl0EhEuZ3JhcGguTm9kZUNvbmZpZxoMLmFwaS5Ob3RoaW5nEisKBkRlbGV0ZRITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nQhhaFnBpcGVncmFwaC9pbnRlcm5hbC9hcGk", [file_internal_graph_config]);
+  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJIp4BCgxTeW5jUmVzcG9uc2USGwoEVHlwZRgBIAEoDjINLmFwaS5TeW5jVHlwZRIlCgpOb2RlQ29uZmlnGAIgASgLMhEuZ3JhcGguTm9kZUNvbmZpZxIjCglOb2RlU3RhdGUYAyABKAsyEC5ncmFwaC5Ob2RlU3RhdGUSJQoKRWRnZUNvbmZpZxgEIAEoCzIRLmdyYXBoLkVkZ2VDb25maWcqRQoIU3luY1R5cGUSDAoISW5pdE5vZGUQARIMCghJbml0RWRnZRACEgwKCEluaXREb25lEAMSDwoLVXBkYXRlU3RhdGUQBDKlAgoFR3JhcGgSKQoEU3luYxIMLmFwaS5Ob3RoaW5nGhEuYXBpLlN5bmNSZXNwb25zZTABEiEKA05ldxIMLmFwaS5Ob3RoaW5nGgwuYXBpLk5vdGhpbmcSHwoETG9hZBIJLmFwaS5QYXRoGgwuYXBpLk5vdGhpbmcSHwoEU2F2ZRIJLmFwaS5QYXRoGgwuYXBpLk5vdGhpbmcSMQoMUnVuUmVhZHlOb2RlEgwuYXBpLk5vdGhpbmcaEy5hcGkuTm9kZUlkZW50aWZpZXISKgoHQ29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuTm90aGluZxItCgpEaXNjb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nMowCCgROb2RlEigKA1J1bhITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIqCgVSZXNldBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEi0KA0FkZBIRLmdyYXBoLk5vZGVDb25maWcaEy5hcGkuTm9kZUlkZW50aWZpZXISJwoERWRpdBIRLmdyYXBoLk5vZGVDb25maWcaDC5hcGkuTm90aGluZxIrCgZEZWxldGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZ0IYWhZwaXBlZ3JhcGgvaW50ZXJuYWwvYXBp", [file_internal_graph_config]);
 
 /**
  * @generated from message api.Nothing
@@ -86,13 +86,13 @@ export const PathSchema: GenMessage<Path> = /*@__PURE__*/
   messageDesc(file_internal_api_api, 3);
 
 /**
- * @generated from message api.Update
+ * @generated from message api.SyncResponse
  */
-export type Update = Message<"api.Update"> & {
+export type SyncResponse = Message<"api.SyncResponse"> & {
   /**
-   * @generated from field: optional api.UpdateType Type = 1;
+   * @generated from field: optional api.SyncType Type = 1;
    */
-  Type: UpdateType;
+  Type: SyncType;
 
   /**
    * @generated from field: optional graph.NodeConfig NodeConfig = 2;
@@ -111,16 +111,16 @@ export type Update = Message<"api.Update"> & {
 };
 
 /**
- * Describes the message api.Update.
- * Use `create(UpdateSchema)` to create a new message.
+ * Describes the message api.SyncResponse.
+ * Use `create(SyncResponseSchema)` to create a new message.
  */
-export const UpdateSchema: GenMessage<Update> = /*@__PURE__*/
+export const SyncResponseSchema: GenMessage<SyncResponse> = /*@__PURE__*/
   messageDesc(file_internal_api_api, 4);
 
 /**
- * @generated from enum api.UpdateType
+ * @generated from enum api.SyncType
  */
-export enum UpdateType {
+export enum SyncType {
   /**
    * @generated from enum value: InitNode = 1;
    */
@@ -143,9 +143,9 @@ export enum UpdateType {
 }
 
 /**
- * Describes the enum api.UpdateType.
+ * Describes the enum api.SyncType.
  */
-export const UpdateTypeSchema: GenEnum<UpdateType> = /*@__PURE__*/
+export const SyncTypeSchema: GenEnum<SyncType> = /*@__PURE__*/
   enumDesc(file_internal_api_api, 0);
 
 /**
@@ -153,12 +153,12 @@ export const UpdateTypeSchema: GenEnum<UpdateType> = /*@__PURE__*/
  */
 export const Graph: GenService<{
   /**
-   * @generated from rpc api.Graph.Watch
+   * @generated from rpc api.Graph.Sync
    */
-  watch: {
+  sync: {
     methodKind: "server_streaming";
     input: typeof NothingSchema;
-    output: typeof UpdateSchema;
+    output: typeof SyncResponseSchema;
   },
   /**
    * @generated from rpc api.Graph.New

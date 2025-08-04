@@ -42,26 +42,29 @@ func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing,
 	return nil, s.graph.Save(ctx, path)
 }
 
-func (s ImplementedGraphServer) Watch(_ *Nothing, stream grpc.ServerStreamingServer[Update]) error {
+func (s ImplementedGraphServer) Sync(_ *Nothing, stream grpc.ServerStreamingServer[SyncResponse]) error {
 	s.mutex.Lock()
 
 	log.Println("streaming Watch() init")
 	for _, node := range s.graph.Nodes {
-		stream.Send(&Update{
-			Type:       UpdateType_InitNode.Enum(),
+		stream.Send(&SyncResponse{
+			Type:       SyncType_InitNode.Enum(),
 			NodeConfig: node.Config,
 			NodeState:  node.GetState(),
 		})
 	}
 	for _, edge := range s.graph.Config.Edges {
-		stream.Send(&Update{
-			Type:       UpdateType_InitEdge.Enum(),
+		stream.Send(&SyncResponse{
+			Type:       SyncType_InitEdge.Enum(),
 			EdgeConfig: edge,
 		})
 	}
-	stream.Send(&Update{
-		Type: UpdateType_InitDone.Enum(),
+	stream.Send(&SyncResponse{
+		Type: SyncType_InitDone.Enum(),
 	})
+
+	syncListener, syncListenerDone := s.graph.NewSyncListener()
+	defer syncListenerDone()
 
 	s.mutex.Unlock()
 
@@ -71,9 +74,9 @@ func (s ImplementedGraphServer) Watch(_ *Nothing, stream grpc.ServerStreamingSer
 		case <-stream.Context().Done():
 			log.Println("streaming Watch() ", stream.Context().Err())
 			return stream.Context().Err()
-		case state := <-s.graph.Updates:
-			stream.Send(&Update{
-				Type:      UpdateType_UpdateState.Enum(),
+		case state := <-syncListener:
+			stream.Send(&SyncResponse{
+				Type:      SyncType_UpdateState.Enum(),
 				NodeState: state,
 			})
 		}

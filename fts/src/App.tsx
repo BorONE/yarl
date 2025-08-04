@@ -101,18 +101,18 @@ function isReady(state: config.NodeState) {
   return state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped
 }
 
-async function init(watching : AsyncIterable<api.Update>) {
+async function init(watching : AsyncIterable<api.SyncResponse>) {
   var initialGraph: { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] } 
   for await (const update of watching) {
     switch (update.Type) {
-      case api.UpdateType.InitNode: {
+      case api.SyncType.InitNode: {
         const config : config.NodeConfig = update.NodeConfig
         const state : config.NodeState = update.NodeState
         initialGraph.nodes.push(buildNode(config, state))
         continue
       }
 
-      case api.UpdateType.InitEdge: {
+      case api.SyncType.InitEdge: {
         const edge : config.EdgeConfig = update.EdgeConfig
         const state : config.NodeState = initialGraph.nodes.map(node => node.data.state).find((state) => state.Id == BigInt(edge.FromNodeId));
         initialGraph.edges.push({
@@ -124,22 +124,22 @@ async function init(watching : AsyncIterable<api.Update>) {
         continue
       }
 
-      case api.UpdateType.InitDone: {
+      case api.SyncType.InitDone: {
         return initialGraph
       }
     }
   }
 }
 
-var watching = client.graph.watch({})
-const initialGraph = await init(watching)
+var sync = client.graph.sync({})
+const initialGraph = await init(sync)
 
 function Flow() {
   const [nodes, setNodes] = useState<Node[]>(initialGraph.nodes);
   const [edges, setEdges] = useState<Edge[]>(initialGraph.edges);
 
   const onNodeStateUpdate = useCallback(
-    (update: api.Update) => {
+    (update: api.SyncResponse) => {
       setNodes((nds) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState) : nd))
       setEdges((eds) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
     },
@@ -147,9 +147,9 @@ function Flow() {
   );
 
   const follow = async () => {
-    for await (const update of watching) {
+    for await (const update of sync) {
       switch (update.Type) {
-        case api.UpdateType.UpdateState: {
+        case api.SyncType.UpdateState: {
           onNodeStateUpdate(update)
           break
         }

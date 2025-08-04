@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Graph_Watch_FullMethodName        = "/api.Graph/Watch"
+	Graph_Sync_FullMethodName         = "/api.Graph/Sync"
 	Graph_New_FullMethodName          = "/api.Graph/New"
 	Graph_Load_FullMethodName         = "/api.Graph/Load"
 	Graph_Save_FullMethodName         = "/api.Graph/Save"
@@ -33,7 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphClient interface {
-	Watch(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Update], error)
+	Sync(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SyncResponse], error)
 	New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
 	Load(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
 	Save(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
@@ -50,13 +50,13 @@ func NewGraphClient(cc grpc.ClientConnInterface) GraphClient {
 	return &graphClient{cc}
 }
 
-func (c *graphClient) Watch(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Update], error) {
+func (c *graphClient) Sync(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SyncResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Graph_ServiceDesc.Streams[0], Graph_Watch_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Graph_ServiceDesc.Streams[0], Graph_Sync_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[Nothing, Update]{ClientStream: stream}
+	x := &grpc.GenericClientStream[Nothing, SyncResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *graphClient) Watch(ctx context.Context, in *Nothing, opts ...grpc.CallO
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Graph_WatchClient = grpc.ServerStreamingClient[Update]
+type Graph_SyncClient = grpc.ServerStreamingClient[SyncResponse]
 
 func (c *graphClient) New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -133,7 +133,7 @@ func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
 type GraphServer interface {
-	Watch(*Nothing, grpc.ServerStreamingServer[Update]) error
+	Sync(*Nothing, grpc.ServerStreamingServer[SyncResponse]) error
 	New(context.Context, *Nothing) (*Nothing, error)
 	Load(context.Context, *Path) (*Nothing, error)
 	Save(context.Context, *Path) (*Nothing, error)
@@ -150,8 +150,8 @@ type GraphServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGraphServer struct{}
 
-func (UnimplementedGraphServer) Watch(*Nothing, grpc.ServerStreamingServer[Update]) error {
-	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
+func (UnimplementedGraphServer) Sync(*Nothing, grpc.ServerStreamingServer[SyncResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedGraphServer) New(context.Context, *Nothing) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
@@ -192,16 +192,16 @@ func RegisterGraphServer(s grpc.ServiceRegistrar, srv GraphServer) {
 	s.RegisterService(&Graph_ServiceDesc, srv)
 }
 
-func _Graph_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Graph_Sync_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Nothing)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(GraphServer).Watch(m, &grpc.GenericServerStream[Nothing, Update]{ServerStream: stream})
+	return srv.(GraphServer).Sync(m, &grpc.GenericServerStream[Nothing, SyncResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Graph_WatchServer = grpc.ServerStreamingServer[Update]
+type Graph_SyncServer = grpc.ServerStreamingServer[SyncResponse]
 
 func _Graph_New_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Nothing)
@@ -345,8 +345,8 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Watch",
-			Handler:       _Graph_Watch_Handler,
+			StreamName:    "Sync",
+			Handler:       _Graph_Sync_Handler,
 			ServerStreams: true,
 		},
 	},

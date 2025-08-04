@@ -22,24 +22,24 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UpdateType int32
+type SyncType int32
 
 const (
-	UpdateType_InitNode    UpdateType = 1
-	UpdateType_InitEdge    UpdateType = 2
-	UpdateType_InitDone    UpdateType = 3
-	UpdateType_UpdateState UpdateType = 4
+	SyncType_InitNode    SyncType = 1
+	SyncType_InitEdge    SyncType = 2
+	SyncType_InitDone    SyncType = 3
+	SyncType_UpdateState SyncType = 4
 )
 
-// Enum value maps for UpdateType.
+// Enum value maps for SyncType.
 var (
-	UpdateType_name = map[int32]string{
+	SyncType_name = map[int32]string{
 		1: "InitNode",
 		2: "InitEdge",
 		3: "InitDone",
 		4: "UpdateState",
 	}
-	UpdateType_value = map[string]int32{
+	SyncType_value = map[string]int32{
 		"InitNode":    1,
 		"InitEdge":    2,
 		"InitDone":    3,
@@ -47,40 +47,40 @@ var (
 	}
 )
 
-func (x UpdateType) Enum() *UpdateType {
-	p := new(UpdateType)
+func (x SyncType) Enum() *SyncType {
+	p := new(SyncType)
 	*p = x
 	return p
 }
 
-func (x UpdateType) String() string {
+func (x SyncType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (UpdateType) Descriptor() protoreflect.EnumDescriptor {
+func (SyncType) Descriptor() protoreflect.EnumDescriptor {
 	return file_internal_api_api_proto_enumTypes[0].Descriptor()
 }
 
-func (UpdateType) Type() protoreflect.EnumType {
+func (SyncType) Type() protoreflect.EnumType {
 	return &file_internal_api_api_proto_enumTypes[0]
 }
 
-func (x UpdateType) Number() protoreflect.EnumNumber {
+func (x SyncType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
 // Deprecated: Do not use.
-func (x *UpdateType) UnmarshalJSON(b []byte) error {
+func (x *SyncType) UnmarshalJSON(b []byte) error {
 	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
 	if err != nil {
 		return err
 	}
-	*x = UpdateType(num)
+	*x = SyncType(num)
 	return nil
 }
 
-// Deprecated: Use UpdateType.Descriptor instead.
-func (UpdateType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use SyncType.Descriptor instead.
+func (SyncType) EnumDescriptor() ([]byte, []int) {
 	return file_internal_api_api_proto_rawDescGZIP(), []int{0}
 }
 
@@ -260,9 +260,9 @@ func (x *Path) GetPath() string {
 	return ""
 }
 
-type Update struct {
+type SyncResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          *UpdateType            `protobuf:"varint,1,opt,name=Type,enum=api.UpdateType" json:"Type,omitempty"`
+	Type          *SyncType              `protobuf:"varint,1,opt,name=Type,enum=api.SyncType" json:"Type,omitempty"`
 	NodeConfig    *graph.NodeConfig      `protobuf:"bytes,2,opt,name=NodeConfig" json:"NodeConfig,omitempty"`
 	NodeState     *graph.NodeState       `protobuf:"bytes,3,opt,name=NodeState" json:"NodeState,omitempty"`
 	EdgeConfig    *graph.EdgeConfig      `protobuf:"bytes,4,opt,name=EdgeConfig" json:"EdgeConfig,omitempty"`
@@ -270,20 +270,20 @@ type Update struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Update) Reset() {
-	*x = Update{}
+func (x *SyncResponse) Reset() {
+	*x = SyncResponse{}
 	mi := &file_internal_api_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Update) String() string {
+func (x *SyncResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Update) ProtoMessage() {}
+func (*SyncResponse) ProtoMessage() {}
 
-func (x *Update) ProtoReflect() protoreflect.Message {
+func (x *SyncResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_internal_api_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -295,33 +295,33 @@ func (x *Update) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Update.ProtoReflect.Descriptor instead.
-func (*Update) Descriptor() ([]byte, []int) {
+// Deprecated: Use SyncResponse.ProtoReflect.Descriptor instead.
+func (*SyncResponse) Descriptor() ([]byte, []int) {
 	return file_internal_api_api_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Update) GetType() UpdateType {
+func (x *SyncResponse) GetType() SyncType {
 	if x != nil && x.Type != nil {
 		return *x.Type
 	}
-	return UpdateType_InitNode
+	return SyncType_InitNode
 }
 
-func (x *Update) GetNodeConfig() *graph.NodeConfig {
+func (x *SyncResponse) GetNodeConfig() *graph.NodeConfig {
 	if x != nil {
 		return x.NodeConfig
 	}
 	return nil
 }
 
-func (x *Update) GetNodeState() *graph.NodeState {
+func (x *SyncResponse) GetNodeState() *graph.NodeState {
 	if x != nil {
 		return x.NodeState
 	}
 	return nil
 }
 
-func (x *Update) GetEdgeConfig() *graph.EdgeConfig {
+func (x *SyncResponse) GetEdgeConfig() *graph.EdgeConfig {
 	if x != nil {
 		return x.EdgeConfig
 	}
@@ -340,24 +340,23 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x06Stdout\x18\x01 \x01(\tR\x06Stdout\x12\x16\n" +
 	"\x06Stderr\x18\x02 \x01(\tR\x06Stderr\"\x1a\n" +
 	"\x04Path\x12\x12\n" +
-	"\x04Path\x18\x01 \x01(\tR\x04Path\"\xc3\x01\n" +
-	"\x06Update\x12#\n" +
-	"\x04Type\x18\x01 \x01(\x0e2\x0f.api.UpdateTypeR\x04Type\x121\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path\"\xc7\x01\n" +
+	"\fSyncResponse\x12!\n" +
+	"\x04Type\x18\x01 \x01(\x0e2\r.api.SyncTypeR\x04Type\x121\n" +
 	"\n" +
 	"NodeConfig\x18\x02 \x01(\v2\x11.graph.NodeConfigR\n" +
 	"NodeConfig\x12.\n" +
 	"\tNodeState\x18\x03 \x01(\v2\x10.graph.NodeStateR\tNodeState\x121\n" +
 	"\n" +
 	"EdgeConfig\x18\x04 \x01(\v2\x11.graph.EdgeConfigR\n" +
-	"EdgeConfig*G\n" +
-	"\n" +
-	"UpdateType\x12\f\n" +
+	"EdgeConfig*E\n" +
+	"\bSyncType\x12\f\n" +
 	"\bInitNode\x10\x01\x12\f\n" +
 	"\bInitEdge\x10\x02\x12\f\n" +
 	"\bInitDone\x10\x03\x12\x0f\n" +
-	"\vUpdateState\x10\x042\xa0\x02\n" +
-	"\x05Graph\x12$\n" +
-	"\x05Watch\x12\f.api.Nothing\x1a\v.api.Update0\x01\x12!\n" +
+	"\vUpdateState\x10\x042\xa5\x02\n" +
+	"\x05Graph\x12)\n" +
+	"\x04Sync\x12\f.api.Nothing\x1a\x11.api.SyncResponse0\x01\x12!\n" +
 	"\x03New\x12\f.api.Nothing\x1a\f.api.Nothing\x12\x1f\n" +
 	"\x04Load\x12\t.api.Path\x1a\f.api.Nothing\x12\x1f\n" +
 	"\x04Save\x12\t.api.Path\x1a\f.api.Nothing\x121\n" +
@@ -388,22 +387,22 @@ func file_internal_api_api_proto_rawDescGZIP() []byte {
 var file_internal_api_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_internal_api_api_proto_goTypes = []any{
-	(UpdateType)(0),          // 0: api.UpdateType
+	(SyncType)(0),            // 0: api.SyncType
 	(*Nothing)(nil),          // 1: api.Nothing
 	(*NodeIdentifier)(nil),   // 2: api.NodeIdentifier
 	(*ArtifactsMessage)(nil), // 3: api.ArtifactsMessage
 	(*Path)(nil),             // 4: api.Path
-	(*Update)(nil),           // 5: api.Update
+	(*SyncResponse)(nil),     // 5: api.SyncResponse
 	(*graph.NodeConfig)(nil), // 6: graph.NodeConfig
 	(*graph.NodeState)(nil),  // 7: graph.NodeState
 	(*graph.EdgeConfig)(nil), // 8: graph.EdgeConfig
 }
 var file_internal_api_api_proto_depIdxs = []int32{
-	0,  // 0: api.Update.Type:type_name -> api.UpdateType
-	6,  // 1: api.Update.NodeConfig:type_name -> graph.NodeConfig
-	7,  // 2: api.Update.NodeState:type_name -> graph.NodeState
-	8,  // 3: api.Update.EdgeConfig:type_name -> graph.EdgeConfig
-	1,  // 4: api.Graph.Watch:input_type -> api.Nothing
+	0,  // 0: api.SyncResponse.Type:type_name -> api.SyncType
+	6,  // 1: api.SyncResponse.NodeConfig:type_name -> graph.NodeConfig
+	7,  // 2: api.SyncResponse.NodeState:type_name -> graph.NodeState
+	8,  // 3: api.SyncResponse.EdgeConfig:type_name -> graph.EdgeConfig
+	1,  // 4: api.Graph.Sync:input_type -> api.Nothing
 	1,  // 5: api.Graph.New:input_type -> api.Nothing
 	4,  // 6: api.Graph.Load:input_type -> api.Path
 	4,  // 7: api.Graph.Save:input_type -> api.Path
@@ -416,7 +415,7 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	6,  // 14: api.Node.Add:input_type -> graph.NodeConfig
 	6,  // 15: api.Node.Edit:input_type -> graph.NodeConfig
 	2,  // 16: api.Node.Delete:input_type -> api.NodeIdentifier
-	5,  // 17: api.Graph.Watch:output_type -> api.Update
+	5,  // 17: api.Graph.Sync:output_type -> api.SyncResponse
 	1,  // 18: api.Graph.New:output_type -> api.Nothing
 	1,  // 19: api.Graph.Load:output_type -> api.Nothing
 	1,  // 20: api.Graph.Save:output_type -> api.Nothing
