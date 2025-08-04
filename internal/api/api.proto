@@ -18,39 +18,43 @@ message ArtifactsMessage {
     optional string Stderr = 2;
 }
 
-message Updates {
-    repeated graph.NodeState NodeStates = 1;
-}
-
-message State {
-    repeated graph.NodeState NodeStates = 1;
-}
-
 message Path {
     optional string Path = 1;
 }
 
+enum UpdateType {
+    InitNode = 1;
+    InitEdge = 2;
+    InitDone = 3;
+    UpdateState = 4;
+}
+
+message Update {
+    optional UpdateType Type = 1;
+    optional graph.NodeConfig NodeConfig = 2;
+    optional graph.NodeState NodeState = 3;
+    optional graph.EdgeConfig EdgeConfig = 4;
+}
+
 service Graph {
+    rpc Watch(Nothing) returns (stream Update);
+
     rpc New(Nothing) returns (Nothing);
     rpc Load(Path) returns (Nothing);
     rpc Save(Path) returns (Nothing);
 
-    rpc GetConfig(Nothing) returns (graph.Config);
-    rpc CollectState(Nothing) returns (State);
-    
     rpc RunReadyNode(Nothing) returns (NodeIdentifier);
 
-    rpc Connect(graph.EdgeConfig) returns (Updates);
-    rpc Disconnect(graph.EdgeConfig) returns (Updates);
+    rpc Connect(graph.EdgeConfig) returns (Nothing);
+    rpc Disconnect(graph.EdgeConfig) returns (Nothing);
 }
 
 service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
     rpc Stop(NodeIdentifier) returns (Nothing);
-    rpc WaitDone(NodeIdentifier) returns (Updates);
-    rpc Reset(NodeIdentifier) returns (Updates);
+    rpc Reset(NodeIdentifier) returns (Nothing);
 
     rpc Add(graph.NodeConfig) returns (NodeIdentifier);
     rpc Edit(graph.NodeConfig) returns (Nothing);
-    rpc Delete(NodeIdentifier) returns (Updates);
+    rpc Delete(NodeIdentifier) returns (Nothing);
 }

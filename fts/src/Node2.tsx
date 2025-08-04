@@ -49,8 +49,6 @@ function getBorderColor(nodeState: config.NodeState) {
 
 
 export default memo(({ data }) => {
-    const onUpdates = data.hooks.onUpdates
-
     const genButton = (onClick: () => void, icon: string) => {
         return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state)}}>
             <img src={icon}/>
@@ -58,29 +56,12 @@ export default memo(({ data }) => {
     }
 
     const genButtons = () => {
-        const onClickRun = async () => {
-            await client.node.run({Id: data.id})
-            const inProgressState : config.NodeState_InProgressState = {Status: config.NodeState_InProgressState_InProgressStatus.Running}
-            const update = create(config.NodeStateSchema, { Id: data.id, State: { case: "InProgress", value: inProgressState } })
-            onUpdates(create(api.UpdatesSchema, {NodeStates: [update]}))
-            
-            client.node.waitDone({Id: data.id}).then(onUpdates)
-        }
-
-        const onClickStop = async () => {
-            await client.node.stop({Id: data.id})
-        }
-
-        const onClickReset = async () => {
-            client.node.reset({Id: data.id}).then(onUpdates)
-        }
-        
         const st : config.NodeState = data.state;
         const state = st.State;
         return <>
-            {state.case == "Idle" && state.value.IsReady ? genButton(onClickRun, runIcon) : <></>}
-            {state.case == "InProgress" ? genButton(onClickStop, stopIcon) : <></>}
-            {state.case == "Done" ? genButton(onClickReset, resetIcon) : <></>}
+            {state.case == "Idle" && state.value.IsReady ? genButton(() => client.node.run({Id: data.id}), runIcon) : <></>}
+            {state.case == "InProgress" ? genButton(() => client.node.stop({Id: data.id}), stopIcon) : <></>}
+            {state.case == "Done" ? genButton(() => client.node.reset({Id: data.id}), resetIcon) : <></>}
         </>
     }
 
