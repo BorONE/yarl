@@ -22,6 +22,68 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type SyncType int32
+
+const (
+	SyncType_InitNode    SyncType = 1
+	SyncType_InitEdge    SyncType = 2
+	SyncType_InitDone    SyncType = 3
+	SyncType_UpdateState SyncType = 4
+)
+
+// Enum value maps for SyncType.
+var (
+	SyncType_name = map[int32]string{
+		1: "InitNode",
+		2: "InitEdge",
+		3: "InitDone",
+		4: "UpdateState",
+	}
+	SyncType_value = map[string]int32{
+		"InitNode":    1,
+		"InitEdge":    2,
+		"InitDone":    3,
+		"UpdateState": 4,
+	}
+)
+
+func (x SyncType) Enum() *SyncType {
+	p := new(SyncType)
+	*p = x
+	return p
+}
+
+func (x SyncType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SyncType) Descriptor() protoreflect.EnumDescriptor {
+	return file_internal_api_api_proto_enumTypes[0].Descriptor()
+}
+
+func (SyncType) Type() protoreflect.EnumType {
+	return &file_internal_api_api_proto_enumTypes[0]
+}
+
+func (x SyncType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *SyncType) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = SyncType(num)
+	return nil
+}
+
+// Deprecated: Use SyncType.Descriptor instead.
+func (SyncType) EnumDescriptor() ([]byte, []int) {
+	return file_internal_api_api_proto_rawDescGZIP(), []int{0}
+}
+
 type Nothing struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -154,94 +216,6 @@ func (x *ArtifactsMessage) GetStderr() string {
 	return ""
 }
 
-type Updates struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates" json:"NodeStates,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Updates) Reset() {
-	*x = Updates{}
-	mi := &file_internal_api_api_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Updates) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Updates) ProtoMessage() {}
-
-func (x *Updates) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_api_api_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Updates.ProtoReflect.Descriptor instead.
-func (*Updates) Descriptor() ([]byte, []int) {
-	return file_internal_api_api_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *Updates) GetNodeStates() []*graph.NodeState {
-	if x != nil {
-		return x.NodeStates
-	}
-	return nil
-}
-
-type State struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeStates    []*graph.NodeState     `protobuf:"bytes,1,rep,name=NodeStates" json:"NodeStates,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *State) Reset() {
-	*x = State{}
-	mi := &file_internal_api_api_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *State) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*State) ProtoMessage() {}
-
-func (x *State) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_api_api_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use State.ProtoReflect.Descriptor instead.
-func (*State) Descriptor() ([]byte, []int) {
-	return file_internal_api_api_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *State) GetNodeStates() []*graph.NodeState {
-	if x != nil {
-		return x.NodeStates
-	}
-	return nil
-}
-
 type Path struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Path          *string                `protobuf:"bytes,1,opt,name=Path" json:"Path,omitempty"`
@@ -251,7 +225,7 @@ type Path struct {
 
 func (x *Path) Reset() {
 	*x = Path{}
-	mi := &file_internal_api_api_proto_msgTypes[5]
+	mi := &file_internal_api_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -263,7 +237,7 @@ func (x *Path) String() string {
 func (*Path) ProtoMessage() {}
 
 func (x *Path) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_api_api_proto_msgTypes[5]
+	mi := &file_internal_api_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -276,7 +250,7 @@ func (x *Path) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Path.ProtoReflect.Descriptor instead.
 func (*Path) Descriptor() ([]byte, []int) {
-	return file_internal_api_api_proto_rawDescGZIP(), []int{5}
+	return file_internal_api_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Path) GetPath() string {
@@ -284,6 +258,74 @@ func (x *Path) GetPath() string {
 		return *x.Path
 	}
 	return ""
+}
+
+type SyncResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          *SyncType              `protobuf:"varint,1,opt,name=Type,enum=api.SyncType" json:"Type,omitempty"`
+	NodeConfig    *graph.NodeConfig      `protobuf:"bytes,2,opt,name=NodeConfig" json:"NodeConfig,omitempty"`
+	NodeState     *graph.NodeState       `protobuf:"bytes,3,opt,name=NodeState" json:"NodeState,omitempty"`
+	EdgeConfig    *graph.EdgeConfig      `protobuf:"bytes,4,opt,name=EdgeConfig" json:"EdgeConfig,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SyncResponse) Reset() {
+	*x = SyncResponse{}
+	mi := &file_internal_api_api_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncResponse) ProtoMessage() {}
+
+func (x *SyncResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_api_api_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncResponse.ProtoReflect.Descriptor instead.
+func (*SyncResponse) Descriptor() ([]byte, []int) {
+	return file_internal_api_api_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SyncResponse) GetType() SyncType {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return SyncType_InitNode
+}
+
+func (x *SyncResponse) GetNodeConfig() *graph.NodeConfig {
+	if x != nil {
+		return x.NodeConfig
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetNodeState() *graph.NodeState {
+	if x != nil {
+		return x.NodeState
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetEdgeConfig() *graph.EdgeConfig {
+	if x != nil {
+		return x.EdgeConfig
+	}
+	return nil
 }
 
 var File_internal_api_api_proto protoreflect.FileDescriptor
@@ -296,36 +338,39 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x02Id\x18\x01 \x01(\x04R\x02Id\"B\n" +
 	"\x10ArtifactsMessage\x12\x16\n" +
 	"\x06Stdout\x18\x01 \x01(\tR\x06Stdout\x12\x16\n" +
-	"\x06Stderr\x18\x02 \x01(\tR\x06Stderr\";\n" +
-	"\aUpdates\x120\n" +
-	"\n" +
-	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
-	"NodeStates\"9\n" +
-	"\x05State\x120\n" +
-	"\n" +
-	"NodeStates\x18\x01 \x03(\v2\x10.graph.NodeStateR\n" +
-	"NodeStates\"\x1a\n" +
+	"\x06Stderr\x18\x02 \x01(\tR\x06Stderr\"\x1a\n" +
 	"\x04Path\x12\x12\n" +
-	"\x04Path\x18\x01 \x01(\tR\x04Path2\xce\x02\n" +
-	"\x05Graph\x12!\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path\"\xc7\x01\n" +
+	"\fSyncResponse\x12!\n" +
+	"\x04Type\x18\x01 \x01(\x0e2\r.api.SyncTypeR\x04Type\x121\n" +
+	"\n" +
+	"NodeConfig\x18\x02 \x01(\v2\x11.graph.NodeConfigR\n" +
+	"NodeConfig\x12.\n" +
+	"\tNodeState\x18\x03 \x01(\v2\x10.graph.NodeStateR\tNodeState\x121\n" +
+	"\n" +
+	"EdgeConfig\x18\x04 \x01(\v2\x11.graph.EdgeConfigR\n" +
+	"EdgeConfig*E\n" +
+	"\bSyncType\x12\f\n" +
+	"\bInitNode\x10\x01\x12\f\n" +
+	"\bInitEdge\x10\x02\x12\f\n" +
+	"\bInitDone\x10\x03\x12\x0f\n" +
+	"\vUpdateState\x10\x042\xa5\x02\n" +
+	"\x05Graph\x12)\n" +
+	"\x04Sync\x12\f.api.Nothing\x1a\x11.api.SyncResponse0\x01\x12!\n" +
 	"\x03New\x12\f.api.Nothing\x1a\f.api.Nothing\x12\x1f\n" +
 	"\x04Load\x12\t.api.Path\x1a\f.api.Nothing\x12\x1f\n" +
-	"\x04Save\x12\t.api.Path\x1a\f.api.Nothing\x12(\n" +
-	"\tGetConfig\x12\f.api.Nothing\x1a\r.graph.Config\x12(\n" +
-	"\fCollectState\x12\f.api.Nothing\x1a\n" +
-	".api.State\x121\n" +
+	"\x04Save\x12\t.api.Path\x1a\f.api.Nothing\x121\n" +
 	"\fRunReadyNode\x12\f.api.Nothing\x1a\x13.api.NodeIdentifier\x12*\n" +
-	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates\x12-\n" +
+	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing\x12-\n" +
 	"\n" +
-	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Updates2\xbb\x02\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\x8c\x02\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
-	"\x04Stop\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
-	"\bWaitDone\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12*\n" +
-	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Updates\x12-\n" +
+	"\x04Stop\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12*\n" +
+	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
 	"\x03Add\x12\x11.graph.NodeConfig\x1a\x13.api.NodeIdentifier\x12'\n" +
 	"\x04Edit\x12\x11.graph.NodeConfig\x1a\f.api.Nothing\x12+\n" +
-	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.UpdatesB\x18Z\x16pipegraph/internal/api"
+	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.NothingB\x18Z\x16pipegraph/internal/api"
 
 var (
 	file_internal_api_api_proto_rawDescOnce sync.Once
@@ -339,57 +384,55 @@ func file_internal_api_api_proto_rawDescGZIP() []byte {
 	return file_internal_api_api_proto_rawDescData
 }
 
-var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_internal_api_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_internal_api_api_proto_goTypes = []any{
-	(*Nothing)(nil),          // 0: api.Nothing
-	(*NodeIdentifier)(nil),   // 1: api.NodeIdentifier
-	(*ArtifactsMessage)(nil), // 2: api.ArtifactsMessage
-	(*Updates)(nil),          // 3: api.Updates
-	(*State)(nil),            // 4: api.State
-	(*Path)(nil),             // 5: api.Path
-	(*graph.NodeState)(nil),  // 6: graph.NodeState
-	(*graph.EdgeConfig)(nil), // 7: graph.EdgeConfig
-	(*graph.NodeConfig)(nil), // 8: graph.NodeConfig
-	(*graph.Config)(nil),     // 9: graph.Config
+	(SyncType)(0),            // 0: api.SyncType
+	(*Nothing)(nil),          // 1: api.Nothing
+	(*NodeIdentifier)(nil),   // 2: api.NodeIdentifier
+	(*ArtifactsMessage)(nil), // 3: api.ArtifactsMessage
+	(*Path)(nil),             // 4: api.Path
+	(*SyncResponse)(nil),     // 5: api.SyncResponse
+	(*graph.NodeConfig)(nil), // 6: graph.NodeConfig
+	(*graph.NodeState)(nil),  // 7: graph.NodeState
+	(*graph.EdgeConfig)(nil), // 8: graph.EdgeConfig
 }
 var file_internal_api_api_proto_depIdxs = []int32{
-	6,  // 0: api.Updates.NodeStates:type_name -> graph.NodeState
-	6,  // 1: api.State.NodeStates:type_name -> graph.NodeState
-	0,  // 2: api.Graph.New:input_type -> api.Nothing
-	5,  // 3: api.Graph.Load:input_type -> api.Path
-	5,  // 4: api.Graph.Save:input_type -> api.Path
-	0,  // 5: api.Graph.GetConfig:input_type -> api.Nothing
-	0,  // 6: api.Graph.CollectState:input_type -> api.Nothing
-	0,  // 7: api.Graph.RunReadyNode:input_type -> api.Nothing
-	7,  // 8: api.Graph.Connect:input_type -> graph.EdgeConfig
-	7,  // 9: api.Graph.Disconnect:input_type -> graph.EdgeConfig
-	1,  // 10: api.Node.Run:input_type -> api.NodeIdentifier
-	1,  // 11: api.Node.Stop:input_type -> api.NodeIdentifier
-	1,  // 12: api.Node.WaitDone:input_type -> api.NodeIdentifier
-	1,  // 13: api.Node.Reset:input_type -> api.NodeIdentifier
-	8,  // 14: api.Node.Add:input_type -> graph.NodeConfig
-	8,  // 15: api.Node.Edit:input_type -> graph.NodeConfig
-	1,  // 16: api.Node.Delete:input_type -> api.NodeIdentifier
-	0,  // 17: api.Graph.New:output_type -> api.Nothing
-	0,  // 18: api.Graph.Load:output_type -> api.Nothing
-	0,  // 19: api.Graph.Save:output_type -> api.Nothing
-	9,  // 20: api.Graph.GetConfig:output_type -> graph.Config
-	4,  // 21: api.Graph.CollectState:output_type -> api.State
-	1,  // 22: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
-	3,  // 23: api.Graph.Connect:output_type -> api.Updates
-	3,  // 24: api.Graph.Disconnect:output_type -> api.Updates
-	0,  // 25: api.Node.Run:output_type -> api.Nothing
-	0,  // 26: api.Node.Stop:output_type -> api.Nothing
-	3,  // 27: api.Node.WaitDone:output_type -> api.Updates
-	3,  // 28: api.Node.Reset:output_type -> api.Updates
-	1,  // 29: api.Node.Add:output_type -> api.NodeIdentifier
-	0,  // 30: api.Node.Edit:output_type -> api.Nothing
-	3,  // 31: api.Node.Delete:output_type -> api.Updates
-	17, // [17:32] is the sub-list for method output_type
-	2,  // [2:17] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	0,  // 0: api.SyncResponse.Type:type_name -> api.SyncType
+	6,  // 1: api.SyncResponse.NodeConfig:type_name -> graph.NodeConfig
+	7,  // 2: api.SyncResponse.NodeState:type_name -> graph.NodeState
+	8,  // 3: api.SyncResponse.EdgeConfig:type_name -> graph.EdgeConfig
+	1,  // 4: api.Graph.Sync:input_type -> api.Nothing
+	1,  // 5: api.Graph.New:input_type -> api.Nothing
+	4,  // 6: api.Graph.Load:input_type -> api.Path
+	4,  // 7: api.Graph.Save:input_type -> api.Path
+	1,  // 8: api.Graph.RunReadyNode:input_type -> api.Nothing
+	8,  // 9: api.Graph.Connect:input_type -> graph.EdgeConfig
+	8,  // 10: api.Graph.Disconnect:input_type -> graph.EdgeConfig
+	2,  // 11: api.Node.Run:input_type -> api.NodeIdentifier
+	2,  // 12: api.Node.Stop:input_type -> api.NodeIdentifier
+	2,  // 13: api.Node.Reset:input_type -> api.NodeIdentifier
+	6,  // 14: api.Node.Add:input_type -> graph.NodeConfig
+	6,  // 15: api.Node.Edit:input_type -> graph.NodeConfig
+	2,  // 16: api.Node.Delete:input_type -> api.NodeIdentifier
+	5,  // 17: api.Graph.Sync:output_type -> api.SyncResponse
+	1,  // 18: api.Graph.New:output_type -> api.Nothing
+	1,  // 19: api.Graph.Load:output_type -> api.Nothing
+	1,  // 20: api.Graph.Save:output_type -> api.Nothing
+	2,  // 21: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
+	1,  // 22: api.Graph.Connect:output_type -> api.Nothing
+	1,  // 23: api.Graph.Disconnect:output_type -> api.Nothing
+	1,  // 24: api.Node.Run:output_type -> api.Nothing
+	1,  // 25: api.Node.Stop:output_type -> api.Nothing
+	1,  // 26: api.Node.Reset:output_type -> api.Nothing
+	2,  // 27: api.Node.Add:output_type -> api.NodeIdentifier
+	1,  // 28: api.Node.Edit:output_type -> api.Nothing
+	1,  // 29: api.Node.Delete:output_type -> api.Nothing
+	17, // [17:30] is the sub-list for method output_type
+	4,  // [4:17] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_internal_api_api_proto_init() }
@@ -402,13 +445,14 @@ func file_internal_api_api_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_api_api_proto_rawDesc), len(file_internal_api_api_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   6,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
 		GoTypes:           file_internal_api_api_proto_goTypes,
 		DependencyIndexes: file_internal_api_api_proto_depIdxs,
+		EnumInfos:         file_internal_api_api_proto_enumTypes,
 		MessageInfos:      file_internal_api_api_proto_msgTypes,
 	}.Build()
 	File_internal_api_api_proto = out.File

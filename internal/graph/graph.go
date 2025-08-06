@@ -9,19 +9,22 @@ import (
 
 type NodeId uint64
 
+type SyncListenerId uint64
+
 type Graph struct {
 	Config *Config
 	Nodes  map[NodeId]*Node
 
-	Updates []*NodeState
+	syncListeners map[SyncListenerId]chan *NodeState
 
 	nextNodeId NodeId
 }
 
 func NewGraph(config *Config) *Graph {
 	g := &Graph{
-		Config: config,
-		Nodes:  make(map[NodeId]*Node),
+		Config:        config,
+		Nodes:         make(map[NodeId]*Node),
+		syncListeners: make(map[SyncListenerId]chan *NodeState),
 	}
 	for _, nodeConfig := range config.Nodes {
 		g.Nodes[NodeId(*nodeConfig.Id)] = NewNode(g, nodeConfig)
@@ -32,12 +35,6 @@ func NewGraph(config *Config) *Graph {
 		to.Input = append(to.Input, NodeId(edgeConfig.GetFromNodeId()))
 	}
 	return g
-}
-
-func (graph *Graph) PopUpdates() []*NodeState {
-	updates := graph.Updates
-	graph.Updates = nil
-	return updates
 }
 
 func (graph *Graph) CollectNodeStates() []*NodeState {
@@ -89,7 +86,7 @@ func (graph *Graph) Connect(edge *EdgeConfig) error {
 	from.Output = append(from.Output, NodeId(*edge.ToNodeId))
 	graph.Config.Edges = append(graph.Config.Edges, edge)
 
-	graph.Updates = append(graph.Updates, to.GetState())
+	to.ReportUpdate()
 
 	return nil
 }
@@ -104,7 +101,7 @@ func (graph *Graph) Disconnect(edge *EdgeConfig) error {
 	from.Output = slices.DeleteFunc(from.Output, func(id NodeId) bool { return id == NodeId(*edge.ToNodeId) })
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
 
-	graph.Updates = append(graph.Updates, to.GetState())
+	to.ReportUpdate()
 
 	return nil
 }
@@ -124,4 +121,15 @@ func (graph *Graph) AddNewNode(nodeConfig *NodeConfig) NodeId {
 	graph.Config.Nodes = append(graph.Config.Nodes, nodeConfig)
 	graph.Nodes[nodeId] = NewNode(graph, nodeConfig)
 	return nodeId
+}
+
+var syncListenerId SyncListenerId
+
+type SyncListenerDone func()
+
+func (graph *Graph) NewSyncListener() (chan *NodeState, SyncListenerDone) {
+	listener := make(chan *NodeState)
+	graph.syncListeners[syncListenerId] = listener
+	syncListenerId += 1
+	return listener, func() { delete(graph.syncListeners, syncListenerId) }
 }

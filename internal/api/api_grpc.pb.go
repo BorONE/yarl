@@ -20,11 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	Graph_Sync_FullMethodName         = "/api.Graph/Sync"
 	Graph_New_FullMethodName          = "/api.Graph/New"
 	Graph_Load_FullMethodName         = "/api.Graph/Load"
 	Graph_Save_FullMethodName         = "/api.Graph/Save"
-	Graph_GetConfig_FullMethodName    = "/api.Graph/GetConfig"
-	Graph_CollectState_FullMethodName = "/api.Graph/CollectState"
 	Graph_RunReadyNode_FullMethodName = "/api.Graph/RunReadyNode"
 	Graph_Connect_FullMethodName      = "/api.Graph/Connect"
 	Graph_Disconnect_FullMethodName   = "/api.Graph/Disconnect"
@@ -34,14 +33,13 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphClient interface {
+	Sync(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SyncResponse], error)
 	New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
 	Load(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
 	Save(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
-	GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error)
-	CollectState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*State, error)
 	RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error)
-	Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error)
-	Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error)
+	Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
+	Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
 }
 
 type graphClient struct {
@@ -51,6 +49,25 @@ type graphClient struct {
 func NewGraphClient(cc grpc.ClientConnInterface) GraphClient {
 	return &graphClient{cc}
 }
+
+func (c *graphClient) Sync(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SyncResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Graph_ServiceDesc.Streams[0], Graph_Sync_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Nothing, SyncResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Graph_SyncClient = grpc.ServerStreamingClient[SyncResponse]
 
 func (c *graphClient) New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -82,26 +99,6 @@ func (c *graphClient) Save(ctx context.Context, in *Path, opts ...grpc.CallOptio
 	return out, nil
 }
 
-func (c *graphClient) GetConfig(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*graph.Config, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(graph.Config)
-	err := c.cc.Invoke(ctx, Graph_GetConfig_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *graphClient) CollectState(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*State, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(State)
-	err := c.cc.Invoke(ctx, Graph_CollectState_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *graphClient) RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(NodeIdentifier)
@@ -112,9 +109,9 @@ func (c *graphClient) RunReadyNode(ctx context.Context, in *Nothing, opts ...grp
 	return out, nil
 }
 
-func (c *graphClient) Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error) {
+func (c *graphClient) Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Updates)
+	out := new(Nothing)
 	err := c.cc.Invoke(ctx, Graph_Connect_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -122,9 +119,9 @@ func (c *graphClient) Connect(ctx context.Context, in *graph.EdgeConfig, opts ..
 	return out, nil
 }
 
-func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Updates, error) {
+func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Updates)
+	out := new(Nothing)
 	err := c.cc.Invoke(ctx, Graph_Disconnect_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -136,14 +133,13 @@ func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
 type GraphServer interface {
+	Sync(*Nothing, grpc.ServerStreamingServer[SyncResponse]) error
 	New(context.Context, *Nothing) (*Nothing, error)
 	Load(context.Context, *Path) (*Nothing, error)
 	Save(context.Context, *Path) (*Nothing, error)
-	GetConfig(context.Context, *Nothing) (*graph.Config, error)
-	CollectState(context.Context, *Nothing) (*State, error)
 	RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error)
-	Connect(context.Context, *graph.EdgeConfig) (*Updates, error)
-	Disconnect(context.Context, *graph.EdgeConfig) (*Updates, error)
+	Connect(context.Context, *graph.EdgeConfig) (*Nothing, error)
+	Disconnect(context.Context, *graph.EdgeConfig) (*Nothing, error)
 	mustEmbedUnimplementedGraphServer()
 }
 
@@ -154,6 +150,9 @@ type GraphServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGraphServer struct{}
 
+func (UnimplementedGraphServer) Sync(*Nothing, grpc.ServerStreamingServer[SyncResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method Sync not implemented")
+}
 func (UnimplementedGraphServer) New(context.Context, *Nothing) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
 }
@@ -163,19 +162,13 @@ func (UnimplementedGraphServer) Load(context.Context, *Path) (*Nothing, error) {
 func (UnimplementedGraphServer) Save(context.Context, *Path) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
 }
-func (UnimplementedGraphServer) GetConfig(context.Context, *Nothing) (*graph.Config, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
-}
-func (UnimplementedGraphServer) CollectState(context.Context, *Nothing) (*State, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CollectState not implemented")
-}
 func (UnimplementedGraphServer) RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RunReadyNode not implemented")
 }
-func (UnimplementedGraphServer) Connect(context.Context, *graph.EdgeConfig) (*Updates, error) {
+func (UnimplementedGraphServer) Connect(context.Context, *graph.EdgeConfig) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
-func (UnimplementedGraphServer) Disconnect(context.Context, *graph.EdgeConfig) (*Updates, error) {
+func (UnimplementedGraphServer) Disconnect(context.Context, *graph.EdgeConfig) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
 }
 func (UnimplementedGraphServer) mustEmbedUnimplementedGraphServer() {}
@@ -198,6 +191,17 @@ func RegisterGraphServer(s grpc.ServiceRegistrar, srv GraphServer) {
 	}
 	s.RegisterService(&Graph_ServiceDesc, srv)
 }
+
+func _Graph_Sync_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Nothing)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GraphServer).Sync(m, &grpc.GenericServerStream[Nothing, SyncResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Graph_SyncServer = grpc.ServerStreamingServer[SyncResponse]
 
 func _Graph_New_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Nothing)
@@ -249,42 +253,6 @@ func _Graph_Save_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GraphServer).Save(ctx, req.(*Path))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Graph_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Nothing)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GraphServer).GetConfig(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Graph_GetConfig_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).GetConfig(ctx, req.(*Nothing))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Graph_CollectState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Nothing)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GraphServer).CollectState(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Graph_CollectState_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).CollectState(ctx, req.(*Nothing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -363,14 +331,6 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Graph_Save_Handler,
 		},
 		{
-			MethodName: "GetConfig",
-			Handler:    _Graph_GetConfig_Handler,
-		},
-		{
-			MethodName: "CollectState",
-			Handler:    _Graph_CollectState_Handler,
-		},
-		{
 			MethodName: "RunReadyNode",
 			Handler:    _Graph_RunReadyNode_Handler,
 		},
@@ -383,18 +343,23 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Graph_Disconnect_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Sync",
+			Handler:       _Graph_Sync_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "internal/api/api.proto",
 }
 
 const (
-	Node_Run_FullMethodName      = "/api.Node/Run"
-	Node_Stop_FullMethodName     = "/api.Node/Stop"
-	Node_WaitDone_FullMethodName = "/api.Node/WaitDone"
-	Node_Reset_FullMethodName    = "/api.Node/Reset"
-	Node_Add_FullMethodName      = "/api.Node/Add"
-	Node_Edit_FullMethodName     = "/api.Node/Edit"
-	Node_Delete_FullMethodName   = "/api.Node/Delete"
+	Node_Run_FullMethodName    = "/api.Node/Run"
+	Node_Stop_FullMethodName   = "/api.Node/Stop"
+	Node_Reset_FullMethodName  = "/api.Node/Reset"
+	Node_Add_FullMethodName    = "/api.Node/Add"
+	Node_Edit_FullMethodName   = "/api.Node/Edit"
+	Node_Delete_FullMethodName = "/api.Node/Delete"
 )
 
 // NodeClient is the client API for Node service.
@@ -403,11 +368,10 @@ const (
 type NodeClient interface {
 	Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Stop(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
-	WaitDone(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
-	Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
+	Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Add(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	Edit(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*Nothing, error)
-	Delete(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error)
+	Delete(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 }
 
 type nodeClient struct {
@@ -438,19 +402,9 @@ func (c *nodeClient) Stop(ctx context.Context, in *NodeIdentifier, opts ...grpc.
 	return out, nil
 }
 
-func (c *nodeClient) WaitDone(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error) {
+func (c *nodeClient) Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Updates)
-	err := c.cc.Invoke(ctx, Node_WaitDone_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *nodeClient) Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Updates)
+	out := new(Nothing)
 	err := c.cc.Invoke(ctx, Node_Reset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -478,9 +432,9 @@ func (c *nodeClient) Edit(ctx context.Context, in *graph.NodeConfig, opts ...grp
 	return out, nil
 }
 
-func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Updates, error) {
+func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Updates)
+	out := new(Nothing)
 	err := c.cc.Invoke(ctx, Node_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -494,11 +448,10 @@ func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grp
 type NodeServer interface {
 	Run(context.Context, *NodeIdentifier) (*Nothing, error)
 	Stop(context.Context, *NodeIdentifier) (*Nothing, error)
-	WaitDone(context.Context, *NodeIdentifier) (*Updates, error)
-	Reset(context.Context, *NodeIdentifier) (*Updates, error)
+	Reset(context.Context, *NodeIdentifier) (*Nothing, error)
 	Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error)
 	Edit(context.Context, *graph.NodeConfig) (*Nothing, error)
-	Delete(context.Context, *NodeIdentifier) (*Updates, error)
+	Delete(context.Context, *NodeIdentifier) (*Nothing, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -515,10 +468,7 @@ func (UnimplementedNodeServer) Run(context.Context, *NodeIdentifier) (*Nothing, 
 func (UnimplementedNodeServer) Stop(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
-func (UnimplementedNodeServer) WaitDone(context.Context, *NodeIdentifier) (*Updates, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WaitDone not implemented")
-}
-func (UnimplementedNodeServer) Reset(context.Context, *NodeIdentifier) (*Updates, error) {
+func (UnimplementedNodeServer) Reset(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reset not implemented")
 }
 func (UnimplementedNodeServer) Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error) {
@@ -527,7 +477,7 @@ func (UnimplementedNodeServer) Add(context.Context, *graph.NodeConfig) (*NodeIde
 func (UnimplementedNodeServer) Edit(context.Context, *graph.NodeConfig) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Edit not implemented")
 }
-func (UnimplementedNodeServer) Delete(context.Context, *NodeIdentifier) (*Updates, error) {
+func (UnimplementedNodeServer) Delete(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
@@ -583,24 +533,6 @@ func _Node_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NodeServer).Stop(ctx, req.(*NodeIdentifier))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Node_WaitDone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NodeIdentifier)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodeServer).WaitDone(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Node_WaitDone_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).WaitDone(ctx, req.(*NodeIdentifier))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -691,10 +623,6 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Stop",
 			Handler:    _Node_Stop_Handler,
-		},
-		{
-			MethodName: "WaitDone",
-			Handler:    _Node_WaitDone_Handler,
 		},
 		{
 			MethodName: "Reset",

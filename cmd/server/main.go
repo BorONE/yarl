@@ -21,7 +21,10 @@ func main() {
 	go func() {
 		waitSigInt()
 		log.Printf("got sigint, shutting down...")
-		server.GracefulStop()
+		go server.GracefulStop()
+		waitSigInt()
+		log.Printf("got sigint again, stopping...")
+		server.Stop()
 	}()
 
 	log.Printf("server listening at %v", lis.Addr())

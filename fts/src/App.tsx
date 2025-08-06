@@ -45,7 +45,6 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar"
 
@@ -77,77 +76,88 @@ function getBorderColor(nodeState: config.NodeState) {
   return "#D9D9D9"
 }
 
-const applyUpdates = (nds: Node[], updates: api.Updates) => {
-  return nds.map((nd) => {
-    const state = updates.NodeStates.find((state) => state.Id == nd.data.id);
-    if (state) {
-      const borderColor = getBorderColor(state)
-      return { ...nd, data: { ...nd.data, state }, style: { ...nd.style, borderColor} };
-    }
-    return nd;
-  })
-}
-
-const applyUpdatesEdges = (eds: Edge[], updates: api.Updates) => {
-  return eds.map((ed) => {
-    const state = updates.NodeStates.find((state) => state.Id == BigInt(ed.source));
-    return state ? { ...ed, animated: !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped) } : ed;
-  })
-}
-
-type Hooks = {
-  onUpdates: ((updates: api.Updates) => void) | null
-}
-
-var hooks : Hooks = {
-  onUpdates: null,
-}
-
-async function updateGraph() {
-  const graphConfig = await client.graph.getConfig({})
-  const graphState = await client.graph.collectState({})
-  
-  const nodes: Node[] = graphConfig.Nodes.map((config) => ({
+function buildNode(config: config.NodeConfig, state: config.NodeState) {
+  var node : Node = {
     id: `${config.Id}`,
     type: 'JobNode',
     position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
     data: {
       id: config.Id,
       config,
-      hooks,
+      state,
     },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
     ...nodeInitParams,
-  }))
+  }
+  node.style = {
+    ...node.style,
+    borderColor: getBorderColor(state),
+  }
+  return node
+}
 
-  const edges: Edge[] = graphConfig.Edges.map((edge) => ({
-    id: `${edge.FromNodeId}-${edge.ToNodeId}`,
-    source: `${edge.FromNodeId}`,
-    target: `${edge.ToNodeId}`
-  }))
-  
-  return {
-    nodes: applyUpdates(nodes, graphState),
-    edges: applyUpdatesEdges(edges, graphState),
+function isReady(state: config.NodeState) {
+  return state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped
+}
+
+async function init(watching : AsyncIterable<api.SyncResponse>) {
+  var initialGraph: { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] } 
+  for await (const update of watching) {
+    switch (update.Type) {
+      case api.SyncType.InitNode: {
+        const config : config.NodeConfig = update.NodeConfig
+        const state : config.NodeState = update.NodeState
+        initialGraph.nodes.push(buildNode(config, state))
+        continue
+      }
+
+      case api.SyncType.InitEdge: {
+        const edge : config.EdgeConfig = update.EdgeConfig
+        const state : config.NodeState = initialGraph.nodes.map(node => node.data.state).find((state) => state.Id == BigInt(edge.FromNodeId));
+        initialGraph.edges.push({
+          id: `${edge.FromNodeId}-${edge.ToNodeId}`,
+          source: `${edge.FromNodeId}`,
+          target: `${edge.ToNodeId}`,
+          animated: !isReady(state),
+        })
+        continue
+      }
+
+      case api.SyncType.InitDone: {
+        return initialGraph
+      }
+    }
   }
 }
 
-const initialGraph = await updateGraph()
+var sync = client.graph.sync({})
+const initialGraph = await init(sync)
 
 function Flow() {
   const [nodes, setNodes] = useState<Node[]>(initialGraph.nodes);
   const [edges, setEdges] = useState<Edge[]>(initialGraph.edges);
 
-  const onUpdates = useCallback(
-    (updates: api.Updates) => {
-      setNodes((nds) => applyUpdates(nds, updates))
-      setEdges((eds) => applyUpdatesEdges(eds, updates))
+  const onNodeStateUpdate = useCallback(
+    (update: api.SyncResponse) => {
+      setNodes((nds) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState) : nd))
+      setEdges((eds) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
     },
     [setNodes, setEdges],
   );
 
-  hooks.onUpdates = onUpdates
+  const follow = async () => {
+    for await (const update of sync) {
+      switch (update.Type) {
+        case api.SyncType.UpdateState: {
+          onNodeStateUpdate(update)
+          break
+        }
+      }
+    }
+  }
+
+  follow()
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -167,23 +177,21 @@ function Flow() {
   );
   const onConnect: OnConnect = useCallback(
     async (connection) => {
-      const updates = await client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
+      client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
       setEdges((eds) => {
         const node = nodes.find(nd => nd.id == connection.source)
         const state : config.NodeState = node?.data.state
-        return addEdge({...connection, animated: !(state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped)}, eds)
+        return addEdge({...connection, animated: !isReady(state)}, eds)
       })
-      onUpdates(updates)
     },
-    [setEdges, setNodes],
+    [nodes, setEdges],
   );
   const onDisconnect = useCallback(
     async (connection: Edge) => {
-      const updates = await client.graph.disconnect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
+      client.graph.disconnect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
       setEdges((eds) => eds.filter((ed) => ed != connection))
-      onUpdates(updates)
     },
-    [setEdges, setNodes],
+    [setEdges],
   );
  
   const newGraph = useCallback(async () => {
@@ -203,25 +211,6 @@ function Flow() {
     setEdges((_) => graph.edges)
   }, [setNodes, setEdges])
   
-  const spawnNode = useCallback(async (config: config.NodeConfig, state: config.NodeState) => {
-    const node : Node = {
-      id: `${config.Id}`,
-      type: 'JobNode',
-      position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
-      data: {
-        id: config.Id,
-        config,
-        state,
-        hooks: { setNodes, setEdges },
-      },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-      ...nodeInitParams,
-    };
-
-    setNodes((nds) => [...nds, node]);
-  }, [nodes])
-
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
       Name: `Node`,
@@ -239,20 +228,11 @@ function Flow() {
       State: { case: "Idle", value: { IsReady: true } },
     })
 
-    spawnNode(config, state)
-  }, [nodes]);
+    setNodes((nds) => [...nds, buildNode(config, state)]);
+  }, [setNodes]);
 
   const runAll = async () => {
-    while (true) {
-      const id = await client.graph.runReadyNode({})
-      if (id.Id == 0n) {
-        break
-      }
-      const inProgressState : config.NodeState_InProgressState = {Status: config.NodeState_InProgressState_InProgressStatus.Running}
-      const update = create(config.NodeStateSchema, { Id: id.Id, State: { case: "InProgress", value: inProgressState } })
-      onUpdates(create(api.UpdatesSchema, {NodeStates: [update]}))
-      client.node.waitDone(id).then(onUpdates)
-    }
+    while (((await client.graph.runReadyNode({})).Id) != 0n);
   }
 
   const graphInfo = {Path: "yarl.proto.txt"}
@@ -261,7 +241,6 @@ function Flow() {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <div className="providerflow">
-      {/* <div className="providerflow" style={{ height: '100vh' }}> */}
         <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal">
             <ResizablePanel>

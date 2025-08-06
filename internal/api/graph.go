@@ -7,6 +7,7 @@ import (
 	"pipegraph/internal/util"
 	"sync"
 
+	grpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/prototext"
 )
 
@@ -41,20 +42,45 @@ func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing,
 	return nil, s.graph.Save(ctx, path)
 }
 
-func (s ImplementedGraphServer) GetConfig(ctx context.Context, _ *Nothing) (*graph.Config, error) {
+func (s ImplementedGraphServer) Sync(_ *Nothing, stream grpc.ServerStreamingServer[SyncResponse]) error {
 	s.mutex.Lock()
-	defer s.mutex.Unlock()
 
-	log.Println("serving GetConfig()")
-	return s.graph.Config, nil
-}
+	log.Println("streaming Watch() init")
+	for _, node := range s.graph.Nodes {
+		stream.Send(&SyncResponse{
+			Type:       SyncType_InitNode.Enum(),
+			NodeConfig: node.Config,
+			NodeState:  node.GetState(),
+		})
+	}
+	for _, edge := range s.graph.Config.Edges {
+		stream.Send(&SyncResponse{
+			Type:       SyncType_InitEdge.Enum(),
+			EdgeConfig: edge,
+		})
+	}
+	stream.Send(&SyncResponse{
+		Type: SyncType_InitDone.Enum(),
+	})
 
-func (s ImplementedGraphServer) CollectState(ctx context.Context, _ *Nothing) (*State, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	syncListener, syncListenerDone := s.graph.NewSyncListener()
+	defer syncListenerDone()
 
-	log.Println("serving CollectState()")
-	return &State{NodeStates: s.graph.CollectNodeStates()}, nil
+	s.mutex.Unlock()
+
+	log.Println("streaming Watch() update")
+	for {
+		select {
+		case <-stream.Context().Done():
+			log.Println("streaming Watch() ", stream.Context().Err())
+			return stream.Context().Err()
+		case state := <-syncListener:
+			stream.Send(&SyncResponse{
+				Type:      SyncType_UpdateState.Enum(),
+				NodeState: state,
+			})
+		}
+	}
 }
 
 func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*NodeIdentifier, error) {
@@ -95,20 +121,18 @@ func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*
 	return nil, nil
 }
 
-func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeConfig) (*Updates, error) {
+func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Connect(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	err := s.graph.Connect(edge)
-	return &Updates{NodeStates: s.graph.PopUpdates()}, err
+	return nil, s.graph.Connect(edge)
 }
 
-func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.EdgeConfig) (*Updates, error) {
+func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Disconnect(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	err := s.graph.Disconnect(edge)
-	return &Updates{NodeStates: s.graph.PopUpdates()}, err
+	return nil, s.graph.Disconnect(edge)
 }

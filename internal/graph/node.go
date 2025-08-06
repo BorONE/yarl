@@ -63,6 +63,11 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 			IsStopped: &isStopped,
 		})
 
+		for _, outputId := range node.Output {
+			output := node.graph.Nodes[outputId]
+			output.ReportUpdate()
+		}
+
 		node.DoneEvent.Trigger()
 
 		node.Job = nil
@@ -85,13 +90,12 @@ func (node *Node) Reset() error {
 	}
 
 	node.SetState(&NodeState_IdleState{})
-	node.graph.Updates = append(node.graph.Updates, node.GetState())
 
 	for _, outputId := range node.Output {
 		output := node.graph.Nodes[outputId]
 		switch output.state.(type) {
 		case *NodeState_Idle:
-			node.graph.Updates = append(node.graph.Updates, output.GetState())
+			output.ReportUpdate()
 		case *NodeState_InProgress:
 			output.Stop()
 		case *NodeState_Done:
@@ -145,6 +149,14 @@ func (node *Node) GetState() *NodeState {
 	}
 }
 
+func (node *Node) ReportUpdate() {
+	state := node.GetState()
+	update := proto.CloneOf(state)
+	for _, updates := range node.graph.syncListeners {
+		updates <- update
+	}
+}
+
 func (node *Node) GetStateString() string {
 	return prototext.MarshalOptions{}.Format(node.GetState())
 }
@@ -160,4 +172,5 @@ func (node *Node) SetState(message proto.Message) {
 	default:
 		log.Panicln("invalid state: ", prototext.MarshalOptions{}.Format(message))
 	}
+	node.ReportUpdate()
 }

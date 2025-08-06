@@ -2,9 +2,9 @@
 // @generated from file internal/api/api.proto (package api, syntax proto2)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { ConfigSchema, EdgeConfigSchema, NodeConfigSchema, NodeState } from "../graph/config_pb";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { EdgeConfig, EdgeConfigSchema, NodeConfig, NodeConfigSchema, NodeState } from "../graph/config_pb";
 import { file_internal_graph_config } from "../graph/config_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/api/api.proto.
  */
 export const file_internal_api_api: GenFile = /*@__PURE__*/
-  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiLwoHVXBkYXRlcxIkCgpOb2RlU3RhdGVzGAEgAygLMhAuZ3JhcGguTm9kZVN0YXRlIi0KBVN0YXRlEiQKCk5vZGVTdGF0ZXMYASADKAsyEC5ncmFwaC5Ob2RlU3RhdGUiFAoEUGF0aBIMCgRQYXRoGAEgASgJMs4CCgVHcmFwaBIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEigKCUdldENvbmZpZxIMLmFwaS5Ob3RoaW5nGg0uZ3JhcGguQ29uZmlnEigKDENvbGxlY3RTdGF0ZRIMLmFwaS5Ob3RoaW5nGgouYXBpLlN0YXRlEjEKDFJ1blJlYWR5Tm9kZRIMLmFwaS5Ob3RoaW5nGhMuYXBpLk5vZGVJZGVudGlmaWVyEioKB0Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLlVwZGF0ZXMSLQoKRGlzY29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuVXBkYXRlczK7AgoETm9kZRIoCgNSdW4SEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTdG9wEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSLQoIV2FpdERvbmUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuVXBkYXRlcxIqCgVSZXNldBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5VcGRhdGVzEi0KA0FkZBIRLmdyYXBoLk5vZGVDb25maWcaEy5hcGkuTm9kZUlkZW50aWZpZXISJwoERWRpdBIRLmdyYXBoLk5vZGVDb25maWcaDC5hcGkuTm90aGluZxIrCgZEZWxldGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuVXBkYXRlc0IYWhZwaXBlZ3JhcGgvaW50ZXJuYWwvYXBp", [file_internal_graph_config]);
+  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJIp4BCgxTeW5jUmVzcG9uc2USGwoEVHlwZRgBIAEoDjINLmFwaS5TeW5jVHlwZRIlCgpOb2RlQ29uZmlnGAIgASgLMhEuZ3JhcGguTm9kZUNvbmZpZxIjCglOb2RlU3RhdGUYAyABKAsyEC5ncmFwaC5Ob2RlU3RhdGUSJQoKRWRnZUNvbmZpZxgEIAEoCzIRLmdyYXBoLkVkZ2VDb25maWcqRQoIU3luY1R5cGUSDAoISW5pdE5vZGUQARIMCghJbml0RWRnZRACEgwKCEluaXREb25lEAMSDwoLVXBkYXRlU3RhdGUQBDKlAgoFR3JhcGgSKQoEU3luYxIMLmFwaS5Ob3RoaW5nGhEuYXBpLlN5bmNSZXNwb25zZTABEiEKA05ldxIMLmFwaS5Ob3RoaW5nGgwuYXBpLk5vdGhpbmcSHwoETG9hZBIJLmFwaS5QYXRoGgwuYXBpLk5vdGhpbmcSHwoEU2F2ZRIJLmFwaS5QYXRoGgwuYXBpLk5vdGhpbmcSMQoMUnVuUmVhZHlOb2RlEgwuYXBpLk5vdGhpbmcaEy5hcGkuTm9kZUlkZW50aWZpZXISKgoHQ29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuTm90aGluZxItCgpEaXNjb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nMowCCgROb2RlEigKA1J1bhITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIqCgVSZXNldBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEi0KA0FkZBIRLmdyYXBoLk5vZGVDb25maWcaEy5hcGkuTm9kZUlkZW50aWZpZXISJwoERWRpdBIRLmdyYXBoLk5vZGVDb25maWcaDC5hcGkuTm90aGluZxIrCgZEZWxldGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZ0IYWhZwaXBlZ3JhcGgvaW50ZXJuYWwvYXBp", [file_internal_graph_config]);
 
 /**
  * @generated from message api.Nothing
@@ -69,40 +69,6 @@ export const ArtifactsMessageSchema: GenMessage<ArtifactsMessage> = /*@__PURE__*
   messageDesc(file_internal_api_api, 2);
 
 /**
- * @generated from message api.Updates
- */
-export type Updates = Message<"api.Updates"> & {
-  /**
-   * @generated from field: repeated graph.NodeState NodeStates = 1;
-   */
-  NodeStates: NodeState[];
-};
-
-/**
- * Describes the message api.Updates.
- * Use `create(UpdatesSchema)` to create a new message.
- */
-export const UpdatesSchema: GenMessage<Updates> = /*@__PURE__*/
-  messageDesc(file_internal_api_api, 3);
-
-/**
- * @generated from message api.State
- */
-export type State = Message<"api.State"> & {
-  /**
-   * @generated from field: repeated graph.NodeState NodeStates = 1;
-   */
-  NodeStates: NodeState[];
-};
-
-/**
- * Describes the message api.State.
- * Use `create(StateSchema)` to create a new message.
- */
-export const StateSchema: GenMessage<State> = /*@__PURE__*/
-  messageDesc(file_internal_api_api, 4);
-
-/**
  * @generated from message api.Path
  */
 export type Path = Message<"api.Path"> & {
@@ -117,12 +83,83 @@ export type Path = Message<"api.Path"> & {
  * Use `create(PathSchema)` to create a new message.
  */
 export const PathSchema: GenMessage<Path> = /*@__PURE__*/
-  messageDesc(file_internal_api_api, 5);
+  messageDesc(file_internal_api_api, 3);
+
+/**
+ * @generated from message api.SyncResponse
+ */
+export type SyncResponse = Message<"api.SyncResponse"> & {
+  /**
+   * @generated from field: optional api.SyncType Type = 1;
+   */
+  Type: SyncType;
+
+  /**
+   * @generated from field: optional graph.NodeConfig NodeConfig = 2;
+   */
+  NodeConfig?: NodeConfig;
+
+  /**
+   * @generated from field: optional graph.NodeState NodeState = 3;
+   */
+  NodeState?: NodeState;
+
+  /**
+   * @generated from field: optional graph.EdgeConfig EdgeConfig = 4;
+   */
+  EdgeConfig?: EdgeConfig;
+};
+
+/**
+ * Describes the message api.SyncResponse.
+ * Use `create(SyncResponseSchema)` to create a new message.
+ */
+export const SyncResponseSchema: GenMessage<SyncResponse> = /*@__PURE__*/
+  messageDesc(file_internal_api_api, 4);
+
+/**
+ * @generated from enum api.SyncType
+ */
+export enum SyncType {
+  /**
+   * @generated from enum value: InitNode = 1;
+   */
+  InitNode = 1,
+
+  /**
+   * @generated from enum value: InitEdge = 2;
+   */
+  InitEdge = 2,
+
+  /**
+   * @generated from enum value: InitDone = 3;
+   */
+  InitDone = 3,
+
+  /**
+   * @generated from enum value: UpdateState = 4;
+   */
+  UpdateState = 4,
+}
+
+/**
+ * Describes the enum api.SyncType.
+ */
+export const SyncTypeSchema: GenEnum<SyncType> = /*@__PURE__*/
+  enumDesc(file_internal_api_api, 0);
 
 /**
  * @generated from service api.Graph
  */
 export const Graph: GenService<{
+  /**
+   * @generated from rpc api.Graph.Sync
+   */
+  sync: {
+    methodKind: "server_streaming";
+    input: typeof NothingSchema;
+    output: typeof SyncResponseSchema;
+  },
   /**
    * @generated from rpc api.Graph.New
    */
@@ -148,22 +185,6 @@ export const Graph: GenService<{
     output: typeof NothingSchema;
   },
   /**
-   * @generated from rpc api.Graph.GetConfig
-   */
-  getConfig: {
-    methodKind: "unary";
-    input: typeof NothingSchema;
-    output: typeof ConfigSchema;
-  },
-  /**
-   * @generated from rpc api.Graph.CollectState
-   */
-  collectState: {
-    methodKind: "unary";
-    input: typeof NothingSchema;
-    output: typeof StateSchema;
-  },
-  /**
    * @generated from rpc api.Graph.RunReadyNode
    */
   runReadyNode: {
@@ -177,7 +198,7 @@ export const Graph: GenService<{
   connect: {
     methodKind: "unary";
     input: typeof EdgeConfigSchema;
-    output: typeof UpdatesSchema;
+    output: typeof NothingSchema;
   },
   /**
    * @generated from rpc api.Graph.Disconnect
@@ -185,7 +206,7 @@ export const Graph: GenService<{
   disconnect: {
     methodKind: "unary";
     input: typeof EdgeConfigSchema;
-    output: typeof UpdatesSchema;
+    output: typeof NothingSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_internal_api_api, 0);
@@ -211,20 +232,12 @@ export const Node: GenService<{
     output: typeof NothingSchema;
   },
   /**
-   * @generated from rpc api.Node.WaitDone
-   */
-  waitDone: {
-    methodKind: "unary";
-    input: typeof NodeIdentifierSchema;
-    output: typeof UpdatesSchema;
-  },
-  /**
    * @generated from rpc api.Node.Reset
    */
   reset: {
     methodKind: "unary";
     input: typeof NodeIdentifierSchema;
-    output: typeof UpdatesSchema;
+    output: typeof NothingSchema;
   },
   /**
    * @generated from rpc api.Node.Add
@@ -248,7 +261,7 @@ export const Node: GenService<{
   delete: {
     methodKind: "unary";
     input: typeof NodeIdentifierSchema;
-    output: typeof UpdatesSchema;
+    output: typeof NothingSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_internal_api_api, 1);
