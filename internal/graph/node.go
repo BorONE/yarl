@@ -65,7 +65,7 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 
 		for _, outputId := range node.Output {
 			output := node.graph.Nodes[outputId]
-			output.AcknowledgeUpdate()
+			output.ReportUpdate()
 		}
 
 		node.DoneEvent.Trigger()
@@ -95,7 +95,7 @@ func (node *Node) Reset() error {
 		output := node.graph.Nodes[outputId]
 		switch output.state.(type) {
 		case *NodeState_Idle:
-			output.AcknowledgeUpdate()
+			output.ReportUpdate()
 		case *NodeState_InProgress:
 			output.Stop()
 		case *NodeState_Done:
@@ -149,7 +149,7 @@ func (node *Node) GetState() *NodeState {
 	}
 }
 
-func (node *Node) AcknowledgeUpdate() {
+func (node *Node) ReportUpdate() {
 	state := node.GetState()
 	update := proto.CloneOf(state)
 	for _, updates := range node.graph.syncListeners {
@@ -172,5 +172,5 @@ func (node *Node) SetState(message proto.Message) {
 	default:
 		log.Panicln("invalid state: ", prototext.MarshalOptions{}.Format(message))
 	}
-	node.AcknowledgeUpdate()
+	node.ReportUpdate()
 }

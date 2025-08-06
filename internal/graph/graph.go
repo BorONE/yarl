@@ -86,7 +86,7 @@ func (graph *Graph) Connect(edge *EdgeConfig) error {
 	from.Output = append(from.Output, NodeId(*edge.ToNodeId))
 	graph.Config.Edges = append(graph.Config.Edges, edge)
 
-	to.AcknowledgeUpdate()
+	to.ReportUpdate()
 
 	return nil
 }
@@ -101,7 +101,7 @@ func (graph *Graph) Disconnect(edge *EdgeConfig) error {
 	from.Output = slices.DeleteFunc(from.Output, func(id NodeId) bool { return id == NodeId(*edge.ToNodeId) })
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
 
-	to.AcknowledgeUpdate()
+	to.ReportUpdate()
 
 	return nil
 }

@@ -65,7 +65,7 @@ func (s ImplementedNodeServer) WaitDone(ctx context.Context, id *NodeIdentifier)
 		if state := node.GetState().State.(*graph.NodeState_Done); state.Done.Error == nil {
 			for _, outputId := range node.Output {
 				output := s.graph.Nodes[graph.NodeId(outputId)]
-				output.AcknowledgeUpdate()
+				output.ReportUpdate()
 			}
 		}
 	}
