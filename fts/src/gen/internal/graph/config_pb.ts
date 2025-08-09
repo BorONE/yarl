@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/graph/config.proto.
  */
 export const file_internal_graph_config: GenFile = /*@__PURE__*/
-  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIvQDCglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAaHAoJSWRsZVN0YXRlEg8KB0lzUmVhZHkYASABKAgakgEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiPAoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhqOAQoJRG9uZVN0YXRlEg0KBUVycm9yGAEgASgJEjIKBEFydHMYAiADKAsyJC5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlLkFydHNFbnRyeRIRCglJc1N0b3BwZWQYAyACKAgaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFU3RhdGUiTAoGQ29uZmlnEiAKBU5vZGVzGAEgAygLMhEuZ3JhcGguTm9kZUNvbmZpZxIgCgVFZGdlcxgCIAMoCzIRLmdyYXBoLkVkZ2VDb25maWciIAoIUG9zaXRpb24SCQoBWBgBIAEoBRIJCgFZGAIgASgFImwKCk5vZGVDb25maWcSCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIhCgNKb2IYAyABKAsyFC5nb29nbGUucHJvdG9idWYuQW55EiEKCFBvc2l0aW9uGAQgASgLMg8uZ3JhcGguUG9zaXRpb24iMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEQhpaGHBpcGVncmFwaC9pbnRlcm5hbC9ncmFwaA", [file_google_protobuf_any]);
+  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIvQDCglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAaHAoJSWRsZVN0YXRlEg8KB0lzUmVhZHkYASABKAgakgEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiPAoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhqOAQoJRG9uZVN0YXRlEg0KBUVycm9yGAEgASgJEjIKBEFydHMYAiADKAsyJC5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlLkFydHNFbnRyeRIRCglJc1N0b3BwZWQYAyACKAgaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFU3RhdGUiTAoGQ29uZmlnEiAKBU5vZGVzGAEgAygLMhEuZ3JhcGguTm9kZUNvbmZpZxIgCgVFZGdlcxgCIAMoCzIRLmdyYXBoLkVkZ2VDb25maWciIAoIUG9zaXRpb24SCQoBWBgBIAEoBRIJCgFZGAIgASgFImwKCk5vZGVDb25maWcSCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIhCgNKb2IYAyABKAsyFC5nb29nbGUucHJvdG9idWYuQW55EiEKCFBvc2l0aW9uGAQgASgLMg8uZ3JhcGguUG9zaXRpb24iMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEIqABCgxTeW5jUmVzcG9uc2USHQoEVHlwZRgBIAEoDjIPLmdyYXBoLlN5bmNUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypQCghTeW5jVHlwZRIMCghJbml0Tm9kZRABEgwKCEluaXRFZGdlEAISDAoISW5pdERvbmUQAxIPCgtVcGRhdGVTdGF0ZRAEEgkKBVJlc2V0EAVCGloYcGlwZWdyYXBoL2ludGVybmFsL2dyYXBo", [file_google_protobuf_any]);
 
 /**
  * @generated from message graph.NodeState
@@ -240,4 +240,72 @@ export type EdgeConfig = Message<"graph.EdgeConfig"> & {
  */
 export const EdgeConfigSchema: GenMessage<EdgeConfig> = /*@__PURE__*/
   messageDesc(file_internal_graph_config, 4);
+
+/**
+ * @generated from message graph.SyncResponse
+ */
+export type SyncResponse = Message<"graph.SyncResponse"> & {
+  /**
+   * @generated from field: optional graph.SyncType Type = 1;
+   */
+  Type: SyncType;
+
+  /**
+   * @generated from field: optional graph.NodeConfig NodeConfig = 2;
+   */
+  NodeConfig?: NodeConfig;
+
+  /**
+   * @generated from field: optional graph.NodeState NodeState = 3;
+   */
+  NodeState?: NodeState;
+
+  /**
+   * @generated from field: optional graph.EdgeConfig EdgeConfig = 4;
+   */
+  EdgeConfig?: EdgeConfig;
+};
+
+/**
+ * Describes the message graph.SyncResponse.
+ * Use `create(SyncResponseSchema)` to create a new message.
+ */
+export const SyncResponseSchema: GenMessage<SyncResponse> = /*@__PURE__*/
+  messageDesc(file_internal_graph_config, 5);
+
+/**
+ * @generated from enum graph.SyncType
+ */
+export enum SyncType {
+  /**
+   * @generated from enum value: InitNode = 1;
+   */
+  InitNode = 1,
+
+  /**
+   * @generated from enum value: InitEdge = 2;
+   */
+  InitEdge = 2,
+
+  /**
+   * @generated from enum value: InitDone = 3;
+   */
+  InitDone = 3,
+
+  /**
+   * @generated from enum value: UpdateState = 4;
+   */
+  UpdateState = 4,
+
+  /**
+   * @generated from enum value: Reset = 5;
+   */
+  Reset = 5,
+}
+
+/**
+ * Describes the enum graph.SyncType.
+ */
+export const SyncTypeSchema: GenEnum<SyncType> = /*@__PURE__*/
+  enumDesc(file_internal_graph_config, 0);
 

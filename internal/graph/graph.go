@@ -1,8 +1,10 @@
 package graph
 
 import (
+	"context"
 	"fmt"
 	"slices"
+	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
 )
@@ -15,16 +17,20 @@ type Graph struct {
 	Config *Config
 	Nodes  map[NodeId]*Node
 
-	syncListeners map[SyncListenerId]chan *NodeState
+	syncListeners map[SyncListenerId]chan<- *SyncResponse
+	syncMutex     sync.Mutex
 
 	nextNodeId NodeId
+
+	ctx context.Context
 }
 
-func NewGraph(config *Config) *Graph {
+func NewGraph(config *Config, ctx context.Context) *Graph {
 	g := &Graph{
 		Config:        config,
 		Nodes:         make(map[NodeId]*Node),
-		syncListeners: make(map[SyncListenerId]chan *NodeState),
+		syncListeners: make(map[SyncListenerId]chan<- *SyncResponse),
+		ctx:           ctx,
 	}
 	for _, nodeConfig := range config.Nodes {
 		g.Nodes[NodeId(*nodeConfig.Id)] = NewNode(g, nodeConfig)
@@ -123,13 +129,33 @@ func (graph *Graph) AddNewNode(nodeConfig *NodeConfig) NodeId {
 	return nodeId
 }
 
-var syncListenerId SyncListenerId
+var lastSyncListenerId SyncListenerId
 
 type SyncListenerDone func()
 
-func (graph *Graph) NewSyncListener() (chan *NodeState, SyncListenerDone) {
-	listener := make(chan *NodeState)
-	graph.syncListeners[syncListenerId] = listener
-	syncListenerId += 1
-	return listener, func() { delete(graph.syncListeners, syncListenerId) }
+func (graph *Graph) NewSyncListener() (<-chan *SyncResponse, SyncListenerDone) {
+	graph.syncMutex.Lock()
+	defer graph.syncMutex.Unlock()
+
+	listener := make(chan *SyncResponse)
+	lastSyncListenerId += 1
+	localSyncListenerId := lastSyncListenerId
+	graph.syncListeners[localSyncListenerId] = listener
+
+	return listener, func() {
+		graph.syncMutex.Lock()
+		defer graph.syncMutex.Unlock()
+
+		delete(graph.syncListeners, localSyncListenerId)
+		close(listener)
+	}
+}
+
+func (graph *Graph) ReportSync(update *SyncResponse) {
+	graph.syncMutex.Lock()
+	defer graph.syncMutex.Unlock()
+
+	for _, updates := range graph.syncListeners {
+		updates <- update
+	}
 }

@@ -2,9 +2,9 @@
 // @generated from file internal/api/api.proto (package api, syntax proto2)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { EdgeConfig, EdgeConfigSchema, NodeConfig, NodeConfigSchema, NodeState } from "../graph/config_pb";
+import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { EdgeConfigSchema, NodeConfigSchema, SyncResponseSchema } from "../graph/config_pb";
 import { file_internal_graph_config } from "../graph/config_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/api/api.proto.
  */
 export const file_internal_api_api: GenFile = /*@__PURE__*/
-  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJIp4BCgxTeW5jUmVzcG9uc2USGwoEVHlwZRgBIAEoDjINLmFwaS5TeW5jVHlwZRIlCgpOb2RlQ29uZmlnGAIgASgLMhEuZ3JhcGguTm9kZUNvbmZpZxIjCglOb2RlU3RhdGUYAyABKAsyEC5ncmFwaC5Ob2RlU3RhdGUSJQoKRWRnZUNvbmZpZxgEIAEoCzIRLmdyYXBoLkVkZ2VDb25maWcqRQoIU3luY1R5cGUSDAoISW5pdE5vZGUQARIMCghJbml0RWRnZRACEgwKCEluaXREb25lEAMSDwoLVXBkYXRlU3RhdGUQBDKlAgoFR3JhcGgSKQoEU3luYxIMLmFwaS5Ob3RoaW5nGhEuYXBpLlN5bmNSZXNwb25zZTABEiEKA05ldxIMLmFwaS5Ob3RoaW5nGgwuYXBpLk5vdGhpbmcSHwoETG9hZBIJLmFwaS5QYXRoGgwuYXBpLk5vdGhpbmcSHwoEU2F2ZRIJLmFwaS5QYXRoGgwuYXBpLk5vdGhpbmcSMQoMUnVuUmVhZHlOb2RlEgwuYXBpLk5vdGhpbmcaEy5hcGkuTm9kZUlkZW50aWZpZXISKgoHQ29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuTm90aGluZxItCgpEaXNjb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nMowCCgROb2RlEigKA1J1bhITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIqCgVSZXNldBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEi0KA0FkZBIRLmdyYXBoLk5vZGVDb25maWcaEy5hcGkuTm9kZUlkZW50aWZpZXISJwoERWRpdBIRLmdyYXBoLk5vZGVDb25maWcaDC5hcGkuTm90aGluZxIrCgZEZWxldGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZ0IYWhZwaXBlZ3JhcGgvaW50ZXJuYWwvYXBp", [file_internal_graph_config]);
+  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJMqcCCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEjEKDFJ1blJlYWR5Tm9kZRIMLmFwaS5Ob3RoaW5nGhMuYXBpLk5vZGVJZGVudGlmaWVyEioKB0Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcSLQoKRGlzY29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuTm90aGluZzKMAgoETm9kZRIoCgNSdW4SEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTdG9wEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKgoFUmVzZXQSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxItCgNBZGQSES5ncmFwaC5Ob2RlQ29uZmlnGhMuYXBpLk5vZGVJZGVudGlmaWVyEicKBEVkaXQSES5ncmFwaC5Ob2RlQ29uZmlnGgwuYXBpLk5vdGhpbmcSKwoGRGVsZXRlEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmdCGFoWcGlwZWdyYXBoL2ludGVybmFsL2FwaQ", [file_internal_graph_config]);
 
 /**
  * @generated from message api.Nothing
@@ -84,69 +84,6 @@ export type Path = Message<"api.Path"> & {
  */
 export const PathSchema: GenMessage<Path> = /*@__PURE__*/
   messageDesc(file_internal_api_api, 3);
-
-/**
- * @generated from message api.SyncResponse
- */
-export type SyncResponse = Message<"api.SyncResponse"> & {
-  /**
-   * @generated from field: optional api.SyncType Type = 1;
-   */
-  Type: SyncType;
-
-  /**
-   * @generated from field: optional graph.NodeConfig NodeConfig = 2;
-   */
-  NodeConfig?: NodeConfig;
-
-  /**
-   * @generated from field: optional graph.NodeState NodeState = 3;
-   */
-  NodeState?: NodeState;
-
-  /**
-   * @generated from field: optional graph.EdgeConfig EdgeConfig = 4;
-   */
-  EdgeConfig?: EdgeConfig;
-};
-
-/**
- * Describes the message api.SyncResponse.
- * Use `create(SyncResponseSchema)` to create a new message.
- */
-export const SyncResponseSchema: GenMessage<SyncResponse> = /*@__PURE__*/
-  messageDesc(file_internal_api_api, 4);
-
-/**
- * @generated from enum api.SyncType
- */
-export enum SyncType {
-  /**
-   * @generated from enum value: InitNode = 1;
-   */
-  InitNode = 1,
-
-  /**
-   * @generated from enum value: InitEdge = 2;
-   */
-  InitEdge = 2,
-
-  /**
-   * @generated from enum value: InitDone = 3;
-   */
-  InitDone = 3,
-
-  /**
-   * @generated from enum value: UpdateState = 4;
-   */
-  UpdateState = 4,
-}
-
-/**
- * Describes the enum api.SyncType.
- */
-export const SyncTypeSchema: GenEnum<SyncType> = /*@__PURE__*/
-  enumDesc(file_internal_api_api, 0);
 
 /**
  * @generated from service api.Graph

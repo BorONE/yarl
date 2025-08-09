@@ -42,43 +42,47 @@ func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing,
 	return nil, s.graph.Save(ctx, path)
 }
 
-func (s ImplementedGraphServer) Sync(_ *Nothing, stream grpc.ServerStreamingServer[SyncResponse]) error {
-	s.mutex.Lock()
-
-	log.Println("streaming Watch() init")
-	for _, node := range s.graph.Nodes {
-		stream.Send(&SyncResponse{
-			Type:       SyncType_InitNode.Enum(),
+func generateInit(g *graph.Graph, gen func(*graph.SyncResponse)) {
+	for _, node := range g.Nodes {
+		gen(&graph.SyncResponse{
+			Type:       graph.SyncType_InitNode.Enum(),
 			NodeConfig: node.Config,
 			NodeState:  node.GetState(),
 		})
 	}
-	for _, edge := range s.graph.Config.Edges {
-		stream.Send(&SyncResponse{
-			Type:       SyncType_InitEdge.Enum(),
+	for _, edge := range g.Config.Edges {
+		gen(&graph.SyncResponse{
+			Type:       graph.SyncType_InitEdge.Enum(),
 			EdgeConfig: edge,
 		})
 	}
-	stream.Send(&SyncResponse{
-		Type: SyncType_InitDone.Enum(),
+	gen(&graph.SyncResponse{
+		Type: graph.SyncType_InitDone.Enum(),
 	})
+}
+
+func (s ImplementedGraphServer) Sync(_ *Nothing, stream grpc.ServerStreamingServer[graph.SyncResponse]) error {
+	s.mutex.Lock()
+
+	log.Println("streaming Sync() init")
+	generateInit(s.graph.Graph, func(sync *graph.SyncResponse) { stream.Send(sync) })
 
 	syncListener, syncListenerDone := s.graph.NewSyncListener()
 	defer syncListenerDone()
 
 	s.mutex.Unlock()
 
-	log.Println("streaming Watch() update")
+	log.Println("streaming Sync() update")
 	for {
 		select {
 		case <-stream.Context().Done():
-			log.Println("streaming Watch() ", stream.Context().Err())
+			log.Println("streaming Sync() stream context done:", stream.Context().Err())
 			return stream.Context().Err()
-		case state := <-syncListener:
-			stream.Send(&SyncResponse{
-				Type:      SyncType_UpdateState.Enum(),
-				NodeState: state,
-			})
+		case sync := <-syncListener:
+			stream.Send(sync)
+		case <-s.graph.ctx.Done():
+			log.Println("streaming Sync() graph context done:", s.graph.ctx.Err())
+			return s.graph.ctx.Err()
 		}
 	}
 }

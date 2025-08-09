@@ -104,14 +104,19 @@ export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: 
     )
     const onNameChange : React.ChangeEventHandler<HTMLInputElement> = useCallback(
         (evt) => setNodes(
-            (nds: Node[]) => nds.map((nd) => {
-                if (nd.selected) {
-                    var config : NodeConfig = nd.data.config
-                    config.Name = evt.target.value
-                    client.node.edit(config)
-                }
-                return nd
-            })
+            (nds: Node[]) => (
+                nds.map(
+                    (nd) => {
+                        if (!nd.selected) {
+                            return nd
+                        }
+                        var config : NodeConfig = nd.data.config
+                        config.Name = evt.target.value
+                        client.node.edit(config)
+                        return {...nd, data: { ...nd.data, config } }
+                    }
+                )
+            )
         ),
         [setNodes],
     )

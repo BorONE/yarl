@@ -98,6 +98,7 @@ func (node *Node) Reset() error {
 			output.ReportUpdate()
 		case *NodeState_InProgress:
 			output.Stop()
+			output.DoneEvent.OnTrigger(func() { output.Reset() })
 		case *NodeState_Done:
 			output.Reset()
 		default:
@@ -126,6 +127,7 @@ func (node *Node) Stop() error {
 
 	return nil
 }
+
 func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
 		input := node.graph.Nodes[inputId]
@@ -151,10 +153,8 @@ func (node *Node) GetState() *NodeState {
 
 func (node *Node) ReportUpdate() {
 	state := node.GetState()
-	update := proto.CloneOf(state)
-	for _, updates := range node.graph.syncListeners {
-		updates <- update
-	}
+	sync := &SyncResponse{Type: SyncType_UpdateState.Enum(), NodeState: proto.CloneOf(state)}
+	node.graph.ReportSync(sync)
 }
 
 func (node *Node) GetStateString() string {
