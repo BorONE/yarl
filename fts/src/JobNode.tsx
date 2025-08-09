@@ -2,10 +2,13 @@ import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
 import statusIconDoneError from './assets/status/2/failed.svg'
+import statusIconDoneErrorSkipped from './assets/status/2/skipped failed.svg'
 import statusIconIdleNotReady from './assets/status/2/idle.svg'
 import statusIcon from './assets/status/2/placeholder.svg'
 import statusIconIdleReady from './assets/status/2/ready.svg'
 import statusIconInProgress from './assets/status/2/running.svg'
+import statusIconSkipping from './assets/status/2/skipping.svg'
+import statusIconSkipped from './assets/status/2/skipped.svg'
 import statusIconDoneStopped from './assets/status/2/stopped.svg'
 import statusIconDoneSuccess from './assets/status/2/success.svg'
 
@@ -23,27 +26,7 @@ import {
     type Node,
 } from '@xyflow/react';
 import { extractJobType } from './util';
-
-function getBorderColor(nodeState: config.NodeState) {
-  const stateCase = nodeState.State.case;
-  const state = nodeState.State.value;
-  switch (stateCase) {
-  case "Idle":
-      return "#D9D9D9"
-  case "InProgress":
-      return "#5773E4"
-  case "Done":
-      if (state.IsStopped) {
-          return "#DD5274"
-      } else if (state.Error) {
-          return "#DD5274"
-      } else {
-          return "#6DDD52"
-      }
-  }
-  return "#D9D9D9"
-}
-
+import { getBorderColor } from './misc';
 
 export default memo(({ data }) => {
     const genButton = (onClick: () => void, icon: string, style = {}) => {
@@ -102,9 +85,8 @@ export default memo(({ data }) => {
     }
 
     const getStateIcon = () => {
-        const stateCase = data.state.State.case;
         const state = data.state.State.value;
-        switch (stateCase) {
+        switch (data.state.State.case) {
         case "Idle":
             if (state.IsReady) {
                 return {icon: statusIconIdleReady, alt: data.state.case}
@@ -112,14 +94,27 @@ export default memo(({ data }) => {
                 return {icon: statusIconIdleNotReady, alt: data.state.case}
             }
         case "InProgress":
-            return {icon: statusIconInProgress, alt: data.state.case}
+            if (state.Status == config.NodeState_InProgressState_InProgressStatus.Skipping) {
+                return {icon: statusIconSkipping, alt: data.state.case}
+            } else {
+                return {icon: statusIconInProgress, alt: data.state.case}
+            }
         case "Done":
             if (state.IsStopped) {
                 return {icon: statusIconDoneStopped, alt: data.state.case}
             } else if (state.Error) {
-                return {icon: statusIconDoneError, alt: data.state.case}
+                if (state.IsSkipped) {
+                    return {icon: statusIconDoneErrorSkipped, alt: data.state.case}
+                } else {
+                    return {icon: statusIconDoneError, alt: data.state.case}
+                }
             } else {
-                return {icon: statusIconDoneSuccess, alt: data.state.case}
+                if (state.FromIdle) {
+                    return {icon: statusIconSkipped, alt: data.state.case}
+                    return {icon: statusIconDoneSuccess, alt: data.state.case}
+                } else {
+                    return {icon: statusIconDoneSuccess, alt: data.state.case}
+                }
             }
         }
         return {icon: statusIcon, alt: data.state.case}
@@ -180,7 +175,7 @@ export default memo(({ data }) => {
             <img src={moreIcon}/>
         </div>
         
-        <div className='extra-buttons' style={{position: "absolute", bottom: "0px", height: "40px", width: "100px"}}>
+        <div className='extra-buttons' style={{position: "absolute", bottom: "0px", height: "20px", width: "100px"}}>
             <div // hiding more-buttons
                 style={{
                     position: 'absolute',

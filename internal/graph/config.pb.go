@@ -93,6 +93,7 @@ const (
 	NodeState_InProgressState_Scheduled NodeState_InProgressState_InProgressStatus = 0 // NotImplemented
 	NodeState_InProgressState_Running   NodeState_InProgressState_InProgressStatus = 1
 	NodeState_InProgressState_Stopping  NodeState_InProgressState_InProgressStatus = 2
+	NodeState_InProgressState_Skipping  NodeState_InProgressState_InProgressStatus = 3
 )
 
 // Enum value maps for NodeState_InProgressState_InProgressStatus.
@@ -101,11 +102,13 @@ var (
 		0: "Scheduled",
 		1: "Running",
 		2: "Stopping",
+		3: "Skipping",
 	}
 	NodeState_InProgressState_InProgressStatus_value = map[string]int32{
 		"Scheduled": 0,
 		"Running":   1,
 		"Stopping":  2,
+		"Skipping":  3,
 	}
 )
 
@@ -637,6 +640,8 @@ type NodeState_DoneState struct {
 	Error         *string                `protobuf:"bytes,1,opt,name=Error" json:"Error,omitempty"`
 	Arts          map[string]string      `protobuf:"bytes,2,rep,name=Arts" json:"Arts,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	IsStopped     *bool                  `protobuf:"varint,3,req,name=IsStopped" json:"IsStopped,omitempty"`
+	IsSkipped     *bool                  `protobuf:"varint,4,req,name=IsSkipped" json:"IsSkipped,omitempty"`
+	FromIdle      *bool                  `protobuf:"varint,5,opt,name=FromIdle" json:"FromIdle,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -692,11 +697,25 @@ func (x *NodeState_DoneState) GetIsStopped() bool {
 	return false
 }
 
+func (x *NodeState_DoneState) GetIsSkipped() bool {
+	if x != nil && x.IsSkipped != nil {
+		return *x.IsSkipped
+	}
+	return false
+}
+
+func (x *NodeState_DoneState) GetFromIdle() bool {
+	if x != nil && x.FromIdle != nil {
+		return *x.FromIdle
+	}
+	return false
+}
+
 var File_internal_graph_config_proto protoreflect.FileDescriptor
 
 const file_internal_graph_config_proto_rawDesc = "" +
 	"\n" +
-	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\xc5\x04\n" +
+	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\x8d\x05\n" +
 	"\tNodeState\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x04R\x02Id\x120\n" +
 	"\x04Idle\x18\x02 \x01(\v2\x1a.graph.NodeState.IdleStateH\x00R\x04Idle\x12B\n" +
@@ -705,17 +724,20 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"InProgress\x120\n" +
 	"\x04Done\x18\x04 \x01(\v2\x1a.graph.NodeState.DoneStateH\x00R\x04Done\x1a%\n" +
 	"\tIdleState\x12\x18\n" +
-	"\aIsReady\x18\x01 \x01(\bR\aIsReady\x1a\x9a\x01\n" +
+	"\aIsReady\x18\x01 \x01(\bR\aIsReady\x1a\xa8\x01\n" +
 	"\x0fInProgressState\x12I\n" +
-	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusR\x06Status\"<\n" +
+	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusR\x06Status\"J\n" +
 	"\x10InProgressStatus\x12\r\n" +
 	"\tScheduled\x10\x00\x12\v\n" +
 	"\aRunning\x10\x01\x12\f\n" +
-	"\bStopping\x10\x02\x1a\xb2\x01\n" +
+	"\bStopping\x10\x02\x12\f\n" +
+	"\bSkipping\x10\x03\x1a\xec\x01\n" +
 	"\tDoneState\x12\x14\n" +
 	"\x05Error\x18\x01 \x01(\tR\x05Error\x128\n" +
 	"\x04Arts\x18\x02 \x03(\v2$.graph.NodeState.DoneState.ArtsEntryR\x04Arts\x12\x1c\n" +
-	"\tIsStopped\x18\x03 \x02(\bR\tIsStopped\x1a7\n" +
+	"\tIsStopped\x18\x03 \x02(\bR\tIsStopped\x12\x1c\n" +
+	"\tIsSkipped\x18\x04 \x02(\bR\tIsSkipped\x12\x1a\n" +
+	"\bFromIdle\x18\x05 \x01(\bR\bFromIdle\x1a7\n" +
 	"\tArtsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +

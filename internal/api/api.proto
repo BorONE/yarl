@@ -39,6 +39,7 @@ service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
     rpc Done(NodeIdentifier) returns (Nothing);
     rpc Stop(NodeIdentifier) returns (Nothing);
+    rpc Skip(NodeIdentifier) returns (Nothing);
     rpc Reset(NodeIdentifier) returns (Nothing);
 
     rpc Add(graph.NodeConfig) returns (NodeIdentifier);

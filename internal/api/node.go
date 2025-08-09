@@ -62,6 +62,20 @@ func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*N
 	return nil, node.Stop()
 }
 
+func (s ImplementedNodeServer) Skip(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("running node{%v}.Skip()\n", prototext.MarshalOptions{}.Format(id))
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	return nil, node.Skip()
+}
+
 func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()

@@ -15,6 +15,7 @@ message NodeState {
             Scheduled = 0; // NotImplemented
             Running = 1;
             Stopping = 2;
+            Skipping = 3;
         }
 
         optional InProgressStatus Status = 1;
@@ -24,6 +25,8 @@ message NodeState {
         optional string Error = 1;
         map<string, string> Arts = 2;
         required bool IsStopped = 3;
+        required bool IsSkipped = 4;
+        optional bool FromIdle = 5;
     }
 
     optional uint64 Id = 1;

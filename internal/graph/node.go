@@ -54,13 +54,16 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 		defer endGuard.Unlock()
 
 		log.Printf("job(id=%v) finished", node.Config.GetId())
+		log.Printf("job(id=%v) finished %v", node.Config.GetId(), jobErr)
 
 		state := node.state.(*NodeState_InProgress)
 		isStopped := *state.InProgress.Status == NodeState_InProgressState_Stopping
+		isSkipped := *state.InProgress.Status == NodeState_InProgressState_Skipping
 		node.SetState(&NodeState_DoneState{
 			Error:     asStringPtr(jobErr),
 			Arts:      node.Job.CollectArtifacts(),
 			IsStopped: &isStopped,
+			IsSkipped: &isSkipped,
 		})
 
 		for _, outputId := range node.Output {
@@ -78,10 +81,14 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 func (node *Node) Done() {
 	_ = node.state.(*NodeState_Idle)
 	isStopped := false
+	isSkipped := true
+	fromIdle := true
 	node.SetState(&NodeState_DoneState{
 		Error:     nil,
 		Arts:      nil,
 		IsStopped: &isStopped,
+		IsSkipped: &isSkipped,
+		FromIdle:  &fromIdle,
 	})
 
 	for _, outputId := range node.Output {
@@ -135,7 +142,7 @@ func (node *Node) Stop() error {
 	switch *state.InProgress.Status {
 	case NodeState_InProgressState_Stopping:
 		// already stopping
-	case NodeState_InProgressState_Running:
+	case NodeState_InProgressState_Running, NodeState_InProgressState_Skipping:
 		state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
 		node.Job.Reset()
 	default:
@@ -145,10 +152,34 @@ func (node *Node) Stop() error {
 	return nil
 }
 
+func (node *Node) Skip() error {
+	state, isInProgress := node.state.(*NodeState_InProgress)
+	if !isInProgress {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	}
+
+	state.InProgress.Status = NodeState_InProgressState_Skipping.Enum()
+	node.ReportUpdate()
+
+	for _, outputId := range node.Output {
+		output := node.graph.Nodes[outputId]
+		output.ReportUpdate()
+	}
+
+	return nil
+}
+
 func (node *Node) isReady() bool {
 	for _, inputId := range node.Input {
 		input := node.graph.Nodes[inputId]
-		if state, isDone := input.state.(*NodeState_Done); !isDone || state.Done.Error != nil {
+		stillReady := false
+		switch state := input.state.(type) {
+		case *NodeState_InProgress:
+			stillReady = state.InProgress.GetStatus() == NodeState_InProgressState_Skipping
+		case *NodeState_Done:
+			stillReady = state.Done.Error == nil || state.Done.GetIsSkipped()
+		}
+		if !stillReady {
 			return false
 		}
 	}
