@@ -75,6 +75,23 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 	return nil
 }
 
+func (node *Node) Done() {
+	_ = node.state.(*NodeState_Idle)
+	isStopped := false
+	node.SetState(&NodeState_DoneState{
+		Error:     nil,
+		Arts:      nil,
+		IsStopped: &isStopped,
+	})
+
+	for _, outputId := range node.Output {
+		output := node.graph.Nodes[outputId]
+		output.ReportUpdate()
+	}
+
+	node.DoneEvent.Trigger()
+}
+
 func asStringPtr(err error) *string {
 	if err == nil {
 		return nil
