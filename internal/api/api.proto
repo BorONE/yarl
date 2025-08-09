@@ -22,22 +22,8 @@ message Path {
     optional string Path = 1;
 }
 
-enum SyncType {
-    InitNode = 1;
-    InitEdge = 2;
-    InitDone = 3;
-    UpdateState = 4;
-}
-
-message SyncResponse {
-    optional SyncType Type = 1;
-    optional graph.NodeConfig NodeConfig = 2;
-    optional graph.NodeState NodeState = 3;
-    optional graph.EdgeConfig EdgeConfig = 4;
-}
-
 service Graph {
-    rpc Sync(Nothing) returns (stream SyncResponse);
+    rpc Sync(Nothing) returns (stream graph.SyncResponse);
 
     rpc New(Nothing) returns (Nothing);
     rpc Load(Path) returns (Nothing);

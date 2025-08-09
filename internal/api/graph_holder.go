@@ -11,10 +11,13 @@ import (
 
 type GraphHolder struct {
 	*graph.Graph
+
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 func (holder *GraphHolder) New(ctx context.Context) error {
-	holder.Graph = graph.NewGraph(&graph.Config{})
+	holder.resetGraph(&graph.Config{})
 	return nil
 }
 
@@ -35,7 +38,7 @@ func (holder *GraphHolder) Load(ctx context.Context, path *Path) error {
 		return err
 	}
 
-	holder.Graph = graph.NewGraph(config)
+	holder.resetGraph(config)
 	return nil
 }
 
@@ -56,4 +59,15 @@ func (holder *GraphHolder) Save(ctx context.Context, path *Path) error {
 	}
 
 	return nil
+}
+
+func (holder *GraphHolder) resetGraph(config *graph.Config) {
+	if holder.Graph != nil {
+		holder.Graph.ReportSync(&graph.SyncResponse{Type: graph.SyncType_Reset.Enum()})
+		holder.cancel()
+	}
+	holder.ctx, holder.cancel = context.WithCancel(context.Background())
+	holder.Graph = graph.NewGraph(config, holder.ctx)
+	holder.Graph.ReportSync(&graph.SyncResponse{Type: graph.SyncType_Reset.Enum()})
+	generateInit(holder.Graph, holder.Graph.ReportSync)
 }

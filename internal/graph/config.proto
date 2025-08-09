@@ -55,3 +55,18 @@ message EdgeConfig {
     optional uint64 FromNodeId = 1;
     optional uint64 ToNodeId = 2;
 }
+
+enum SyncType {
+    InitNode = 1;
+    InitEdge = 2;
+    InitDone = 3;
+    UpdateState = 4;
+    Reset = 5;
+}
+
+message SyncResponse {
+    optional SyncType Type = 1;
+    optional graph.NodeConfig NodeConfig = 2;
+    optional graph.NodeState NodeState = 3;
+    optional graph.EdgeConfig EdgeConfig = 4;
+}

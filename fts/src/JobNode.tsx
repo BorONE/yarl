@@ -1,8 +1,7 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
 import statusIconDoneError from './assets/status/2/failed.svg'
-// import statusIconIdleNotReady from './assets/status/2/idle.pdf'
 import statusIconIdleNotReady from './assets/status/2/idle.svg'
 import statusIcon from './assets/status/2/placeholder.svg'
 import statusIconIdleReady from './assets/status/2/ready.svg'
@@ -17,14 +16,10 @@ import resetIcon from './assets/button/2/reset.svg'
 import * as config from './gen/internal/graph/config_pb';
 
 import * as client from './client'
-import * as api from './gen/internal/api/api_pb';
 
 import {
     type Node,
-    type Edge,
-    applyNodeChanges,
 } from '@xyflow/react';
-import { create } from '@bufbuild/protobuf';
 import { extractJobType } from './util';
 
 function getBorderColor(nodeState: config.NodeState) {
@@ -90,12 +85,6 @@ export default memo(({ data }) => {
     }
 
     return <>
-        <Handle
-            type="target"
-            position={Position.Left}
-            onConnect={(params) => console.log('handle onConnect', params)}
-        />
-
         <label style={{
             position: 'absolute',
             left: 20,
@@ -119,10 +108,8 @@ export default memo(({ data }) => {
             fontSize: 6,
             color: "#747474",
         }}>
-            Shell
-            {/* {extractJobType(data.config.Job.typeUrl)} */}
+            {extractJobType(data.config.Job.typeUrl)} #{data.id}
         </label>
-        
 
         <img
             src={getStateIcon().icon}
@@ -133,16 +120,15 @@ export default memo(({ data }) => {
                 top: -borderWidth,
                 height: 20,
                 width: 20,
+                animation: data.state.State.case == "Idle" ? "rotation 2s linear 0s infinite" : "",
             }}
             className='status'
         />
         
         {genButtons()}
-        
-        <Handle
-            type="source"
-            position={Position.Right}
-        />
+
+        <Handle type="target" position={Position.Left}/>
+        <Handle type="source" position={Position.Right}/>
     </>
 });
 

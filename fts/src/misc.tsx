@@ -1,0 +1,53 @@
+import {
+  Position,
+  type Node,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+
+import { nodeInitParams } from './JobNode';
+import * as config from './gen/internal/graph/config_pb'
+
+export function isReady(state: config.NodeState) {
+  return state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped
+}
+
+export function buildNode(config: config.NodeConfig, state: config.NodeState) {
+  var node : Node = {
+    id: `${config.Id}`,
+    type: 'JobNode',
+    position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
+    data: {
+      id: config.Id,
+      config,
+      state,
+    },
+    sourcePosition: Position.Right,
+    targetPosition: Position.Left,
+    ...nodeInitParams,
+  }
+  node.style = {
+    ...node.style,
+    borderColor: getBorderColor(state),
+  }
+  return node
+}
+
+export function getBorderColor(nodeState: config.NodeState) {
+  const stateCase = nodeState.State.case;
+  const state = nodeState.State.value;
+  switch (stateCase) {
+  case "Idle":
+      return "#D9D9D9"
+  case "InProgress":
+      return "#5773E4"
+  case "Done":
+      if (state.IsStopped) {
+          return "#DD5274"
+      } else if (state.Error) {
+          return "#DD5274"
+      } else {
+          return "#6DDD52"
+      }
+  }
+  return "#D9D9D9"
+}

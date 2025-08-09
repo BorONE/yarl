@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import {
-  Position,
   ReactFlow,
   ReactFlowProvider,
   addEdge,
@@ -19,12 +18,10 @@ import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
 
-import JobNode from './Node2';
-import { nodeInitParams } from './Node2';
+import JobNode from './JobNode';
 
 import * as client from './client'
 
-import * as api from './gen/internal/api/api_pb'
 import * as config from './gen/internal/graph/config_pb'
 import { create } from '@bufbuild/protobuf';
 import { NodeConfigSchema, NodeStateSchema } from './gen/internal/graph/config_pb';
@@ -48,116 +45,23 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar"
 
-const fitViewOptions: FitViewOptions = {
-  // padding: 0.2,
-};
- 
+import { Syncer } from './syncer';
+import { buildNode, isReady } from './misc';
+
+const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
 };
 
-function getBorderColor(nodeState: config.NodeState) {
-  const stateCase = nodeState.State.case;
-  const state = nodeState.State.value;
-  switch (stateCase) {
-  case "Idle":
-      return "#D9D9D9"
-  case "InProgress":
-      return "#5773E4"
-  case "Done":
-      if (state.IsStopped) {
-          return "#DD5274"
-      } else if (state.Error) {
-          return "#DD5274"
-      } else {
-          return "#6DDD52"
-      }
-  }
-  return "#D9D9D9"
-}
-
-function buildNode(config: config.NodeConfig, state: config.NodeState) {
-  var node : Node = {
-    id: `${config.Id}`,
-    type: 'JobNode',
-    position: config.Position ? { x: config.Position.X, y: config.Position.Y } : { x: 0, y: 0 },
-    data: {
-      id: config.Id,
-      config,
-      state,
-    },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-    ...nodeInitParams,
-  }
-  node.style = {
-    ...node.style,
-    borderColor: getBorderColor(state),
-  }
-  return node
-}
-
-function isReady(state: config.NodeState) {
-  return state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped
-}
-
-async function init(watching : AsyncIterable<api.SyncResponse>) {
-  var initialGraph: { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] } 
-  for await (const update of watching) {
-    switch (update.Type) {
-      case api.SyncType.InitNode: {
-        const config : config.NodeConfig = update.NodeConfig
-        const state : config.NodeState = update.NodeState
-        initialGraph.nodes.push(buildNode(config, state))
-        continue
-      }
-
-      case api.SyncType.InitEdge: {
-        const edge : config.EdgeConfig = update.EdgeConfig
-        const state : config.NodeState = initialGraph.nodes.map(node => node.data.state).find((state) => state.Id == BigInt(edge.FromNodeId));
-        initialGraph.edges.push({
-          id: `${edge.FromNodeId}-${edge.ToNodeId}`,
-          source: `${edge.FromNodeId}`,
-          target: `${edge.ToNodeId}`,
-          animated: !isReady(state),
-        })
-        continue
-      }
-
-      case api.SyncType.InitDone: {
-        return initialGraph
-      }
-    }
-  }
-}
-
-var sync = client.graph.sync({})
-const initialGraph = await init(sync)
+var syncer = new Syncer()
 
 function Flow() {
-  const [nodes, setNodes] = useState<Node[]>(initialGraph.nodes);
-  const [edges, setEdges] = useState<Edge[]>(initialGraph.edges);
-
-  const onNodeStateUpdate = useCallback(
-    (update: api.SyncResponse) => {
-      setNodes((nds) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState) : nd))
-      setEdges((eds) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
-    },
-    [setNodes, setEdges],
-  );
-
-  const follow = async () => {
-    for await (const update of sync) {
-      switch (update.Type) {
-        case api.SyncType.UpdateState: {
-          onNodeStateUpdate(update)
-          break
-        }
-      }
-    }
-  }
-
-  follow()
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  
+  syncer.setNodes = setNodes
+  syncer.setEdges = setEdges
+  syncer.sync()
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -180,8 +84,7 @@ function Flow() {
       client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
       setEdges((eds) => {
         const node = nodes.find(nd => nd.id == connection.source)
-        const state : config.NodeState = node?.data.state
-        return addEdge({...connection, animated: !isReady(state)}, eds)
+        return addEdge({...connection, animated: !isReady(node?.data.state)}, eds)
       })
     },
     [nodes, setEdges],
@@ -194,22 +97,9 @@ function Flow() {
     [setEdges],
   );
  
-  const newGraph = useCallback(async () => {
-    await client.graph.new({});
-    setNodes((_) => [])
-    setEdges((_) => [])
-  }, [setNodes, setEdges])
-  
-  const saveGraph = useCallback(async () => {
-    await client.graph.save({Path: graphRef.current.value});
-  }, [])
-  
-  const loadGraph = useCallback(async () => {
-    await client.graph.load({Path: graphRef.current.value});
-    const graph = await updateGraph()
-    setNodes((_) => graph.nodes)
-    setEdges((_) => graph.edges)
-  }, [setNodes, setEdges])
+  const newGraph = useCallback(async () => await client.graph.new({}), [setNodes, setEdges])
+  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current.value}), [])
+  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current.value}), [])
   
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
@@ -235,8 +125,7 @@ function Flow() {
     while (((await client.graph.runReadyNode({})).Id) != 0n);
   }
 
-  const graphInfo = {Path: "yarl.proto.txt"}
-  var graphRef = useRef(null)
+  var graphPathRef = useRef(null)
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
@@ -261,11 +150,9 @@ function Flow() {
                   </MenubarContent>
                 </MenubarMenu>
                 <Input
-                    id="Graph.Path"
-                    ref={graphRef}
-                    // className='max-w-sm'
+                    ref={graphPathRef}
                     placeholder='yarl.proto.txt'
-                    defaultValue={graphInfo.Path}
+                    defaultValue={"yarl.proto.txt"}
                 />
               </Menubar>
               <ReactFlow
