@@ -355,7 +355,9 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	Node_Run_FullMethodName    = "/api.Node/Run"
+	Node_Done_FullMethodName   = "/api.Node/Done"
 	Node_Stop_FullMethodName   = "/api.Node/Stop"
+	Node_Skip_FullMethodName   = "/api.Node/Skip"
 	Node_Reset_FullMethodName  = "/api.Node/Reset"
 	Node_Add_FullMethodName    = "/api.Node/Add"
 	Node_Edit_FullMethodName   = "/api.Node/Edit"
@@ -367,7 +369,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
 	Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
+	Done(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Stop(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
+	Skip(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Add(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	Edit(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*Nothing, error)
@@ -392,10 +396,30 @@ func (c *nodeClient) Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.C
 	return out, nil
 }
 
+func (c *nodeClient) Done(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Node_Done_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *nodeClient) Stop(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Nothing)
 	err := c.cc.Invoke(ctx, Node_Stop_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeClient) Skip(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Node_Skip_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -447,7 +471,9 @@ func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grp
 // for forward compatibility.
 type NodeServer interface {
 	Run(context.Context, *NodeIdentifier) (*Nothing, error)
+	Done(context.Context, *NodeIdentifier) (*Nothing, error)
 	Stop(context.Context, *NodeIdentifier) (*Nothing, error)
+	Skip(context.Context, *NodeIdentifier) (*Nothing, error)
 	Reset(context.Context, *NodeIdentifier) (*Nothing, error)
 	Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error)
 	Edit(context.Context, *graph.NodeConfig) (*Nothing, error)
@@ -465,8 +491,14 @@ type UnimplementedNodeServer struct{}
 func (UnimplementedNodeServer) Run(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
+func (UnimplementedNodeServer) Done(context.Context, *NodeIdentifier) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Done not implemented")
+}
 func (UnimplementedNodeServer) Stop(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
+}
+func (UnimplementedNodeServer) Skip(context.Context, *NodeIdentifier) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Skip not implemented")
 }
 func (UnimplementedNodeServer) Reset(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reset not implemented")
@@ -519,6 +551,24 @@ func _Node_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Node_Done_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeIdentifier)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).Done(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_Done_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).Done(ctx, req.(*NodeIdentifier))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Node_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NodeIdentifier)
 	if err := dec(in); err != nil {
@@ -533,6 +583,24 @@ func _Node_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NodeServer).Stop(ctx, req.(*NodeIdentifier))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Node_Skip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeIdentifier)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).Skip(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_Skip_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).Skip(ctx, req.(*NodeIdentifier))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -621,8 +689,16 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Node_Run_Handler,
 		},
 		{
+			MethodName: "Done",
+			Handler:    _Node_Done_Handler,
+		},
+		{
 			MethodName: "Stop",
 			Handler:    _Node_Stop_Handler,
+		},
+		{
+			MethodName: "Skip",
+			Handler:    _Node_Skip_Handler,
 		},
 		{
 			MethodName: "Reset",

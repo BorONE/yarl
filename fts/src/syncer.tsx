@@ -21,6 +21,7 @@ export class Syncer {
 
   async sync() {
     for await (const update of this.stream) {
+      console.log(update)
       switch (this.state) {
       case SyncerState.init:
         this.handleInit(update)

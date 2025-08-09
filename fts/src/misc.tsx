@@ -8,7 +8,8 @@ import { nodeInitParams } from './JobNode';
 import * as config from './gen/internal/graph/config_pb'
 
 export function isReady(state: config.NodeState) {
-  return state.State.case == "Done" && state.State.value.Error == "" && !state.State.value.IsStopped
+  return (state.State.case == "Done" && (state.State.value.Error == "" && !state.State.value.IsStopped || state.State.value.IsSkipped))
+      || (state.State.case == "InProgress" && state.State.value.Status == config.NodeState_InProgressState_InProgressStatus.Skipping)
 }
 
 export function buildNode(config: config.NodeConfig, state: config.NodeState) {
@@ -37,17 +38,23 @@ export function getBorderColor(nodeState: config.NodeState) {
   const state = nodeState.State.value;
   switch (stateCase) {
   case "Idle":
-      return "#D9D9D9"
+    return "#D9D9D9"
   case "InProgress":
+    if (state.Status == config.NodeState_InProgressState_InProgressStatus.Skipping) {
+      return "#6DDD52"
+    } else {
       return "#5773E4"
+    }
   case "Done":
-      if (state.IsStopped) {
-          return "#DD5274"
-      } else if (state.Error) {
-          return "#DD5274"
-      } else {
-          return "#6DDD52"
-      }
+    if (state.IsStopped) {
+      return "#DD5274"
+    } else if (state.IsSkipped) {
+      return "#6DDD52"
+    } else if (state.Error) {
+      return "#DD5274"
+    } else {
+      return "#6DDD52"
+    }
   }
   return "#D9D9D9"
 }

@@ -86,10 +86,14 @@ button {
   transition: border-color 0.25s;
 }
 
-/* .react-flow__node:hover button,
-button:hover {
-  border-color: #646cff;
-} */
+.extra-buttons {
+  visibility: hidden;
+}
+
+.extra-buttons:hover,
+.more-buttons:hover + .extra-buttons {
+  visibility: visible;
+}
 
 .react-flow__node.selectable.selected button {
   border-color: #646cff;

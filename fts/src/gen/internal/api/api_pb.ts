@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/api/api.proto.
  */
 export const file_internal_api_api: GenFile = /*@__PURE__*/
-  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJMqcCCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEjEKDFJ1blJlYWR5Tm9kZRIMLmFwaS5Ob3RoaW5nGhMuYXBpLk5vZGVJZGVudGlmaWVyEioKB0Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcSLQoKRGlzY29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuTm90aGluZzKMAgoETm9kZRIoCgNSdW4SEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTdG9wEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKgoFUmVzZXQSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxItCgNBZGQSES5ncmFwaC5Ob2RlQ29uZmlnGhMuYXBpLk5vZGVJZGVudGlmaWVyEicKBEVkaXQSES5ncmFwaC5Ob2RlQ29uZmlnGgwuYXBpLk5vdGhpbmcSKwoGRGVsZXRlEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmdCGFoWcGlwZWdyYXBoL2ludGVybmFsL2FwaQ", [file_internal_graph_config]);
+  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJMqcCCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEjEKDFJ1blJlYWR5Tm9kZRIMLmFwaS5Ob3RoaW5nGhMuYXBpLk5vZGVJZGVudGlmaWVyEioKB0Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcSLQoKRGlzY29ubmVjdBIRLmdyYXBoLkVkZ2VDb25maWcaDC5hcGkuTm90aGluZzLiAgoETm9kZRIoCgNSdW4SEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgREb25lEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKQoEU3RvcBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEikKBFNraXASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIqCgVSZXNldBITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEi0KA0FkZBIRLmdyYXBoLk5vZGVDb25maWcaEy5hcGkuTm9kZUlkZW50aWZpZXISJwoERWRpdBIRLmdyYXBoLk5vZGVDb25maWcaDC5hcGkuTm90aGluZxIrCgZEZWxldGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZ0IYWhZwaXBlZ3JhcGgvaW50ZXJuYWwvYXBp", [file_internal_graph_config]);
 
 /**
  * @generated from message api.Nothing
@@ -161,9 +161,25 @@ export const Node: GenService<{
     output: typeof NothingSchema;
   },
   /**
+   * @generated from rpc api.Node.Done
+   */
+  done: {
+    methodKind: "unary";
+    input: typeof NodeIdentifierSchema;
+    output: typeof NothingSchema;
+  },
+  /**
    * @generated from rpc api.Node.Stop
    */
   stop: {
+    methodKind: "unary";
+    input: typeof NodeIdentifierSchema;
+    output: typeof NothingSchema;
+  },
+  /**
+   * @generated from rpc api.Node.Skip
+   */
+  skip: {
     methodKind: "unary";
     input: typeof NodeIdentifierSchema;
     output: typeof NothingSchema;
