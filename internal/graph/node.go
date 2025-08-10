@@ -78,8 +78,12 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 	return nil
 }
 
-func (node *Node) Done() {
-	_ = node.state.(*NodeState_Idle)
+func (node *Node) Done() error {
+	_, isIdle := node.state.(*NodeState_Idle)
+	if !isIdle {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	}
+
 	isStopped := false
 	isSkipped := true
 	fromIdle := true
@@ -97,6 +101,7 @@ func (node *Node) Done() {
 	}
 
 	node.DoneEvent.Trigger()
+	return nil
 }
 
 func asStringPtr(err error) *string {

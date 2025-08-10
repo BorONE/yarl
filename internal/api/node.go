@@ -44,8 +44,7 @@ func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*N
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	node.Done()
-	return nil, nil
+	return nil, node.Done()
 }
 
 func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
