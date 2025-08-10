@@ -6,6 +6,7 @@ import statusIconDoneErrorSkipped from './assets/status/2/skipped failed.svg'
 import statusIconIdleNotReady from './assets/status/2/idle.svg'
 import statusIcon from './assets/status/2/placeholder.svg'
 import statusIconIdleReady from './assets/status/2/ready.svg'
+import statusIconScheduled from './assets/status/2/scheduled.svg'
 import statusIconInProgress from './assets/status/2/running.svg'
 import statusIconSkipping from './assets/status/2/skipping.svg'
 import statusIconSkipped from './assets/status/2/skipped.svg'
@@ -13,6 +14,7 @@ import statusIconDoneStopped from './assets/status/2/stopped.svg'
 import statusIconDoneSuccess from './assets/status/2/success.svg'
 
 import runIcon from './assets/button/2/run.svg'
+import scheduleIcon from './assets/button/2/schedule.svg'
 import doneIcon from './assets/button/2/done.svg'
 import stopIcon from './assets/button/2/stop.svg'
 import resetIcon from './assets/button/2/reset.svg'
@@ -42,9 +44,13 @@ export default memo(({ data }) => {
         }
         switch (data.state.State.case) {
         case "Idle":
-            return data.state.State.value.IsReady
-                ? genButton(() => client.node.run({Id: data.id}), runIcon, style)
-                : <></>
+            if (data.state.State.value.IsReady) {
+                return genButton(() => client.node.run({Id: data.id}), runIcon, style)
+            } else if (!data.state.State.value.IsScheduled) {
+                return genButton(() => client.node.schedule({Id: data.id}), scheduleIcon, style)
+            } else {
+                return <></>
+            }
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
         case "Done":
@@ -90,6 +96,8 @@ export default memo(({ data }) => {
         case "Idle":
             if (state.IsReady) {
                 return {icon: statusIconIdleReady, alt: data.state.case}
+            } else if (state.IsScheduled) {
+                return {icon: statusIconScheduled, alt: data.state.case}
             } else {
                 return {icon: statusIconIdleNotReady, alt: data.state.case}
             }

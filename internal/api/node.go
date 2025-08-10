@@ -30,7 +30,21 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	return nil, node.Run(s.mutex)
+	return nil, node.Run()
+}
+
+func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("running node{%v}.Schedule()\n", prototext.MarshalOptions{}.Format(id))
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	return nil, node.Schedule()
 }
 
 func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {

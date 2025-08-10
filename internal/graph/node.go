@@ -24,6 +24,8 @@ type Node struct {
 	Job job.Job
 }
 
+var EndGuard *sync.Mutex
+
 func NewNode(graph *Graph, config *NodeConfig) *Node {
 	node := &Node{
 		Config: config,
@@ -33,7 +35,7 @@ func NewNode(graph *Graph, config *NodeConfig) *Node {
 	return node
 }
 
-func (node *Node) Run(endGuard *sync.Mutex) error {
+func (node *Node) Run() error {
 	if state, isIdle := node.GetState().State.(*NodeState_Idle); !isIdle || !state.Idle.GetIsReady() {
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
 	}
@@ -50,8 +52,8 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 	go func() {
 		jobErr := node.Job.Run()
 
-		endGuard.Lock()
-		defer endGuard.Unlock()
+		EndGuard.Lock()
+		defer EndGuard.Unlock()
 
 		log.Printf("job(id=%v) finished", node.Config.GetId())
 		log.Printf("job(id=%v) finished %v", node.Config.GetId(), jobErr)
@@ -68,13 +70,30 @@ func (node *Node) Run(endGuard *sync.Mutex) error {
 
 		for _, outputId := range node.Output {
 			output := node.graph.Nodes[outputId]
-			output.ReportUpdate()
+			output.OnInputChange()
 		}
 
 		node.DoneEvent.Trigger()
 
 		node.Job = nil
 	}()
+	return nil
+}
+
+func (node *Node) Schedule() error {
+	state, isIdle := node.state.(*NodeState_Idle)
+	if !isIdle || state.Idle.GetIsReady() {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	}
+
+	if state.Idle.GetIsScheduled() {
+		return nil
+	}
+
+	isScheduled := true
+	state.Idle.IsScheduled = &isScheduled
+	node.ReportUpdate()
+
 	return nil
 }
 
@@ -97,7 +116,7 @@ func (node *Node) Done() error {
 
 	for _, outputId := range node.Output {
 		output := node.graph.Nodes[outputId]
-		output.ReportUpdate()
+		output.OnInputChange()
 	}
 
 	node.DoneEvent.Trigger()
@@ -124,7 +143,7 @@ func (node *Node) Reset() error {
 		output := node.graph.Nodes[outputId]
 		switch output.state.(type) {
 		case *NodeState_Idle:
-			output.ReportUpdate()
+			output.OnInputChange()
 		case *NodeState_InProgress:
 			output.Stop()
 			output.DoneEvent.OnTrigger(func() { output.Reset() })
@@ -168,10 +187,20 @@ func (node *Node) Skip() error {
 
 	for _, outputId := range node.Output {
 		output := node.graph.Nodes[outputId]
-		output.ReportUpdate()
+		output.OnInputChange()
 	}
 
 	return nil
+}
+
+func (node *Node) OnInputChange() {
+	node.ReportUpdate()
+	if state, isIdle := node.state.(*NodeState_Idle); isIdle && state.Idle.GetIsReady() && state.Idle.GetIsScheduled() {
+		err := node.Run()
+		if err != nil {
+			// TODO
+		}
+	}
 }
 
 func (node *Node) isReady() bool {

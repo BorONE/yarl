@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"pipegraph/internal/graph"
 	"sync"
 
 	grpc "google.golang.org/grpc"
@@ -9,9 +10,10 @@ import (
 
 func NewServer() *grpc.Server {
 	server := grpc.NewServer()
-	graph, mutex := &GraphHolder{}, &sync.Mutex{}
-	RegisterGraphServer(server, ImplementedGraphServer{graph: graph, mutex: mutex})
-	RegisterNodeServer(server, ImplementedNodeServer{graph: graph, mutex: mutex})
-	graph.New(context.Background())
+	holder, mutex := &GraphHolder{}, &sync.Mutex{}
+	graph.EndGuard = mutex
+	RegisterGraphServer(server, ImplementedGraphServer{graph: holder, mutex: mutex})
+	RegisterNodeServer(server, ImplementedNodeServer{graph: holder, mutex: mutex})
+	holder.New(context.Background())
 	return server
 }

@@ -103,7 +103,7 @@ func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*
 			case *graph.NodeState_Idle:
 				if state.Idle.GetIsReady() {
 					defer s.mutex.Unlock()
-					return &NodeIdentifier{Id: node.Config.Id}, node.Run(s.mutex)
+					return &NodeIdentifier{Id: node.Config.Id}, node.Run()
 				}
 			}
 		}

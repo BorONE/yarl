@@ -550,6 +550,7 @@ func (x *SyncResponse) GetEdgeConfig() *EdgeConfig {
 type NodeState_IdleState struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IsReady       *bool                  `protobuf:"varint,1,opt,name=IsReady" json:"IsReady,omitempty"`
+	IsScheduled   *bool                  `protobuf:"varint,2,opt,name=IsScheduled" json:"IsScheduled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -587,6 +588,13 @@ func (*NodeState_IdleState) Descriptor() ([]byte, []int) {
 func (x *NodeState_IdleState) GetIsReady() bool {
 	if x != nil && x.IsReady != nil {
 		return *x.IsReady
+	}
+	return false
+}
+
+func (x *NodeState_IdleState) GetIsScheduled() bool {
+	if x != nil && x.IsScheduled != nil {
+		return *x.IsScheduled
 	}
 	return false
 }
@@ -715,16 +723,17 @@ var File_internal_graph_config_proto protoreflect.FileDescriptor
 
 const file_internal_graph_config_proto_rawDesc = "" +
 	"\n" +
-	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\x8d\x05\n" +
+	"\x1binternal/graph/config.proto\x12\x05graph\x1a\x19google/protobuf/any.proto\"\xaf\x05\n" +
 	"\tNodeState\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x04R\x02Id\x120\n" +
 	"\x04Idle\x18\x02 \x01(\v2\x1a.graph.NodeState.IdleStateH\x00R\x04Idle\x12B\n" +
 	"\n" +
 	"InProgress\x18\x03 \x01(\v2 .graph.NodeState.InProgressStateH\x00R\n" +
 	"InProgress\x120\n" +
-	"\x04Done\x18\x04 \x01(\v2\x1a.graph.NodeState.DoneStateH\x00R\x04Done\x1a%\n" +
+	"\x04Done\x18\x04 \x01(\v2\x1a.graph.NodeState.DoneStateH\x00R\x04Done\x1aG\n" +
 	"\tIdleState\x12\x18\n" +
-	"\aIsReady\x18\x01 \x01(\bR\aIsReady\x1a\xa8\x01\n" +
+	"\aIsReady\x18\x01 \x01(\bR\aIsReady\x12 \n" +
+	"\vIsScheduled\x18\x02 \x01(\bR\vIsScheduled\x1a\xa8\x01\n" +
 	"\x0fInProgressState\x12I\n" +
 	"\x06Status\x18\x01 \x01(\x0e21.graph.NodeState.InProgressState.InProgressStatusR\x06Status\"J\n" +
 	"\x10InProgressStatus\x12\r\n" +
