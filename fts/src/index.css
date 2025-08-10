@@ -246,11 +246,27 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
 @keyframes rotation {
   0% {
       transform:rotate(0deg);
   }
   100% {
       transform:rotate(360deg);
+  }
+}
+
+@keyframes breathe {
+  0% {
+    position: absolute;
+    transform: scale(1.1)
+  }
+  50% {
+    position: absolute;
+    transform: scale(0.9)
+  }
+  100% {
+    position: absolute;
+    transform: scale(1.1)
   }
 }

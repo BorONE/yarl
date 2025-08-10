@@ -175,14 +175,16 @@ function Flow() {
                 snapGrid={[20, 20]}
               />
             </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel>
-              <Sidebar
-                nodes={nodes}
-                setNodes={setNodes}
-                style={{}}
-              />
-            </ResizablePanel>
+            {
+              nodes.filter((nd) => nd.selected).length == 0
+                ? <></>
+                : <>
+                  <ResizableHandle/>
+                  <ResizablePanel>
+                    <Sidebar nodes={nodes} setNodes={setNodes}/>
+                  </ResizablePanel>
+                </>
+            }
           </ResizablePanelGroup>
         </ReactFlowProvider>
       </div>

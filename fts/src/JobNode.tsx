@@ -57,7 +57,7 @@ export default memo(({ data }) => {
     const genFirstButton = () => {
         const style = {
             borderWidth: 0,
-            position: "absolute", bottom: 0, left: borderWidth,
+            position: "absolute", bottom: 0, left: borderWidth + 20,
         }
         switch (data.state.State.case) {
         case "Idle":
@@ -111,13 +111,23 @@ export default memo(({ data }) => {
             } else {
                 if (state.FromIdle) {
                     return {icon: statusIconSkipped, alt: data.state.case}
-                    return {icon: statusIconDoneSuccess, alt: data.state.case}
                 } else {
                     return {icon: statusIconDoneSuccess, alt: data.state.case}
                 }
             }
         }
         return {icon: statusIcon, alt: data.state.case}
+    }
+
+    const getAnimation = () => {
+        switch (data.state.State.case) {
+            case "Idle":
+                return "rotation 2s linear 0s infinite"
+        case "InProgress":
+            return "breathe 1s ease-in-out 0s infinite"
+        default:
+            return ""
+        }
     }
 
     return <>
@@ -156,7 +166,7 @@ export default memo(({ data }) => {
                 top: -borderWidth,
                 height: 20,
                 width: 20,
-                animation: data.state.State.case == "Idle" ? "rotation 2s linear 0s infinite" : "",
+                animation: getAnimation(),
             }}
             className='status'
         />
@@ -176,16 +186,6 @@ export default memo(({ data }) => {
         </div>
         
         <div className='extra-buttons' style={{position: "absolute", bottom: "0px", height: "20px", width: "100px"}}>
-            <div // hiding more-buttons
-                style={{
-                    position: 'absolute',
-                    left: borderWidth,
-                    bottom: 10,
-                    height: 10,
-                    width: 20-borderWidth,
-                    backgroundColor: "white",
-                }}
-            />
             {genFirstButton()}
         </div>
 
