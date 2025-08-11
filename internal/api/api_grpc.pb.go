@@ -20,13 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Graph_Sync_FullMethodName         = "/api.Graph/Sync"
-	Graph_New_FullMethodName          = "/api.Graph/New"
-	Graph_Load_FullMethodName         = "/api.Graph/Load"
-	Graph_Save_FullMethodName         = "/api.Graph/Save"
-	Graph_RunReadyNode_FullMethodName = "/api.Graph/RunReadyNode"
-	Graph_Connect_FullMethodName      = "/api.Graph/Connect"
-	Graph_Disconnect_FullMethodName   = "/api.Graph/Disconnect"
+	Graph_Sync_FullMethodName        = "/api.Graph/Sync"
+	Graph_New_FullMethodName         = "/api.Graph/New"
+	Graph_Load_FullMethodName        = "/api.Graph/Load"
+	Graph_Save_FullMethodName        = "/api.Graph/Save"
+	Graph_ScheduleAll_FullMethodName = "/api.Graph/ScheduleAll"
+	Graph_Connect_FullMethodName     = "/api.Graph/Connect"
+	Graph_Disconnect_FullMethodName  = "/api.Graph/Disconnect"
 )
 
 // GraphClient is the client API for Graph service.
@@ -37,7 +37,7 @@ type GraphClient interface {
 	New(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
 	Load(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
 	Save(ctx context.Context, in *Path, opts ...grpc.CallOption) (*Nothing, error)
-	RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error)
+	ScheduleAll(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
 	Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
 	Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
 }
@@ -99,10 +99,10 @@ func (c *graphClient) Save(ctx context.Context, in *Path, opts ...grpc.CallOptio
 	return out, nil
 }
 
-func (c *graphClient) RunReadyNode(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*NodeIdentifier, error) {
+func (c *graphClient) ScheduleAll(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(NodeIdentifier)
-	err := c.cc.Invoke(ctx, Graph_RunReadyNode_FullMethodName, in, out, cOpts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Graph_ScheduleAll_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ type GraphServer interface {
 	New(context.Context, *Nothing) (*Nothing, error)
 	Load(context.Context, *Path) (*Nothing, error)
 	Save(context.Context, *Path) (*Nothing, error)
-	RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error)
+	ScheduleAll(context.Context, *Nothing) (*Nothing, error)
 	Connect(context.Context, *graph.EdgeConfig) (*Nothing, error)
 	Disconnect(context.Context, *graph.EdgeConfig) (*Nothing, error)
 	mustEmbedUnimplementedGraphServer()
@@ -162,8 +162,8 @@ func (UnimplementedGraphServer) Load(context.Context, *Path) (*Nothing, error) {
 func (UnimplementedGraphServer) Save(context.Context, *Path) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
 }
-func (UnimplementedGraphServer) RunReadyNode(context.Context, *Nothing) (*NodeIdentifier, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RunReadyNode not implemented")
+func (UnimplementedGraphServer) ScheduleAll(context.Context, *Nothing) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ScheduleAll not implemented")
 }
 func (UnimplementedGraphServer) Connect(context.Context, *graph.EdgeConfig) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
@@ -257,20 +257,20 @@ func _Graph_Save_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Graph_RunReadyNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Graph_ScheduleAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Nothing)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GraphServer).RunReadyNode(ctx, in)
+		return srv.(GraphServer).ScheduleAll(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Graph_RunReadyNode_FullMethodName,
+		FullMethod: Graph_ScheduleAll_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphServer).RunReadyNode(ctx, req.(*Nothing))
+		return srv.(GraphServer).ScheduleAll(ctx, req.(*Nothing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -331,8 +331,8 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Graph_Save_Handler,
 		},
 		{
-			MethodName: "RunReadyNode",
-			Handler:    _Graph_RunReadyNode_Handler,
+			MethodName: "ScheduleAll",
+			Handler:    _Graph_ScheduleAll_Handler,
 		},
 		{
 			MethodName: "Connect",

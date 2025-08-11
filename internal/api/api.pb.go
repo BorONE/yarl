@@ -210,13 +210,13 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x06Stdout\x18\x01 \x01(\tR\x06Stdout\x12\x16\n" +
 	"\x06Stderr\x18\x02 \x01(\tR\x06Stderr\"\x1a\n" +
 	"\x04Path\x12\x12\n" +
-	"\x04Path\x18\x01 \x01(\tR\x04Path2\xa7\x02\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path2\x9f\x02\n" +
 	"\x05Graph\x12+\n" +
 	"\x04Sync\x12\f.api.Nothing\x1a\x13.graph.SyncResponse0\x01\x12!\n" +
 	"\x03New\x12\f.api.Nothing\x1a\f.api.Nothing\x12\x1f\n" +
 	"\x04Load\x12\t.api.Path\x1a\f.api.Nothing\x12\x1f\n" +
-	"\x04Save\x12\t.api.Path\x1a\f.api.Nothing\x121\n" +
-	"\fRunReadyNode\x12\f.api.Nothing\x1a\x13.api.NodeIdentifier\x12*\n" +
+	"\x04Save\x12\t.api.Path\x1a\f.api.Nothing\x12)\n" +
+	"\vScheduleAll\x12\f.api.Nothing\x1a\f.api.Nothing\x12*\n" +
 	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing\x12-\n" +
 	"\n" +
 	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\x91\x03\n" +
@@ -258,7 +258,7 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	0,  // 1: api.Graph.New:input_type -> api.Nothing
 	3,  // 2: api.Graph.Load:input_type -> api.Path
 	3,  // 3: api.Graph.Save:input_type -> api.Path
-	0,  // 4: api.Graph.RunReadyNode:input_type -> api.Nothing
+	0,  // 4: api.Graph.ScheduleAll:input_type -> api.Nothing
 	4,  // 5: api.Graph.Connect:input_type -> graph.EdgeConfig
 	4,  // 6: api.Graph.Disconnect:input_type -> graph.EdgeConfig
 	1,  // 7: api.Node.Run:input_type -> api.NodeIdentifier
@@ -274,7 +274,7 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	0,  // 17: api.Graph.New:output_type -> api.Nothing
 	0,  // 18: api.Graph.Load:output_type -> api.Nothing
 	0,  // 19: api.Graph.Save:output_type -> api.Nothing
-	1,  // 20: api.Graph.RunReadyNode:output_type -> api.NodeIdentifier
+	0,  // 20: api.Graph.ScheduleAll:output_type -> api.Nothing
 	0,  // 21: api.Graph.Connect:output_type -> api.Nothing
 	0,  // 22: api.Graph.Disconnect:output_type -> api.Nothing
 	0,  // 23: api.Node.Run:output_type -> api.Nothing

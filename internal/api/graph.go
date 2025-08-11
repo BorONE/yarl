@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"pipegraph/internal/graph"
-	"pipegraph/internal/util"
 	"sync"
 
 	grpc "google.golang.org/grpc"
@@ -87,38 +86,20 @@ func (s ImplementedGraphServer) Sync(_ *Nothing, stream grpc.ServerStreamingServ
 	}
 }
 
-func (s ImplementedGraphServer) RunReadyNode(ctx context.Context, _ *Nothing) (*NodeIdentifier, error) {
-	log.Println("serving RunReadyNode()")
+func (s ImplementedGraphServer) ScheduleAll(ctx context.Context, _ *Nothing) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	for {
-		waitAny, isRunning := util.NewWaitAny(), false
-
-		s.mutex.Lock()
-
-		for _, node := range s.graph.Nodes {
-			switch state := node.GetState().State.(type) {
-			case *graph.NodeState_InProgress:
-				node.DoneEvent.OnTrigger(waitAny.Done)
-				isRunning = true
-			case *graph.NodeState_Idle:
-				if state.Idle.GetIsReady() {
-					defer s.mutex.Unlock()
-					return &NodeIdentifier{Id: node.Config.Id}, node.Run()
-				}
-			}
-		}
-
-		s.mutex.Unlock()
-
-		if !isRunning {
-			break
-		}
-
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case <-waitAny.Select():
+	for _, node := range s.graph.Nodes {
+		state, isIdle := node.GetState().State.(*graph.NodeState_Idle)
+		if !isIdle {
 			continue
+		}
+
+		if state.Idle.GetIsReady() {
+			node.Run()
+		} else {
+			node.Schedule()
 		}
 	}
 

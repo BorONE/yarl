@@ -29,7 +29,7 @@ service Graph {
     rpc Load(Path) returns (Nothing);
     rpc Save(Path) returns (Nothing);
 
-    rpc RunReadyNode(Nothing) returns (NodeIdentifier);
+    rpc ScheduleAll(Nothing) returns (Nothing);
 
     rpc Connect(graph.EdgeConfig) returns (Nothing);
     rpc Disconnect(graph.EdgeConfig) returns (Nothing);
