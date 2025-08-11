@@ -63,8 +63,7 @@ export default memo(({ data }) => {
 
     const genFirstButton = () => {
         const style = {
-            borderWidth: 0,
-            position: "absolute", bottom: 0, left: borderWidth + 20,
+            position: "absolute", top: 20 + borderWidth, left: 20,
         }
         switch (data.state.State.case) {
         case "Idle":
@@ -202,8 +201,8 @@ export default memo(({ data }) => {
             {genMainButton()}
         </div>
 
-        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-5px'}}/>
-        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-5px'}}/>
+        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-1px'}}/>
+        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-1px'}}/>
     </>
 });
 
