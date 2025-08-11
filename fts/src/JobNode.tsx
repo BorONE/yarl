@@ -151,9 +151,9 @@ export default memo(({ data }) => {
             textOverflow: "ellipsis",
             display: "inline-block",
             textAlign: "left",
-            color: "#080808"
+            color: data.config.Name == "" ? "#747474" : "#080808"
         }}>
-            {data.config.Name}
+            {data.config.Name == "" ? "Node" : data.config.Name}
         </label>
     
         <label style={{
