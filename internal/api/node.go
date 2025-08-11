@@ -44,7 +44,32 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	return nil, node.Schedule()
+	for nodesToSchedule := []*graph.Node{node}; len(nodesToSchedule) > 0; {
+		var nodeToSchedule *graph.Node
+		nodeToSchedule, nodesToSchedule = nodesToSchedule[0], nodesToSchedule[1:]
+		state, isIdle := nodeToSchedule.GetState().State.(*graph.NodeState_Idle)
+		if !isIdle {
+			continue
+		}
+
+		if state.Idle.GetIsReady() {
+			err := nodeToSchedule.Run()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			err := nodeToSchedule.Schedule()
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		for _, nodeId := range nodeToSchedule.Input {
+			nodesToSchedule = append(nodesToSchedule, s.graph.Nodes[nodeId])
+		}
+	}
+
+	return nil, nil
 }
 
 func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
