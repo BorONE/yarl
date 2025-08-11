@@ -32,8 +32,8 @@ import { extractJobType } from './util';
 import { getBorderColor } from './misc';
 
 export default memo(({ data }) => {
-    const genButton = (onClick: () => void, icon: string, style = {}) => {
-        return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}}>
+    const genButton = (onClick: () => void, icon: string, style = {}, className: string | undefined = undefined) => {
+        return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}} className={className}>
             <img src={icon}/>
         </button>
     }
@@ -55,7 +55,7 @@ export default memo(({ data }) => {
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
         case "Done":
-            return genButton(() => client.node.reset({Id: data.id}), resetIcon, style)
+            return genButton(() => client.node.reset({Id: data.id}), resetIcon, style, 'reset-button')
         default:
             return <></>
         }
