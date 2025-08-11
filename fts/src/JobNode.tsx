@@ -6,6 +6,7 @@ import statusIconDoneErrorSkipped from './assets/status/2/skipped failed.svg'
 import statusIconIdleNotReady from './assets/status/2/idle.svg'
 import statusIcon from './assets/status/2/placeholder.svg'
 import statusIconIdleReady from './assets/status/2/ready.svg'
+import statusIconScheduled from './assets/status/2/scheduled.svg'
 import statusIconInProgress from './assets/status/2/running.svg'
 import statusIconSkipping from './assets/status/2/skipping.svg'
 import statusIconSkipped from './assets/status/2/skipped.svg'
@@ -13,6 +14,8 @@ import statusIconDoneStopped from './assets/status/2/stopped.svg'
 import statusIconDoneSuccess from './assets/status/2/success.svg'
 
 import runIcon from './assets/button/2/run.svg'
+import scheduleIcon from './assets/button/2/schedule.svg'
+import unscheduleIcon from './assets/button/2/unschedule.svg'
 import doneIcon from './assets/button/2/done.svg'
 import stopIcon from './assets/button/2/stop.svg'
 import resetIcon from './assets/button/2/reset.svg'
@@ -42,9 +45,13 @@ export default memo(({ data }) => {
         }
         switch (data.state.State.case) {
         case "Idle":
-            return data.state.State.value.IsReady
-                ? genButton(() => client.node.run({Id: data.id}), runIcon, style)
-                : <></>
+            if (data.state.State.value.IsReady) {
+                return genButton(() => client.node.run({Id: data.id}), runIcon, style)
+            } else if (!data.state.State.value.IsScheduled) {
+                return genButton(() => client.node.schedule({Id: data.id}), scheduleIcon, style)
+            } else {
+                return genButton(() => client.node.unschedule({Id: data.id}), unscheduleIcon, style)
+            }
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
         case "Done":
@@ -57,7 +64,7 @@ export default memo(({ data }) => {
     const genFirstButton = () => {
         const style = {
             borderWidth: 0,
-            position: "absolute", bottom: 0, left: borderWidth,
+            position: "absolute", bottom: 0, left: borderWidth + 20,
         }
         switch (data.state.State.case) {
         case "Idle":
@@ -90,6 +97,8 @@ export default memo(({ data }) => {
         case "Idle":
             if (state.IsReady) {
                 return {icon: statusIconIdleReady, alt: data.state.case}
+            } else if (state.IsScheduled) {
+                return {icon: statusIconScheduled, alt: data.state.case}
             } else {
                 return {icon: statusIconIdleNotReady, alt: data.state.case}
             }
@@ -111,13 +120,23 @@ export default memo(({ data }) => {
             } else {
                 if (state.FromIdle) {
                     return {icon: statusIconSkipped, alt: data.state.case}
-                    return {icon: statusIconDoneSuccess, alt: data.state.case}
                 } else {
                     return {icon: statusIconDoneSuccess, alt: data.state.case}
                 }
             }
         }
         return {icon: statusIcon, alt: data.state.case}
+    }
+
+    const getAnimation = () => {
+        switch (data.state.State.case) {
+            case "Idle":
+                return "rotation 2s linear 0s infinite"
+        case "InProgress":
+            return "breathe 1s ease-in-out 0s infinite"
+        default:
+            return ""
+        }
     }
 
     return <>
@@ -156,7 +175,7 @@ export default memo(({ data }) => {
                 top: -borderWidth,
                 height: 20,
                 width: 20,
-                animation: data.state.State.case == "Idle" ? "rotation 2s linear 0s infinite" : "",
+                animation: getAnimation(),
             }}
             className='status'
         />
@@ -176,16 +195,6 @@ export default memo(({ data }) => {
         </div>
         
         <div className='extra-buttons' style={{position: "absolute", bottom: "0px", height: "20px", width: "100px"}}>
-            <div // hiding more-buttons
-                style={{
-                    position: 'absolute',
-                    left: borderWidth,
-                    bottom: 10,
-                    height: 10,
-                    width: 20-borderWidth,
-                    backgroundColor: "white",
-                }}
-            />
             {genFirstButton()}
         </div>
 
@@ -193,8 +202,8 @@ export default memo(({ data }) => {
             {genMainButton()}
         </div>
 
-        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "10px"}}/>
-        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "10px"}}/>
+        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-5px'}}/>
+        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-5px'}}/>
     </>
 });
 

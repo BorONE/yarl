@@ -1,9 +1,9 @@
-import React, { useCallback, type JSX } from 'react';
-import { applyNodeChanges, useStore } from '@xyflow/react';
-import { create, fromBinary, toBinary, toJsonString } from '@bufbuild/protobuf';
+import React, { useCallback } from 'react';
+import { applyNodeChanges } from '@xyflow/react';
+import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { type Node } from '@xyflow/react';
-import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
-import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
+import { type NodeConfig } from './gen/internal/graph/config_pb';
+import { ShellCommandConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
     DropdownMenu,
@@ -47,7 +47,7 @@ function getTypeInfo(typeUrl: string) {
     return typeInfos[extractJobType(typeUrl)]
 }
 
-export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void, style: any }) => {
+export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void, style: any }) => {
     const replaceJob = (node: Node, info: TypeInfo) => {
         node.data.config.Job = create(AnySchema, {
             typeUrl: info.typeUrl,
@@ -139,7 +139,7 @@ export default ({ nodes, setNodes, style } : { nodes: Node[], setNodes: (value: 
         return <>More than one node is selected</>
     }
 
-    return <aside style={style}>
+    return <aside>
         <Input
             id="ShellCommand.Command"
             onChange={onNameChange}

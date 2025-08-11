@@ -121,10 +121,6 @@ function Flow() {
     setNodes((nds) => [...nds, buildNode(config, state)]);
   }, [setNodes]);
 
-  const runAll = async () => {
-    while (((await client.graph.runReadyNode({})).Id) != 0n);
-  }
-
   var graphPathRef = useRef(null)
 
   return (
@@ -132,7 +128,7 @@ function Flow() {
       <div className="providerflow">
         <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel>
+            <ResizablePanel defaultSize={85}>
               <Menubar style={{ padding: 0 }}>
                 <MenubarMenu>
                   <MenubarTrigger>Graph</MenubarTrigger>
@@ -141,7 +137,7 @@ function Flow() {
                     <MenubarItem onSelect={saveGraph}>Save</MenubarItem>
                     <MenubarItem onSelect={loadGraph}>Load</MenubarItem>
                     <MenubarSeparator/>
-                    <MenubarItem onSelect={runAll}>Run</MenubarItem>
+                    <MenubarItem onSelect={() => client.graph.scheduleAll({})}>Schedule</MenubarItem>
                   </MenubarContent>
                 </MenubarMenu><MenubarMenu>
                   <MenubarTrigger>Node</MenubarTrigger>
@@ -175,13 +171,9 @@ function Flow() {
                 snapGrid={[20, 20]}
               />
             </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel>
-              <Sidebar
-                nodes={nodes}
-                setNodes={setNodes}
-                style={{}}
-              />
+            <ResizableHandle/>
+            <ResizablePanel defaultSize={15}>
+              <Sidebar nodes={nodes} setNodes={setNodes}/>
             </ResizablePanel>
           </ResizablePanelGroup>
         </ReactFlowProvider>

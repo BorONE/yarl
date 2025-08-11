@@ -8,6 +8,7 @@ option go_package = "pipegraph/internal/graph";
 message NodeState {
     message IdleState {
         optional bool IsReady = 1;
+        optional bool IsScheduled = 2;
     }
 
     message InProgressState {

@@ -29,7 +29,7 @@ service Graph {
     rpc Load(Path) returns (Nothing);
     rpc Save(Path) returns (Nothing);
 
-    rpc RunReadyNode(Nothing) returns (NodeIdentifier);
+    rpc ScheduleAll(Nothing) returns (Nothing);
 
     rpc Connect(graph.EdgeConfig) returns (Nothing);
     rpc Disconnect(graph.EdgeConfig) returns (Nothing);
@@ -37,9 +37,13 @@ service Graph {
 
 service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
+    rpc Schedule(NodeIdentifier) returns (Nothing);
+    rpc Unschedule(NodeIdentifier) returns (Nothing);
     rpc Done(NodeIdentifier) returns (Nothing);
+
     rpc Stop(NodeIdentifier) returns (Nothing);
     rpc Skip(NodeIdentifier) returns (Nothing);
+    
     rpc Reset(NodeIdentifier) returns (Nothing);
 
     rpc Add(graph.NodeConfig) returns (NodeIdentifier);

@@ -30,7 +30,61 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	return nil, node.Run(s.mutex)
+	return nil, node.Run()
+}
+
+func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("running node{%v}.Schedule()\n", prototext.MarshalOptions{}.Format(id))
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	for nodesToSchedule := []*graph.Node{node}; len(nodesToSchedule) > 0; {
+		var nodeToSchedule *graph.Node
+		nodeToSchedule, nodesToSchedule = nodesToSchedule[0], nodesToSchedule[1:]
+		state, isIdle := nodeToSchedule.GetState().State.(*graph.NodeState_Idle)
+		if !isIdle {
+			continue
+		}
+
+		if state.Idle.GetIsReady() {
+			err := nodeToSchedule.Run()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			err := nodeToSchedule.Schedule()
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		for _, nodeId := range nodeToSchedule.Input {
+			nodesToSchedule = append(nodesToSchedule, s.graph.Nodes[nodeId])
+		}
+	}
+
+	return nil, nil
+}
+
+func (s ImplementedNodeServer) Unschedule(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("running node{%v}.Unchedule()\n", prototext.MarshalOptions{}.Format(id))
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	return nil, node.Unschedule()
+
 }
 
 func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
@@ -44,8 +98,7 @@ func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*N
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	node.Done()
-	return nil, nil
+	return nil, node.Done()
 }
 
 func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
