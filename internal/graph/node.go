@@ -97,6 +97,23 @@ func (node *Node) Schedule() error {
 	return nil
 }
 
+func (node *Node) Unschedule() error {
+	state, isIdle := node.state.(*NodeState_Idle)
+	if !isIdle || !state.Idle.GetIsScheduled() {
+		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
+	}
+
+	if !state.Idle.GetIsScheduled() {
+		return nil
+	}
+
+	isScheduled := false
+	state.Idle.IsScheduled = &isScheduled
+	node.ReportUpdate()
+
+	return nil
+}
+
 func (node *Node) Done() error {
 	_, isIdle := node.state.(*NodeState_Idle)
 	if !isIdle {

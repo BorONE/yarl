@@ -354,15 +354,16 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Node_Run_FullMethodName      = "/api.Node/Run"
-	Node_Schedule_FullMethodName = "/api.Node/Schedule"
-	Node_Done_FullMethodName     = "/api.Node/Done"
-	Node_Stop_FullMethodName     = "/api.Node/Stop"
-	Node_Skip_FullMethodName     = "/api.Node/Skip"
-	Node_Reset_FullMethodName    = "/api.Node/Reset"
-	Node_Add_FullMethodName      = "/api.Node/Add"
-	Node_Edit_FullMethodName     = "/api.Node/Edit"
-	Node_Delete_FullMethodName   = "/api.Node/Delete"
+	Node_Run_FullMethodName        = "/api.Node/Run"
+	Node_Schedule_FullMethodName   = "/api.Node/Schedule"
+	Node_Unschedule_FullMethodName = "/api.Node/Unschedule"
+	Node_Done_FullMethodName       = "/api.Node/Done"
+	Node_Stop_FullMethodName       = "/api.Node/Stop"
+	Node_Skip_FullMethodName       = "/api.Node/Skip"
+	Node_Reset_FullMethodName      = "/api.Node/Reset"
+	Node_Add_FullMethodName        = "/api.Node/Add"
+	Node_Edit_FullMethodName       = "/api.Node/Edit"
+	Node_Delete_FullMethodName     = "/api.Node/Delete"
 )
 
 // NodeClient is the client API for Node service.
@@ -371,6 +372,7 @@ const (
 type NodeClient interface {
 	Run(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Schedule(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
+	Unschedule(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Done(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Stop(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Skip(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
@@ -402,6 +404,16 @@ func (c *nodeClient) Schedule(ctx context.Context, in *NodeIdentifier, opts ...g
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Nothing)
 	err := c.cc.Invoke(ctx, Node_Schedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeClient) Unschedule(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Node_Unschedule_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -484,6 +496,7 @@ func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grp
 type NodeServer interface {
 	Run(context.Context, *NodeIdentifier) (*Nothing, error)
 	Schedule(context.Context, *NodeIdentifier) (*Nothing, error)
+	Unschedule(context.Context, *NodeIdentifier) (*Nothing, error)
 	Done(context.Context, *NodeIdentifier) (*Nothing, error)
 	Stop(context.Context, *NodeIdentifier) (*Nothing, error)
 	Skip(context.Context, *NodeIdentifier) (*Nothing, error)
@@ -506,6 +519,9 @@ func (UnimplementedNodeServer) Run(context.Context, *NodeIdentifier) (*Nothing, 
 }
 func (UnimplementedNodeServer) Schedule(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Schedule not implemented")
+}
+func (UnimplementedNodeServer) Unschedule(context.Context, *NodeIdentifier) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Unschedule not implemented")
 }
 func (UnimplementedNodeServer) Done(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Done not implemented")
@@ -581,6 +597,24 @@ func _Node_Schedule_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NodeServer).Schedule(ctx, req.(*NodeIdentifier))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Node_Unschedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeIdentifier)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).Unschedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_Unschedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).Unschedule(ctx, req.(*NodeIdentifier))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -725,6 +759,10 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Schedule",
 			Handler:    _Node_Schedule_Handler,
+		},
+		{
+			MethodName: "Unschedule",
+			Handler:    _Node_Unschedule_Handler,
 		},
 		{
 			MethodName: "Done",

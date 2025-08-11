@@ -219,10 +219,12 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\vScheduleAll\x12\f.api.Nothing\x1a\f.api.Nothing\x12*\n" +
 	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing\x12-\n" +
 	"\n" +
-	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\x91\x03\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\xc2\x03\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
-	"\bSchedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
+	"\bSchedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12/\n" +
+	"\n" +
+	"Unschedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
 	"\x04Done\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
 	"\x04Stop\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
 	"\x04Skip\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12*\n" +
@@ -263,31 +265,33 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	4,  // 6: api.Graph.Disconnect:input_type -> graph.EdgeConfig
 	1,  // 7: api.Node.Run:input_type -> api.NodeIdentifier
 	1,  // 8: api.Node.Schedule:input_type -> api.NodeIdentifier
-	1,  // 9: api.Node.Done:input_type -> api.NodeIdentifier
-	1,  // 10: api.Node.Stop:input_type -> api.NodeIdentifier
-	1,  // 11: api.Node.Skip:input_type -> api.NodeIdentifier
-	1,  // 12: api.Node.Reset:input_type -> api.NodeIdentifier
-	5,  // 13: api.Node.Add:input_type -> graph.NodeConfig
-	5,  // 14: api.Node.Edit:input_type -> graph.NodeConfig
-	1,  // 15: api.Node.Delete:input_type -> api.NodeIdentifier
-	6,  // 16: api.Graph.Sync:output_type -> graph.SyncResponse
-	0,  // 17: api.Graph.New:output_type -> api.Nothing
-	0,  // 18: api.Graph.Load:output_type -> api.Nothing
-	0,  // 19: api.Graph.Save:output_type -> api.Nothing
-	0,  // 20: api.Graph.ScheduleAll:output_type -> api.Nothing
-	0,  // 21: api.Graph.Connect:output_type -> api.Nothing
-	0,  // 22: api.Graph.Disconnect:output_type -> api.Nothing
-	0,  // 23: api.Node.Run:output_type -> api.Nothing
-	0,  // 24: api.Node.Schedule:output_type -> api.Nothing
-	0,  // 25: api.Node.Done:output_type -> api.Nothing
-	0,  // 26: api.Node.Stop:output_type -> api.Nothing
-	0,  // 27: api.Node.Skip:output_type -> api.Nothing
-	0,  // 28: api.Node.Reset:output_type -> api.Nothing
-	1,  // 29: api.Node.Add:output_type -> api.NodeIdentifier
-	0,  // 30: api.Node.Edit:output_type -> api.Nothing
-	0,  // 31: api.Node.Delete:output_type -> api.Nothing
-	16, // [16:32] is the sub-list for method output_type
-	0,  // [0:16] is the sub-list for method input_type
+	1,  // 9: api.Node.Unschedule:input_type -> api.NodeIdentifier
+	1,  // 10: api.Node.Done:input_type -> api.NodeIdentifier
+	1,  // 11: api.Node.Stop:input_type -> api.NodeIdentifier
+	1,  // 12: api.Node.Skip:input_type -> api.NodeIdentifier
+	1,  // 13: api.Node.Reset:input_type -> api.NodeIdentifier
+	5,  // 14: api.Node.Add:input_type -> graph.NodeConfig
+	5,  // 15: api.Node.Edit:input_type -> graph.NodeConfig
+	1,  // 16: api.Node.Delete:input_type -> api.NodeIdentifier
+	6,  // 17: api.Graph.Sync:output_type -> graph.SyncResponse
+	0,  // 18: api.Graph.New:output_type -> api.Nothing
+	0,  // 19: api.Graph.Load:output_type -> api.Nothing
+	0,  // 20: api.Graph.Save:output_type -> api.Nothing
+	0,  // 21: api.Graph.ScheduleAll:output_type -> api.Nothing
+	0,  // 22: api.Graph.Connect:output_type -> api.Nothing
+	0,  // 23: api.Graph.Disconnect:output_type -> api.Nothing
+	0,  // 24: api.Node.Run:output_type -> api.Nothing
+	0,  // 25: api.Node.Schedule:output_type -> api.Nothing
+	0,  // 26: api.Node.Unschedule:output_type -> api.Nothing
+	0,  // 27: api.Node.Done:output_type -> api.Nothing
+	0,  // 28: api.Node.Stop:output_type -> api.Nothing
+	0,  // 29: api.Node.Skip:output_type -> api.Nothing
+	0,  // 30: api.Node.Reset:output_type -> api.Nothing
+	1,  // 31: api.Node.Add:output_type -> api.NodeIdentifier
+	0,  // 32: api.Node.Edit:output_type -> api.Nothing
+	0,  // 33: api.Node.Delete:output_type -> api.Nothing
+	17, // [17:34] is the sub-list for method output_type
+	0,  // [0:17] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

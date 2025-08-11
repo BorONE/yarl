@@ -15,6 +15,7 @@ import statusIconDoneSuccess from './assets/status/2/success.svg'
 
 import runIcon from './assets/button/2/run.svg'
 import scheduleIcon from './assets/button/2/schedule.svg'
+import unscheduleIcon from './assets/button/2/unschedule.svg'
 import doneIcon from './assets/button/2/done.svg'
 import stopIcon from './assets/button/2/stop.svg'
 import resetIcon from './assets/button/2/reset.svg'
@@ -49,7 +50,7 @@ export default memo(({ data }) => {
             } else if (!data.state.State.value.IsScheduled) {
                 return genButton(() => client.node.schedule({Id: data.id}), scheduleIcon, style)
             } else {
-                return <></>
+                return genButton(() => client.node.unschedule({Id: data.id}), unscheduleIcon, style)
             }
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
@@ -201,8 +202,8 @@ export default memo(({ data }) => {
             {genMainButton()}
         </div>
 
-        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "10px"}}/>
-        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "10px"}}/>
+        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-5px'}}/>
+        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-5px'}}/>
     </>
 });
 
