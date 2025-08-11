@@ -32,8 +32,8 @@ import { extractJobType } from './util';
 import { getBorderColor } from './misc';
 
 export default memo(({ data }) => {
-    const genButton = (onClick: () => void, icon: string, style = {}) => {
-        return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}}>
+    const genButton = (onClick: () => void, icon: string, style = {}, className: string | undefined = undefined) => {
+        return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}} className={className}>
             <img src={icon}/>
         </button>
     }
@@ -55,7 +55,7 @@ export default memo(({ data }) => {
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
         case "Done":
-            return genButton(() => client.node.reset({Id: data.id}), resetIcon, style)
+            return genButton(() => client.node.reset({Id: data.id}), resetIcon, style, 'reset-button')
         default:
             return <></>
         }
@@ -63,8 +63,7 @@ export default memo(({ data }) => {
 
     const genFirstButton = () => {
         const style = {
-            borderWidth: 0,
-            position: "absolute", bottom: 0, left: borderWidth + 20,
+            position: "absolute", top: 20 + borderWidth, left: 20,
         }
         switch (data.state.State.case) {
         case "Idle":
@@ -151,9 +150,9 @@ export default memo(({ data }) => {
             textOverflow: "ellipsis",
             display: "inline-block",
             textAlign: "left",
-            color: "#080808"
+            color: data.config.Name == "" ? "#747474" : "#080808"
         }}>
-            {data.config.Name}
+            {data.config.Name == "" ? "Node" : data.config.Name}
         </label>
     
         <label style={{
@@ -202,8 +201,8 @@ export default memo(({ data }) => {
             {genMainButton()}
         </div>
 
-        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-5px'}}/>
-        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-5px'}}/>
+        <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-1px'}}/>
+        <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-1px'}}/>
     </>
 });
 

@@ -86,6 +86,10 @@ button {
   transition: border-color 0.25s;
 }
 
+.reset-button:hover {
+  animation: rotation 0.5s ease-in 0s 1 reverse
+}
+
 .extra-buttons {
   visibility: hidden;
 }
@@ -257,16 +261,12 @@ button:focus-visible {
 }
 
 @keyframes breathe {
-  0% {
+  0%,100% {
     position: absolute;
     transform: scale(1.1)
   }
   50% {
     position: absolute;
     transform: scale(0.9)
-  }
-  100% {
-    position: absolute;
-    transform: scale(1.1)
   }
 }
