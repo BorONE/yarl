@@ -6,6 +6,7 @@ import (
 	"pipegraph/internal/job"
 	"strings"
 	"syscall"
+	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
 )
@@ -16,8 +17,9 @@ type BashJob struct {
 	cmd    *exec.Cmd
 	cancel func()
 
-	Stdout strings.Builder
-	Stderr strings.Builder
+	artifacts job.Artifacts
+	stdout    strings.Builder
+	stderr    strings.Builder
 }
 
 func (j *BashJob) reset() {
@@ -28,8 +30,12 @@ func (j *BashJob) Run() error {
 	j.cmd, j.cancel = makeCommandWithGroupCancel(context.Background(), "/bin/sh", j.args...)
 	defer j.cancel()
 
-	j.cmd.Stdout = &j.Stdout
-	j.cmd.Stderr = &j.Stderr
+	j.artifacts = make(job.Artifacts)
+	j.artifacts["started_at"] = time.Now().String()
+	defer func() { j.artifacts["finished_at"] = time.Now().String() }()
+
+	j.cmd.Stdout = &j.stdout
+	j.cmd.Stderr = &j.stderr
 
 	return j.cmd.Run()
 }
@@ -59,10 +65,9 @@ func (j *BashJob) Reset() error {
 }
 
 func (j *BashJob) CollectArtifacts() job.Artifacts {
-	result := make(map[string]string)
-	result["stdout"] = j.Stdout.String()
-	result["stderr"] = j.Stderr.String()
-	return result
+	j.artifacts["stdout"] = j.stdout.String()
+	j.artifacts["stderr"] = j.stderr.String()
+	return j.artifacts
 }
 
 var _ job.Job = &BashJob{}

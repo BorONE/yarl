@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { type Node } from '@xyflow/react';
-import { type NodeConfig } from './gen/internal/graph/config_pb';
+import { type NodeConfig, type NodeState } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
@@ -12,6 +12,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Textarea } from "@/components/ui/textarea"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+
 import { AnySchema, type Any } from '@bufbuild/protobuf/wkt';
 
 import * as client from './client'
@@ -70,9 +78,9 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         ),
         [setNodes],
     )
-  
+
     const selectedNodes = nodes.filter((nd) => nd.selected)
-    
+
     const selectedNode = selectedNodes[0]
     const config: NodeConfig = selectedNode?.data.config
     const job = config?.Job
@@ -120,7 +128,8 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         ),
         [setNodes],
     )
-    const editor = () => {
+
+    const renderEditorShellCommand = () => {
         const job : ShellCommandConfig = jobMsg
         return <div className="grid w-full items-center gap-3">
             <Label htmlFor="ShellCommand.Command">Command</Label>
@@ -129,8 +138,79 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                 onChange={onShellCommandChange}
                 placeholder='echo "hello yarl"'
                 value={job.Command}
+                style={{ fontFamily: "monospace" }}
             />
         </div>
+    }
+    const renderEditor = () => {
+        return <AccordionItem value="item-1">
+            <AccordionTrigger>Editor</AccordionTrigger>
+            <AccordionContent>
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="nodrag p-1">
+                            {extractJobType(job.typeUrl)}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        {items}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {renderEditorShellCommand()}
+
+            </AccordionContent>
+        </AccordionItem>
+    }
+
+    const renderArts = () => {
+        const state : NodeState = selectedNode.data.state
+        if (state.State.case != "Done") {
+            return <></>
+        }
+
+        const done = state.State.value
+        const arts = done.Arts
+
+        const renderStream = (key: string) => {
+            if (!(key in arts)) {
+                return undefined
+            }
+            return <div className="grid w-full gap-3" style={{padding: 5}}>
+                <Label htmlFor={key}>{key}</Label>
+                <Textarea id={key} readOnly={true} value={arts[key]} style={{fontFamily: "monospace"}}/>
+            </div>
+        }
+
+        const renderTime = (label, key) => {
+            if (!(key in arts)) {
+                return undefined
+            }
+            return <>
+                <div style={{color: "#747474"}}>
+                    {label}: {arts[key].split(':').slice(0, -1).join(':')}
+                </div>
+            </>
+        }
+
+        const content = [
+            renderTime("started", "started_at"),
+            renderTime("finished", "finished_at"),
+            renderStream("stdout"),
+            renderStream("stderr"),
+        ].filter((el) => typeof el != "undefined")
+
+        if (content.length == 0) {
+            return <></>
+        }
+
+        return <AccordionItem value="item-2">
+            <AccordionTrigger>Artifacts</AccordionTrigger>
+            <AccordionContent>
+                {...content}
+            </AccordionContent>
+        </AccordionItem>
     }
 
     if (selectedNodes.length == 0) {
@@ -141,7 +221,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
 
     return <aside>
         <Input
-            id="ShellCommand.Command"
+            id="Node.Name"
             onChange={onNameChange}
             placeholder='Node'
             value={config.Name}
@@ -151,19 +231,9 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
 
         <Separator/>
 
-        <div style={{ margin: '5px' }}>
-            <DropdownMenu>  
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="nodrag p-1">
-                        {extractJobType(job.typeUrl)}
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    {items}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-
-        {editor()}
+        <Accordion type="multiple">
+            {renderEditor()}
+            {renderArts()}
+        </Accordion>
     </aside>
 };
