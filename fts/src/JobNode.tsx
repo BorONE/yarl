@@ -63,8 +63,7 @@ export default memo(({ data }) => {
 
     const genFirstButton = () => {
         const style = {
-            borderWidth: 0,
-            position: "absolute", bottom: 0, left: borderWidth + 20,
+            position: "absolute", top: 20 - borderWidth, left: 20 - borderWidth,
         }
         switch (data.state.State.case) {
         case "Idle":
@@ -194,7 +193,7 @@ export default memo(({ data }) => {
             <img src={moreIcon}/>
         </div>
         
-        <div className='extra-buttons' style={{position: "absolute", bottom: "0px", height: "20px", width: "100px"}}>
+        <div className='extra-buttons' style={{position: "absolute", top: 0, left: 0}}>
             {genFirstButton()}
         </div>
 
