@@ -13,6 +13,11 @@ message NodeIdentifier {
     // optional string Name = 2;
 }
 
+message NodePlan {
+    optional uint64 Id = 1;
+    optional graph.NodeState.IdleState.IdlePlan Plan = 2;
+}
+
 message ArtifactsMessage {
     optional string Stdout = 1;
     optional string Stderr = 2;
@@ -38,8 +43,8 @@ service Graph {
 service Node {
     rpc Run(NodeIdentifier) returns (Nothing);
     rpc Schedule(NodeIdentifier) returns (Nothing);
-    rpc Unschedule(NodeIdentifier) returns (Nothing);
     rpc Done(NodeIdentifier) returns (Nothing);
+    rpc Plan(NodePlan) returns (Nothing);
 
     rpc Stop(NodeIdentifier) returns (Nothing);
     rpc Skip(NodeIdentifier) returns (Nothing);

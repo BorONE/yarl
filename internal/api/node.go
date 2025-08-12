@@ -57,8 +57,8 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 			if err != nil {
 				return nil, err
 			}
-		} else {
-			err := nodeToSchedule.Schedule()
+		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {
+			err := nodeToSchedule.Plan(graph.NodeState_IdleState_Scheduled)
 			if err != nil {
 				return nil, err
 			}
@@ -72,26 +72,11 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 	return nil, nil
 }
 
-func (s ImplementedNodeServer) Unschedule(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{%v}.Unchedule()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
-	}
-
-	return nil, node.Unschedule()
-
-}
-
 func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	log.Printf("running node{%v}.Done()\n", prototext.MarshalOptions{}.Format(id))
+	log.Printf("running node{Id: %v}.Done()\n", prototext.MarshalOptions{}.Format(id))
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
@@ -99,6 +84,20 @@ func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*N
 	}
 
 	return nil, node.Done()
+}
+
+func (s ImplementedNodeServer) Plan(ctx context.Context, nodePlan *NodePlan) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("running node{Id: %v}.Plan(%v)\n", nodePlan.GetId(), nodePlan.GetPlan().String())
+
+	node := s.graph.Nodes[graph.NodeId(nodePlan.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", nodePlan.GetId())
+	}
+
+	return nil, node.Plan(nodePlan.GetPlan())
 }
 
 func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {

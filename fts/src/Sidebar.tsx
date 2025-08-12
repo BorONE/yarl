@@ -143,7 +143,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         </div>
     }
     const renderEditor = () => {
-        return <AccordionItem value="item-1">
+        return <>
             <AccordionTrigger>Editor</AccordionTrigger>
             <AccordionContent>
 
@@ -161,7 +161,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                 {renderEditorShellCommand()}
 
             </AccordionContent>
-        </AccordionItem>
+        </>
     }
 
     const renderArts = () => {
@@ -183,15 +183,13 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             </div>
         }
 
-        const renderTime = (label, key) => {
+        const renderTime = (label: string, key: string) => {
             if (!(key in arts)) {
                 return undefined
             }
-            return <>
-                <div style={{color: "#747474"}}>
-                    {label}: {arts[key].split(':').slice(0, -1).join(':')}
-                </div>
-            </>
+            return <div style={{color: "#747474"}}>
+                {label}: {arts[key].split('.')[0]}
+            </div>
         }
 
         const content = [
@@ -205,12 +203,12 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             return <></>
         }
 
-        return <AccordionItem value="item-2">
+        return <>
             <AccordionTrigger>Artifacts</AccordionTrigger>
             <AccordionContent>
                 {...content}
             </AccordionContent>
-        </AccordionItem>
+        </>
     }
 
     if (selectedNodes.length == 0) {
@@ -231,9 +229,13 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
 
         <Separator/>
 
-        <Accordion type="multiple">
-            {renderEditor()}
-            {renderArts()}
+        <Accordion type="multiple" defaultValue={["editor"]} >
+            <AccordionItem value="editor">
+                {renderEditor()}
+            </AccordionItem>
+            <AccordionItem value="arts">
+                {renderArts()}
+            </AccordionItem>
         </Accordion>
     </aside>
 };
