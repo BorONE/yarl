@@ -98,8 +98,8 @@ func (s ImplementedGraphServer) ScheduleAll(ctx context.Context, _ *Nothing) (*N
 
 		if state.Idle.GetIsReady() {
 			node.Run()
-		} else {
-			node.Schedule()
+		} else if state.Idle.GetPlan() == graph.NodeState_IdleState_None {
+			node.Plan(graph.NodeState_IdleState_Scheduled)
 		}
 	}
 

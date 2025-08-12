@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/graph/config.proto.
  */
 export const file_internal_graph_config: GenFile = /*@__PURE__*/
-  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIrwECglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAaMQoJSWRsZVN0YXRlEg8KB0lzUmVhZHkYASABKAgSEwoLSXNTY2hlZHVsZWQYAiABKAgaoAEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiSgoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhIMCghTa2lwcGluZxADGrMBCglEb25lU3RhdGUSDQoFRXJyb3IYASABKAkSMgoEQXJ0cxgCIAMoCzIkLmdyYXBoLk5vZGVTdGF0ZS5Eb25lU3RhdGUuQXJ0c0VudHJ5EhEKCUlzU3RvcHBlZBgDIAIoCBIRCglJc1NraXBwZWQYBCACKAgSEAoIRnJvbUlkbGUYBSABKAgaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFU3RhdGUiTAoGQ29uZmlnEiAKBU5vZGVzGAEgAygLMhEuZ3JhcGguTm9kZUNvbmZpZxIgCgVFZGdlcxgCIAMoCzIRLmdyYXBoLkVkZ2VDb25maWciIAoIUG9zaXRpb24SCQoBWBgBIAEoBRIJCgFZGAIgASgFImwKCk5vZGVDb25maWcSCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIhCgNKb2IYAyABKAsyFC5nb29nbGUucHJvdG9idWYuQW55EiEKCFBvc2l0aW9uGAQgASgLMg8uZ3JhcGguUG9zaXRpb24iMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEIqABCgxTeW5jUmVzcG9uc2USHQoEVHlwZRgBIAEoDjIPLmdyYXBoLlN5bmNUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypQCghTeW5jVHlwZRIMCghJbml0Tm9kZRABEgwKCEluaXRFZGdlEAISDAoISW5pdERvbmUQAxIPCgtVcGRhdGVTdGF0ZRAEEgkKBVJlc2V0EAVCGloYcGlwZWdyYXBoL2ludGVybmFsL2dyYXBo", [file_google_protobuf_any]);
+  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIo0FCglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAagQEKCUlkbGVTdGF0ZRIPCgdJc1JlYWR5GAEgASgIEjEKBFBsYW4YAiABKA4yIy5ncmFwaC5Ob2RlU3RhdGUuSWRsZVN0YXRlLklkbGVQbGFuIjAKCElkbGVQbGFuEggKBE5vbmUQABINCglTY2hlZHVsZWQQARILCgdTa2lwcGVkEAIaoAEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiSgoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhIMCghTa2lwcGluZxADGrMBCglEb25lU3RhdGUSDQoFRXJyb3IYASABKAkSMgoEQXJ0cxgCIAMoCzIkLmdyYXBoLk5vZGVTdGF0ZS5Eb25lU3RhdGUuQXJ0c0VudHJ5EhEKCUlzU3RvcHBlZBgDIAIoCBIRCglJc1NraXBwZWQYBCACKAgSEAoIRnJvbUlkbGUYBSABKAgaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAFCBwoFU3RhdGUiTAoGQ29uZmlnEiAKBU5vZGVzGAEgAygLMhEuZ3JhcGguTm9kZUNvbmZpZxIgCgVFZGdlcxgCIAMoCzIRLmdyYXBoLkVkZ2VDb25maWciIAoIUG9zaXRpb24SCQoBWBgBIAEoBRIJCgFZGAIgASgFImwKCk5vZGVDb25maWcSCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIhCgNKb2IYAyABKAsyFC5nb29nbGUucHJvdG9idWYuQW55EiEKCFBvc2l0aW9uGAQgASgLMg8uZ3JhcGguUG9zaXRpb24iMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEIqABCgxTeW5jUmVzcG9uc2USHQoEVHlwZRgBIAEoDjIPLmdyYXBoLlN5bmNUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypQCghTeW5jVHlwZRIMCghJbml0Tm9kZRABEgwKCEluaXRFZGdlEAISDAoISW5pdERvbmUQAxIPCgtVcGRhdGVTdGF0ZRAEEgkKBVJlc2V0EAVCGloYcGlwZWdyYXBoL2ludGVybmFsL2dyYXBo", [file_google_protobuf_any]);
 
 /**
  * @generated from message graph.NodeState
@@ -64,9 +64,9 @@ export type NodeState_IdleState = Message<"graph.NodeState.IdleState"> & {
   IsReady: boolean;
 
   /**
-   * @generated from field: optional bool IsScheduled = 2;
+   * @generated from field: optional graph.NodeState.IdleState.IdlePlan Plan = 2;
    */
-  IsScheduled: boolean;
+  Plan: NodeState_IdleState_IdlePlan;
 };
 
 /**
@@ -75,6 +75,32 @@ export type NodeState_IdleState = Message<"graph.NodeState.IdleState"> & {
  */
 export const NodeState_IdleStateSchema: GenMessage<NodeState_IdleState> = /*@__PURE__*/
   messageDesc(file_internal_graph_config, 0, 0);
+
+/**
+ * @generated from enum graph.NodeState.IdleState.IdlePlan
+ */
+export enum NodeState_IdleState_IdlePlan {
+  /**
+   * @generated from enum value: None = 0;
+   */
+  None = 0,
+
+  /**
+   * @generated from enum value: Scheduled = 1;
+   */
+  Scheduled = 1,
+
+  /**
+   * @generated from enum value: Skipped = 2;
+   */
+  Skipped = 2,
+}
+
+/**
+ * Describes the enum graph.NodeState.IdleState.IdlePlan.
+ */
+export const NodeState_IdleState_IdlePlanSchema: GenEnum<NodeState_IdleState_IdlePlan> = /*@__PURE__*/
+  enumDesc(file_internal_graph_config, 0, 0, 0);
 
 /**
  * @generated from message graph.NodeState.InProgressState

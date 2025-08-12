@@ -10,12 +10,15 @@ import statusIconScheduled from './assets/status/2/scheduled.svg'
 import statusIconInProgress from './assets/status/2/running.svg'
 import statusIconSkipping from './assets/status/2/skipping.svg'
 import statusIconSkipped from './assets/status/2/skipped.svg'
+import statusIconToSkip from './assets/status/2/to_skip.svg'
 import statusIconDoneStopped from './assets/status/2/stopped.svg'
 import statusIconDoneSuccess from './assets/status/2/success.svg'
 
 import runIcon from './assets/button/2/run.svg'
 import scheduleIcon from './assets/button/2/schedule.svg'
 import unscheduleIcon from './assets/button/2/unschedule.svg'
+import skipIcon from './assets/button/2/skip.svg'
+import unskipIcon from './assets/button/2/unskip.svg'
 import doneIcon from './assets/button/2/done.svg'
 import stopIcon from './assets/button/2/stop.svg'
 import resetIcon from './assets/button/2/reset.svg'
@@ -43,14 +46,15 @@ export default memo(({ data }) => {
             right: -borderWidth,
             top: -borderWidth,
         }
-        switch (data.state.State.case) {
+        const state : config.NodeState = data.state
+        switch (state.State.case) {
         case "Idle":
-            if (data.state.State.value.IsReady) {
+            if (state.State.value.IsReady) {
                 return genButton(() => client.node.run({Id: data.id}), runIcon, style)
-            } else if (!data.state.State.value.IsScheduled) {
+            } else if (state.State.value.Plan != config.NodeState_IdleState_IdlePlan.Scheduled) {
                 return genButton(() => client.node.schedule({Id: data.id}), scheduleIcon, style)
             } else {
-                return genButton(() => client.node.unschedule({Id: data.id}), unscheduleIcon, style)
+                return genButton(() => client.node.plan({Id: data.id, Plan: config.NodeState_IdleState_IdlePlan.None}), unscheduleIcon, style)
             }
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
@@ -65,66 +69,70 @@ export default memo(({ data }) => {
         const style = {
             position: "absolute", top: 20 - borderWidth, left: 20 - borderWidth,
         }
-        switch (data.state.State.case) {
+        const state : config.NodeState = data.state
+        switch (state.State.case) {
         case "Idle":
-            return genButton(() => {client.node.done({Id: data.id})}, doneIcon, style)
+            const idle = state.State.value
+            if (idle.IsReady) {
+                return genButton(() => client.node.done({Id: data.id}), skipIcon, style)
+            }
+            if (idle.Plan != config.NodeState_IdleState_IdlePlan.Skipped) {
+                return genButton(() => client.node.plan({Id: data.id, Plan: config.NodeState_IdleState_IdlePlan.Skipped}), skipIcon, style)
+            } else {
+                return genButton(() => client.node.plan({Id: data.id, Plan: config.NodeState_IdleState_IdlePlan.None}), unskipIcon, style)
+            }
         case "InProgress":
             return genButton(() => {client.node.skip({Id: data.id})}, doneIcon, style)
         case "Done":
-            return <></>
+            return undefined
         default:
-            return <></>
+            return undefined
         }
     }
 
     const hasExtraButtons = () => {
-        switch (data.state.State.case) {
-        case "Idle":
-            return true
-        case "InProgress":
-            return true
-        case "Done":
-            return false
-        default:
-            return false
-        }
+        return [genFirstButton()].filter((el) => typeof el != "undefined").length > 0
     }
 
     const getStateIcon = () => {
-        const state = data.state.State.value;
-        switch (data.state.State.case) {
+        const state : config.NodeState = data.state;
+        switch (state.State.case) {
         case "Idle":
-            if (state.IsReady) {
-                return {icon: statusIconIdleReady, alt: data.state.case}
-            } else if (state.IsScheduled) {
-                return {icon: statusIconScheduled, alt: data.state.case}
-            } else {
-                return {icon: statusIconIdleNotReady, alt: data.state.case}
+            if (state.State.value.IsReady) {
+                return {icon: statusIconIdleReady}
+            }
+            switch (state.State.value.Plan) {
+            case config.NodeState_IdleState_IdlePlan.Scheduled:
+                return {icon: statusIconScheduled}
+            case config.NodeState_IdleState_IdlePlan.Skipped:
+                return {icon: statusIconToSkip}
+            case config.NodeState_IdleState_IdlePlan.None:
+                return {icon: statusIconIdleNotReady}
             }
         case "InProgress":
-            if (state.Status == config.NodeState_InProgressState_InProgressStatus.Skipping) {
-                return {icon: statusIconSkipping, alt: data.state.case}
+            if (state.State.value.Status == config.NodeState_InProgressState_InProgressStatus.Skipping) {
+                return {icon: statusIconSkipping}
             } else {
-                return {icon: statusIconInProgress, alt: data.state.case}
+                return {icon: statusIconInProgress}
             }
         case "Done":
-            if (state.IsStopped) {
-                return {icon: statusIconDoneStopped, alt: data.state.case}
-            } else if (state.Error) {
-                if (state.IsSkipped) {
-                    return {icon: statusIconDoneErrorSkipped, alt: data.state.case}
+            if (state.State.value.IsStopped) {
+                return {icon: statusIconDoneStopped}
+            } else if (state.State.value.Error) {
+                if (state.State.value.IsSkipped) {
+                    return {icon: statusIconDoneErrorSkipped}
                 } else {
-                    return {icon: statusIconDoneError, alt: data.state.case}
+                    return {icon: statusIconDoneError}
                 }
             } else {
-                if (state.FromIdle) {
-                    return {icon: statusIconSkipped, alt: data.state.case}
+                if (state.State.value.FromIdle) {
+                    return {icon: statusIconSkipped}
                 } else {
-                    return {icon: statusIconDoneSuccess, alt: data.state.case}
+                    return {icon: statusIconDoneSuccess}
                 }
             }
         }
-        return {icon: statusIcon, alt: data.state.case}
+        return {icon: statusIcon}
     }
 
     const getAnimation = () => {
@@ -167,7 +175,6 @@ export default memo(({ data }) => {
 
         <img
             src={getStateIcon().icon}
-            alt={getStateIcon().alt}
             style={{
                 position: 'absolute',
                 left: 0,

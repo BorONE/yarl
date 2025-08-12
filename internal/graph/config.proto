@@ -7,8 +7,14 @@ option go_package = "pipegraph/internal/graph";
 
 message NodeState {
     message IdleState {
+        enum IdlePlan {
+            None = 0;
+            Scheduled = 1;
+            Skipped = 2;
+        }
+
         optional bool IsReady = 1;
-        optional bool IsScheduled = 2;
+        optional IdlePlan Plan = 2;
     }
 
     message InProgressState {

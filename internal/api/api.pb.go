@@ -102,6 +102,58 @@ func (x *NodeIdentifier) GetId() uint64 {
 	return 0
 }
 
+type NodePlan struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Id            *uint64                             `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
+	Plan          *graph.NodeState_IdleState_IdlePlan `protobuf:"varint,2,opt,name=Plan,enum=graph.NodeState_IdleState_IdlePlan" json:"Plan,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodePlan) Reset() {
+	*x = NodePlan{}
+	mi := &file_internal_api_api_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodePlan) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodePlan) ProtoMessage() {}
+
+func (x *NodePlan) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_api_api_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodePlan.ProtoReflect.Descriptor instead.
+func (*NodePlan) Descriptor() ([]byte, []int) {
+	return file_internal_api_api_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *NodePlan) GetId() uint64 {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return 0
+}
+
+func (x *NodePlan) GetPlan() graph.NodeState_IdleState_IdlePlan {
+	if x != nil && x.Plan != nil {
+		return *x.Plan
+	}
+	return graph.NodeState_IdleState_IdlePlan(0)
+}
+
 type ArtifactsMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Stdout        *string                `protobuf:"bytes,1,opt,name=Stdout" json:"Stdout,omitempty"`
@@ -112,7 +164,7 @@ type ArtifactsMessage struct {
 
 func (x *ArtifactsMessage) Reset() {
 	*x = ArtifactsMessage{}
-	mi := &file_internal_api_api_proto_msgTypes[2]
+	mi := &file_internal_api_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -124,7 +176,7 @@ func (x *ArtifactsMessage) String() string {
 func (*ArtifactsMessage) ProtoMessage() {}
 
 func (x *ArtifactsMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_api_api_proto_msgTypes[2]
+	mi := &file_internal_api_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -137,7 +189,7 @@ func (x *ArtifactsMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArtifactsMessage.ProtoReflect.Descriptor instead.
 func (*ArtifactsMessage) Descriptor() ([]byte, []int) {
-	return file_internal_api_api_proto_rawDescGZIP(), []int{2}
+	return file_internal_api_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ArtifactsMessage) GetStdout() string {
@@ -163,7 +215,7 @@ type Path struct {
 
 func (x *Path) Reset() {
 	*x = Path{}
-	mi := &file_internal_api_api_proto_msgTypes[3]
+	mi := &file_internal_api_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -175,7 +227,7 @@ func (x *Path) String() string {
 func (*Path) ProtoMessage() {}
 
 func (x *Path) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_api_api_proto_msgTypes[3]
+	mi := &file_internal_api_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -188,7 +240,7 @@ func (x *Path) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Path.ProtoReflect.Descriptor instead.
 func (*Path) Descriptor() ([]byte, []int) {
-	return file_internal_api_api_proto_rawDescGZIP(), []int{3}
+	return file_internal_api_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Path) GetPath() string {
@@ -205,7 +257,10 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x16internal/api/api.proto\x12\x03api\x1a\x1binternal/graph/config.proto\"\t\n" +
 	"\aNothing\" \n" +
 	"\x0eNodeIdentifier\x12\x0e\n" +
-	"\x02Id\x18\x01 \x01(\x04R\x02Id\"B\n" +
+	"\x02Id\x18\x01 \x01(\x04R\x02Id\"S\n" +
+	"\bNodePlan\x12\x0e\n" +
+	"\x02Id\x18\x01 \x01(\x04R\x02Id\x127\n" +
+	"\x04Plan\x18\x02 \x01(\x0e2#.graph.NodeState.IdleState.IdlePlanR\x04Plan\"B\n" +
 	"\x10ArtifactsMessage\x12\x16\n" +
 	"\x06Stdout\x18\x01 \x01(\tR\x06Stdout\x12\x16\n" +
 	"\x06Stderr\x18\x02 \x01(\tR\x06Stderr\"\x1a\n" +
@@ -219,13 +274,12 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\vScheduleAll\x12\f.api.Nothing\x1a\f.api.Nothing\x12*\n" +
 	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing\x12-\n" +
 	"\n" +
-	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\xc2\x03\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\xb6\x03\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
-	"\bSchedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12/\n" +
-	"\n" +
-	"Unschedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
-	"\x04Done\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
+	"\bSchedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
+	"\x04Done\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12#\n" +
+	"\x04Plan\x12\r.api.NodePlan\x1a\f.api.Nothing\x12)\n" +
 	"\x04Stop\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
 	"\x04Skip\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12*\n" +
 	"\x05Reset\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
@@ -245,56 +299,59 @@ func file_internal_api_api_proto_rawDescGZIP() []byte {
 	return file_internal_api_api_proto_rawDescData
 }
 
-var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_internal_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_internal_api_api_proto_goTypes = []any{
-	(*Nothing)(nil),            // 0: api.Nothing
-	(*NodeIdentifier)(nil),     // 1: api.NodeIdentifier
-	(*ArtifactsMessage)(nil),   // 2: api.ArtifactsMessage
-	(*Path)(nil),               // 3: api.Path
-	(*graph.EdgeConfig)(nil),   // 4: graph.EdgeConfig
-	(*graph.NodeConfig)(nil),   // 5: graph.NodeConfig
-	(*graph.SyncResponse)(nil), // 6: graph.SyncResponse
+	(*Nothing)(nil),                         // 0: api.Nothing
+	(*NodeIdentifier)(nil),                  // 1: api.NodeIdentifier
+	(*NodePlan)(nil),                        // 2: api.NodePlan
+	(*ArtifactsMessage)(nil),                // 3: api.ArtifactsMessage
+	(*Path)(nil),                            // 4: api.Path
+	(graph.NodeState_IdleState_IdlePlan)(0), // 5: graph.NodeState.IdleState.IdlePlan
+	(*graph.EdgeConfig)(nil),                // 6: graph.EdgeConfig
+	(*graph.NodeConfig)(nil),                // 7: graph.NodeConfig
+	(*graph.SyncResponse)(nil),              // 8: graph.SyncResponse
 }
 var file_internal_api_api_proto_depIdxs = []int32{
-	0,  // 0: api.Graph.Sync:input_type -> api.Nothing
-	0,  // 1: api.Graph.New:input_type -> api.Nothing
-	3,  // 2: api.Graph.Load:input_type -> api.Path
-	3,  // 3: api.Graph.Save:input_type -> api.Path
-	0,  // 4: api.Graph.ScheduleAll:input_type -> api.Nothing
-	4,  // 5: api.Graph.Connect:input_type -> graph.EdgeConfig
-	4,  // 6: api.Graph.Disconnect:input_type -> graph.EdgeConfig
-	1,  // 7: api.Node.Run:input_type -> api.NodeIdentifier
-	1,  // 8: api.Node.Schedule:input_type -> api.NodeIdentifier
-	1,  // 9: api.Node.Unschedule:input_type -> api.NodeIdentifier
+	5,  // 0: api.NodePlan.Plan:type_name -> graph.NodeState.IdleState.IdlePlan
+	0,  // 1: api.Graph.Sync:input_type -> api.Nothing
+	0,  // 2: api.Graph.New:input_type -> api.Nothing
+	4,  // 3: api.Graph.Load:input_type -> api.Path
+	4,  // 4: api.Graph.Save:input_type -> api.Path
+	0,  // 5: api.Graph.ScheduleAll:input_type -> api.Nothing
+	6,  // 6: api.Graph.Connect:input_type -> graph.EdgeConfig
+	6,  // 7: api.Graph.Disconnect:input_type -> graph.EdgeConfig
+	1,  // 8: api.Node.Run:input_type -> api.NodeIdentifier
+	1,  // 9: api.Node.Schedule:input_type -> api.NodeIdentifier
 	1,  // 10: api.Node.Done:input_type -> api.NodeIdentifier
-	1,  // 11: api.Node.Stop:input_type -> api.NodeIdentifier
-	1,  // 12: api.Node.Skip:input_type -> api.NodeIdentifier
-	1,  // 13: api.Node.Reset:input_type -> api.NodeIdentifier
-	5,  // 14: api.Node.Add:input_type -> graph.NodeConfig
-	5,  // 15: api.Node.Edit:input_type -> graph.NodeConfig
-	1,  // 16: api.Node.Delete:input_type -> api.NodeIdentifier
-	6,  // 17: api.Graph.Sync:output_type -> graph.SyncResponse
-	0,  // 18: api.Graph.New:output_type -> api.Nothing
-	0,  // 19: api.Graph.Load:output_type -> api.Nothing
-	0,  // 20: api.Graph.Save:output_type -> api.Nothing
-	0,  // 21: api.Graph.ScheduleAll:output_type -> api.Nothing
-	0,  // 22: api.Graph.Connect:output_type -> api.Nothing
-	0,  // 23: api.Graph.Disconnect:output_type -> api.Nothing
-	0,  // 24: api.Node.Run:output_type -> api.Nothing
-	0,  // 25: api.Node.Schedule:output_type -> api.Nothing
-	0,  // 26: api.Node.Unschedule:output_type -> api.Nothing
+	2,  // 11: api.Node.Plan:input_type -> api.NodePlan
+	1,  // 12: api.Node.Stop:input_type -> api.NodeIdentifier
+	1,  // 13: api.Node.Skip:input_type -> api.NodeIdentifier
+	1,  // 14: api.Node.Reset:input_type -> api.NodeIdentifier
+	7,  // 15: api.Node.Add:input_type -> graph.NodeConfig
+	7,  // 16: api.Node.Edit:input_type -> graph.NodeConfig
+	1,  // 17: api.Node.Delete:input_type -> api.NodeIdentifier
+	8,  // 18: api.Graph.Sync:output_type -> graph.SyncResponse
+	0,  // 19: api.Graph.New:output_type -> api.Nothing
+	0,  // 20: api.Graph.Load:output_type -> api.Nothing
+	0,  // 21: api.Graph.Save:output_type -> api.Nothing
+	0,  // 22: api.Graph.ScheduleAll:output_type -> api.Nothing
+	0,  // 23: api.Graph.Connect:output_type -> api.Nothing
+	0,  // 24: api.Graph.Disconnect:output_type -> api.Nothing
+	0,  // 25: api.Node.Run:output_type -> api.Nothing
+	0,  // 26: api.Node.Schedule:output_type -> api.Nothing
 	0,  // 27: api.Node.Done:output_type -> api.Nothing
-	0,  // 28: api.Node.Stop:output_type -> api.Nothing
-	0,  // 29: api.Node.Skip:output_type -> api.Nothing
-	0,  // 30: api.Node.Reset:output_type -> api.Nothing
-	1,  // 31: api.Node.Add:output_type -> api.NodeIdentifier
-	0,  // 32: api.Node.Edit:output_type -> api.Nothing
-	0,  // 33: api.Node.Delete:output_type -> api.Nothing
-	17, // [17:34] is the sub-list for method output_type
-	0,  // [0:17] is the sub-list for method input_type
-	0,  // [0:0] is the sub-list for extension type_name
-	0,  // [0:0] is the sub-list for extension extendee
-	0,  // [0:0] is the sub-list for field type_name
+	0,  // 28: api.Node.Plan:output_type -> api.Nothing
+	0,  // 29: api.Node.Stop:output_type -> api.Nothing
+	0,  // 30: api.Node.Skip:output_type -> api.Nothing
+	0,  // 31: api.Node.Reset:output_type -> api.Nothing
+	1,  // 32: api.Node.Add:output_type -> api.NodeIdentifier
+	0,  // 33: api.Node.Edit:output_type -> api.Nothing
+	0,  // 34: api.Node.Delete:output_type -> api.Nothing
+	18, // [18:35] is the sub-list for method output_type
+	1,  // [1:18] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_internal_api_api_proto_init() }
@@ -308,7 +365,7 @@ func file_internal_api_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_api_api_proto_rawDesc), len(file_internal_api_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

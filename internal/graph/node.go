@@ -80,35 +80,17 @@ func (node *Node) Run() error {
 	return nil
 }
 
-func (node *Node) Schedule() error {
+func (node *Node) Plan(plan NodeState_IdleState_IdlePlan) error {
 	state, isIdle := node.state.(*NodeState_Idle)
 	if !isIdle || state.Idle.GetIsReady() {
 		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
 	}
 
-	if state.Idle.GetIsScheduled() {
+	if state.Idle.GetPlan() == plan {
 		return nil
 	}
 
-	isScheduled := true
-	state.Idle.IsScheduled = &isScheduled
-	node.ReportUpdate()
-
-	return nil
-}
-
-func (node *Node) Unschedule() error {
-	state, isIdle := node.state.(*NodeState_Idle)
-	if !isIdle || !state.Idle.GetIsScheduled() {
-		return fmt.Errorf("invalid operation for node with state %s", node.GetStateString())
-	}
-
-	if !state.Idle.GetIsScheduled() {
-		return nil
-	}
-
-	isScheduled := false
-	state.Idle.IsScheduled = &isScheduled
+	state.Idle.Plan = &plan
 	node.ReportUpdate()
 
 	return nil
@@ -212,10 +194,21 @@ func (node *Node) Skip() error {
 
 func (node *Node) OnInputChange() {
 	node.ReportUpdate()
-	if state, isIdle := node.state.(*NodeState_Idle); isIdle && state.Idle.GetIsReady() && state.Idle.GetIsScheduled() {
-		err := node.Run()
-		if err != nil {
-			// TODO
+	if state, isIdle := node.state.(*NodeState_Idle); isIdle && state.Idle.GetIsReady() {
+		switch state.Idle.GetPlan() {
+		case NodeState_IdleState_None:
+
+		case NodeState_IdleState_Scheduled:
+			err := node.Run()
+			if err != nil {
+				// TODO
+			}
+
+		case NodeState_IdleState_Skipped:
+			err := node.Done()
+			if err != nil {
+				// TODO
+			}
 		}
 	}
 }

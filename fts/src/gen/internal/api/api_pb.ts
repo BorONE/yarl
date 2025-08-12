@@ -4,7 +4,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { EdgeConfigSchema, NodeConfigSchema, SyncResponseSchema } from "../graph/config_pb";
+import type { EdgeConfigSchema, NodeConfigSchema, NodeState_IdleState_IdlePlan, SyncResponseSchema } from "../graph/config_pb";
 import { file_internal_graph_config } from "../graph/config_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/api/api.proto.
  */
 export const file_internal_api_api: GenFile = /*@__PURE__*/
-  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJMp8CCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEikKC1NjaGVkdWxlQWxsEgwuYXBpLk5vdGhpbmcaDC5hcGkuTm90aGluZxIqCgdDb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nEi0KCkRpc2Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcywgMKBE5vZGUSKAoDUnVuEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSLQoIU2NoZWR1bGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIvCgpVbnNjaGVkdWxlEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKQoERG9uZRITLmFwaS5Ob2RlSWRlbnRpZmllchoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTa2lwEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKgoFUmVzZXQSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxItCgNBZGQSES5ncmFwaC5Ob2RlQ29uZmlnGhMuYXBpLk5vZGVJZGVudGlmaWVyEicKBEVkaXQSES5ncmFwaC5Ob2RlQ29uZmlnGgwuYXBpLk5vdGhpbmcSKwoGRGVsZXRlEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmdCGFoWcGlwZWdyYXBoL2ludGVybmFsL2FwaQ", [file_internal_graph_config]);
+  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCJJCghOb2RlUGxhbhIKCgJJZBgBIAEoBBIxCgRQbGFuGAIgASgOMiMuZ3JhcGguTm9kZVN0YXRlLklkbGVTdGF0ZS5JZGxlUGxhbiIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJMp8CCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEikKC1NjaGVkdWxlQWxsEgwuYXBpLk5vdGhpbmcaDC5hcGkuTm90aGluZxIqCgdDb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nEi0KCkRpc2Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcytgMKBE5vZGUSKAoDUnVuEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSLQoIU2NoZWR1bGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgREb25lEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSIwoEUGxhbhINLmFwaS5Ob2RlUGxhbhoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTa2lwEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKgoFUmVzZXQSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxItCgNBZGQSES5ncmFwaC5Ob2RlQ29uZmlnGhMuYXBpLk5vZGVJZGVudGlmaWVyEicKBEVkaXQSES5ncmFwaC5Ob2RlQ29uZmlnGgwuYXBpLk5vdGhpbmcSKwoGRGVsZXRlEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmdCGFoWcGlwZWdyYXBoL2ludGVybmFsL2FwaQ", [file_internal_graph_config]);
 
 /**
  * @generated from message api.Nothing
@@ -47,6 +47,28 @@ export const NodeIdentifierSchema: GenMessage<NodeIdentifier> = /*@__PURE__*/
   messageDesc(file_internal_api_api, 1);
 
 /**
+ * @generated from message api.NodePlan
+ */
+export type NodePlan = Message<"api.NodePlan"> & {
+  /**
+   * @generated from field: optional uint64 Id = 1;
+   */
+  Id: bigint;
+
+  /**
+   * @generated from field: optional graph.NodeState.IdleState.IdlePlan Plan = 2;
+   */
+  Plan: NodeState_IdleState_IdlePlan;
+};
+
+/**
+ * Describes the message api.NodePlan.
+ * Use `create(NodePlanSchema)` to create a new message.
+ */
+export const NodePlanSchema: GenMessage<NodePlan> = /*@__PURE__*/
+  messageDesc(file_internal_api_api, 2);
+
+/**
  * @generated from message api.ArtifactsMessage
  */
 export type ArtifactsMessage = Message<"api.ArtifactsMessage"> & {
@@ -66,7 +88,7 @@ export type ArtifactsMessage = Message<"api.ArtifactsMessage"> & {
  * Use `create(ArtifactsMessageSchema)` to create a new message.
  */
 export const ArtifactsMessageSchema: GenMessage<ArtifactsMessage> = /*@__PURE__*/
-  messageDesc(file_internal_api_api, 2);
+  messageDesc(file_internal_api_api, 3);
 
 /**
  * @generated from message api.Path
@@ -83,7 +105,7 @@ export type Path = Message<"api.Path"> & {
  * Use `create(PathSchema)` to create a new message.
  */
 export const PathSchema: GenMessage<Path> = /*@__PURE__*/
-  messageDesc(file_internal_api_api, 3);
+  messageDesc(file_internal_api_api, 4);
 
 /**
  * @generated from service api.Graph
@@ -169,19 +191,19 @@ export const Node: GenService<{
     output: typeof NothingSchema;
   },
   /**
-   * @generated from rpc api.Node.Unschedule
-   */
-  unschedule: {
-    methodKind: "unary";
-    input: typeof NodeIdentifierSchema;
-    output: typeof NothingSchema;
-  },
-  /**
    * @generated from rpc api.Node.Done
    */
   done: {
     methodKind: "unary";
     input: typeof NodeIdentifierSchema;
+    output: typeof NothingSchema;
+  },
+  /**
+   * @generated from rpc api.Node.Plan
+   */
+  plan: {
+    methodKind: "unary";
+    input: typeof NodePlanSchema;
     output: typeof NothingSchema;
   },
   /**
