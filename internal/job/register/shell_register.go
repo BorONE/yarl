@@ -4,7 +4,7 @@ import (
 	"context"
 	"os/exec"
 	"pipegraph/internal/job"
-	"strings"
+	"pipegraph/internal/util"
 	"syscall"
 	"time"
 
@@ -18,8 +18,8 @@ type BashJob struct {
 	cancel func()
 
 	artifacts job.Artifacts
-	stdout    strings.Builder
-	stderr    strings.Builder
+	stdout    util.ThreadSafeStringBuilder
+	stderr    util.ThreadSafeStringBuilder
 }
 
 func (j *BashJob) reset() {
