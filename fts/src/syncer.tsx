@@ -64,8 +64,8 @@ export class Syncer {
   handleSync(update: config.SyncResponse) {
     switch (update.Type) {
       case config.SyncType.UpdateState: {
-        this.setNodes((nds) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState) : nd))
-        this.setEdges((eds) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
+        this.setNodes((nds: Node[]) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState, nd.selected) : nd))
+        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
         break
       }
       case config.SyncType.Reset: {

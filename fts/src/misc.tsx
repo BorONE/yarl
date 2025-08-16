@@ -12,7 +12,7 @@ export function isReady(state: config.NodeState) {
       || (state.State.case == "InProgress" && state.State.value.Status == config.NodeState_InProgressState_InProgressStatus.Skipping)
 }
 
-export function buildNode(config: config.NodeConfig, state: config.NodeState) {
+export function buildNode(config: config.NodeConfig, state: config.NodeState, selected?: boolean) {
   var node : Node = {
     id: `${config.Id}`,
     type: 'JobNode',
@@ -24,6 +24,7 @@ export function buildNode(config: config.NodeConfig, state: config.NodeState) {
     },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
+    selected,
     ...nodeInitParams,
   }
   node.style = {

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { type Node } from '@xyflow/react';
@@ -12,7 +12,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Textarea } from "@/components/ui/textarea"
 import {
     Accordion,
     AccordionContent,
@@ -27,6 +26,7 @@ import { Input } from './components/ui/input';
 import { Label } from './components/ui/label';
 import { Separator } from './components/ui/separator';
 import Cookies from 'universal-cookie';
+import Artifacts from './Arts';
 
 
 type TypeInfo = {
@@ -57,6 +57,8 @@ function getTypeInfo(typeUrl: string) {
 }
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void, style: any }) => {
+    const [artsLength, setArtsLength] = useState(0)
+
     const replaceJob = (node: Node, info: TypeInfo) => {
         node.data.config.Job = create(AnySchema, {
             typeUrl: info.typeUrl,
@@ -165,53 +167,6 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         </>
     }
 
-    const renderArts = () => {
-        const state : NodeState = selectedNode.data.state
-        if (state.State.case != "Done") {
-            return <></>
-        }
-
-        const done = state.State.value
-        const arts = done.Arts
-
-        const renderStream = (key: string) => {
-            if (!(key in arts)) {
-                return undefined
-            }
-            return <div className="grid w-full gap-3" style={{padding: 5}}>
-                <Label htmlFor={key}>{key}</Label>
-                <Textarea id={key} readOnly={true} value={arts[key]} style={{fontFamily: "monospace"}}/>
-            </div>
-        }
-
-        const renderTime = (label: string, key: string) => {
-            if (!(key in arts)) {
-                return undefined
-            }
-            return <div style={{color: "#747474"}}>
-                {label}: {arts[key].split('.')[0]}
-            </div>
-        }
-
-        const content = [
-            renderTime("started", "started_at"),
-            renderTime("finished", "finished_at"),
-            renderStream("stdout"),
-            renderStream("stderr"),
-        ].filter((el) => typeof el != "undefined")
-
-        if (content.length == 0) {
-            return <></>
-        }
-
-        return <>
-            <AccordionTrigger>Artifacts</AccordionTrigger>
-            <AccordionContent>
-                {...content}
-            </AccordionContent>
-        </>
-    }
-
     if (selectedNodes.length == 0) {
         return <></>
     } else if (selectedNodes.length > 1) {
@@ -237,8 +192,14 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             <AccordionItem value="editor">
                 {renderEditor()}
             </AccordionItem>
-            <AccordionItem value="arts">
-                {renderArts()}
+            <AccordionItem value="arts" disabled={artsLength == 0}>
+                <AccordionTrigger>Artifacts</AccordionTrigger>
+                <AccordionContent>
+                    <Artifacts
+                        selectedNode={selectedNode}
+                        onContent={content => setArtsLength(content.length)}
+                    />
+                </AccordionContent>
             </AccordionItem>
         </Accordion>
     </aside>

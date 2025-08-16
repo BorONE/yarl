@@ -63,7 +63,6 @@ func (node *Node) Run() error {
 		isSkipped := *state.InProgress.Status == NodeState_InProgressState_Skipping
 		node.SetState(&NodeState_DoneState{
 			Error:     asStringPtr(jobErr),
-			Arts:      node.Job.CollectArtifacts(),
 			IsStopped: &isStopped,
 			IsSkipped: &isSkipped,
 		})
@@ -74,8 +73,6 @@ func (node *Node) Run() error {
 		}
 
 		node.DoneEvent.Trigger()
-
-		node.Job = nil
 	}()
 	return nil
 }
@@ -107,7 +104,6 @@ func (node *Node) Done() error {
 	fromIdle := true
 	node.SetState(&NodeState_DoneState{
 		Error:     nil,
-		Arts:      nil,
 		IsStopped: &isStopped,
 		IsSkipped: &isSkipped,
 		FromIdle:  &fromIdle,
@@ -137,6 +133,7 @@ func (node *Node) Reset() error {
 	}
 
 	node.SetState(&NodeState_IdleState{})
+	node.Job = nil
 
 	for _, outputId := range node.Output {
 		output := node.graph.Nodes[outputId]

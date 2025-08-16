@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/api/api.proto.
  */
 export const file_internal_api_api: GenFile = /*@__PURE__*/
-  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCJJCghOb2RlUGxhbhIKCgJJZBgBIAEoBBIxCgRQbGFuGAIgASgOMiMuZ3JhcGguTm9kZVN0YXRlLklkbGVTdGF0ZS5JZGxlUGxhbiIyChBBcnRpZmFjdHNNZXNzYWdlEg4KBlN0ZG91dBgBIAEoCRIOCgZTdGRlcnIYAiABKAkiFAoEUGF0aBIMCgRQYXRoGAEgASgJMp8CCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEikKC1NjaGVkdWxlQWxsEgwuYXBpLk5vdGhpbmcaDC5hcGkuTm90aGluZxIqCgdDb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nEi0KCkRpc2Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcytgMKBE5vZGUSKAoDUnVuEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSLQoIU2NoZWR1bGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgREb25lEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSIwoEUGxhbhINLmFwaS5Ob2RlUGxhbhoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTa2lwEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKgoFUmVzZXQSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxItCgNBZGQSES5ncmFwaC5Ob2RlQ29uZmlnGhMuYXBpLk5vZGVJZGVudGlmaWVyEicKBEVkaXQSES5ncmFwaC5Ob2RlQ29uZmlnGgwuYXBpLk5vdGhpbmcSKwoGRGVsZXRlEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmdCGFoWcGlwZWdyYXBoL2ludGVybmFsL2FwaQ", [file_internal_graph_config]);
+  fileDesc("ChZpbnRlcm5hbC9hcGkvYXBpLnByb3RvEgNhcGkiCQoHTm90aGluZyIcCg5Ob2RlSWRlbnRpZmllchIKCgJJZBgBIAEoBCJJCghOb2RlUGxhbhIKCgJJZBgBIAEoBBIxCgRQbGFuGAIgASgOMiMuZ3JhcGguTm9kZVN0YXRlLklkbGVTdGF0ZS5JZGxlUGxhbiJWCgRBcnRzEiEKBEFydHMYASADKAsyEy5hcGkuQXJ0cy5BcnRzRW50cnkaKwoJQXJ0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiFAoEUGF0aBIMCgRQYXRoGAEgASgJMp8CCgVHcmFwaBIrCgRTeW5jEgwuYXBpLk5vdGhpbmcaEy5ncmFwaC5TeW5jUmVzcG9uc2UwARIhCgNOZXcSDC5hcGkuTm90aGluZxoMLmFwaS5Ob3RoaW5nEh8KBExvYWQSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEh8KBFNhdmUSCS5hcGkuUGF0aBoMLmFwaS5Ob3RoaW5nEikKC1NjaGVkdWxlQWxsEgwuYXBpLk5vdGhpbmcaDC5hcGkuTm90aGluZxIqCgdDb25uZWN0EhEuZ3JhcGguRWRnZUNvbmZpZxoMLmFwaS5Ob3RoaW5nEi0KCkRpc2Nvbm5lY3QSES5ncmFwaC5FZGdlQ29uZmlnGgwuYXBpLk5vdGhpbmcy5QMKBE5vZGUSKAoDUnVuEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSLQoIU2NoZWR1bGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgREb25lEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSIwoEUGxhbhINLmFwaS5Ob2RlUGxhbhoMLmFwaS5Ob3RoaW5nEikKBFN0b3ASEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxIpCgRTa2lwEhMuYXBpLk5vZGVJZGVudGlmaWVyGgwuYXBpLk5vdGhpbmcSKgoFUmVzZXQSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZxItCgtDb2xsZWN0QXJ0cxITLmFwaS5Ob2RlSWRlbnRpZmllchoJLmFwaS5BcnRzEi0KA0FkZBIRLmdyYXBoLk5vZGVDb25maWcaEy5hcGkuTm9kZUlkZW50aWZpZXISJwoERWRpdBIRLmdyYXBoLk5vZGVDb25maWcaDC5hcGkuTm90aGluZxIrCgZEZWxldGUSEy5hcGkuTm9kZUlkZW50aWZpZXIaDC5hcGkuTm90aGluZ0IYWhZwaXBlZ3JhcGgvaW50ZXJuYWwvYXBp", [file_internal_graph_config]);
 
 /**
  * @generated from message api.Nothing
@@ -69,25 +69,20 @@ export const NodePlanSchema: GenMessage<NodePlan> = /*@__PURE__*/
   messageDesc(file_internal_api_api, 2);
 
 /**
- * @generated from message api.ArtifactsMessage
+ * @generated from message api.Arts
  */
-export type ArtifactsMessage = Message<"api.ArtifactsMessage"> & {
+export type Arts = Message<"api.Arts"> & {
   /**
-   * @generated from field: optional string Stdout = 1;
+   * @generated from field: map<string, string> Arts = 1;
    */
-  Stdout: string;
-
-  /**
-   * @generated from field: optional string Stderr = 2;
-   */
-  Stderr: string;
+  Arts: { [key: string]: string };
 };
 
 /**
- * Describes the message api.ArtifactsMessage.
- * Use `create(ArtifactsMessageSchema)` to create a new message.
+ * Describes the message api.Arts.
+ * Use `create(ArtsSchema)` to create a new message.
  */
-export const ArtifactsMessageSchema: GenMessage<ArtifactsMessage> = /*@__PURE__*/
+export const ArtsSchema: GenMessage<Arts> = /*@__PURE__*/
   messageDesc(file_internal_api_api, 3);
 
 /**
@@ -229,6 +224,14 @@ export const Node: GenService<{
     methodKind: "unary";
     input: typeof NodeIdentifierSchema;
     output: typeof NothingSchema;
+  },
+  /**
+   * @generated from rpc api.Node.CollectArts
+   */
+  collectArts: {
+    methodKind: "unary";
+    input: typeof NodeIdentifierSchema;
+    output: typeof ArtsSchema;
   },
   /**
    * @generated from rpc api.Node.Add

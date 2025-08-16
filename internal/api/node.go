@@ -142,6 +142,24 @@ func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*
 	return nil, node.Reset()
 }
 
+func (s ImplementedNodeServer) CollectArts(ctx context.Context, id *NodeIdentifier) (*Arts, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("running node{%v}.CollectArts()\n", prototext.MarshalOptions{}.Format(id))
+
+	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	if node == nil {
+		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+	}
+
+	if node.Job == nil {
+		return nil, nil
+	} else {
+		return &Arts{Arts: node.Job.CollectArtifacts()}, nil
+	}
+}
+
 func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig) (*NodeIdentifier, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
