@@ -48,6 +48,8 @@ import {
 import { Syncer } from './syncer';
 import { buildNode, isReady } from './misc';
 
+import Cookies from 'universal-cookie';
+
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
@@ -123,12 +125,23 @@ function Flow() {
 
   var graphPathRef = useRef(null)
 
+  const isLayout = (obj: any, expectedLenght?: number) => {
+    return Array.isArray(obj)
+      && (typeof expectedLenght == 'undefined' || obj.length == expectedLenght)
+      && obj.map(el => typeof el == 'number' && el >= 0).reduce((r, x) => r && x)
+      && obj.reduce((r, x) => r + x) == 100
+  }
+  const layout = (() => {
+    const layout = new Cookies(null).get('layout')
+    return isLayout(layout, 2) ? layout : [85, 15]
+  })()
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <div className="providerflow">
         <ReactFlowProvider>
-          <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel defaultSize={85}>
+          <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
+            <ResizablePanel defaultSize={layout[0]}>
               <Menubar style={{ padding: 0 }}>
                 <MenubarMenu>
                   <MenubarTrigger>Graph</MenubarTrigger>
@@ -148,7 +161,8 @@ function Flow() {
                 <Input
                     ref={graphPathRef}
                     placeholder='yarl.proto.txt'
-                    defaultValue={"yarl.proto.txt"}
+                    defaultValue={new Cookies().get('graph-path')}
+                    onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
                 />
               </Menubar>
               <ReactFlow
@@ -172,7 +186,7 @@ function Flow() {
               />
             </ResizablePanel>
             <ResizableHandle/>
-            <ResizablePanel defaultSize={15}>
+            <ResizablePanel defaultSize={layout[1]}>
               <Sidebar nodes={nodes} setNodes={setNodes}/>
             </ResizablePanel>
           </ResizablePanelGroup>

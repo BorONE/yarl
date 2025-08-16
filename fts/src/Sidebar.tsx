@@ -26,6 +26,7 @@ import * as client from './client'
 import { Input } from './components/ui/input';
 import { Label } from './components/ui/label';
 import { Separator } from './components/ui/separator';
+import Cookies from 'universal-cookie';
 
 
 type TypeInfo = {
@@ -229,7 +230,10 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
 
         <Separator/>
 
-        <Accordion type="multiple" defaultValue={["editor"]} >
+        <Accordion
+            type="multiple"
+            defaultValue={new Cookies().get('sidebar-accordion')}
+            onValueChange={(values) => new Cookies().set('sidebar-accordion', values)}>
             <AccordionItem value="editor">
                 {renderEditor()}
             </AccordionItem>
