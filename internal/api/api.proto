@@ -18,9 +18,8 @@ message NodePlan {
     optional graph.NodeState.IdleState.IdlePlan Plan = 2;
 }
 
-message ArtifactsMessage {
-    optional string Stdout = 1;
-    optional string Stderr = 2;
+message Arts {
+    map<string, string> Arts = 1;
 }
 
 message Path {
@@ -50,6 +49,8 @@ service Node {
     rpc Skip(NodeIdentifier) returns (Nothing);
     
     rpc Reset(NodeIdentifier) returns (Nothing);
+
+    rpc CollectArts(NodeIdentifier) returns (Arts);
 
     rpc Add(graph.NodeConfig) returns (NodeIdentifier);
     rpc Edit(graph.NodeConfig) returns (Nothing);

@@ -2,9 +2,11 @@ package register
 
 import (
 	"context"
+	"maps"
 	"os/exec"
 	"pipegraph/internal/job"
-	"strings"
+	"pipegraph/internal/util"
+	"sync"
 	"syscall"
 	"time"
 
@@ -17,9 +19,10 @@ type BashJob struct {
 	cmd    *exec.Cmd
 	cancel func()
 
-	artifacts job.Artifacts
-	stdout    strings.Builder
-	stderr    strings.Builder
+	arts   job.Artifacts
+	artsMu sync.Mutex
+	stdout util.ThreadSafeStringBuilder
+	stderr util.ThreadSafeStringBuilder
 }
 
 func (j *BashJob) reset() {
@@ -30,13 +33,11 @@ func (j *BashJob) Run() error {
 	j.cmd, j.cancel = makeCommandWithGroupCancel(context.Background(), "/bin/sh", j.args...)
 	defer j.cancel()
 
-	j.artifacts = make(job.Artifacts)
-	j.artifacts["started_at"] = time.Now().String()
-	defer func() { j.artifacts["finished_at"] = time.Now().String() }()
-
 	j.cmd.Stdout = &j.stdout
 	j.cmd.Stderr = &j.stderr
 
+	j.resetArts(job.Artifacts{"started_at": time.Now().String()})
+	defer func() { j.setArt("finished_at", time.Now().String()) }()
 	return j.cmd.Run()
 }
 
@@ -64,10 +65,27 @@ func (j *BashJob) Reset() error {
 	return nil
 }
 
+func (j *BashJob) resetArts(init job.Artifacts) {
+	j.artsMu.Lock()
+	defer j.artsMu.Unlock()
+
+	j.arts = init
+}
+
+func (j *BashJob) setArt(key, value string) {
+	j.artsMu.Lock()
+	defer j.artsMu.Unlock()
+
+	j.arts[key] = value
+}
+
 func (j *BashJob) CollectArtifacts() job.Artifacts {
-	j.artifacts["stdout"] = j.stdout.String()
-	j.artifacts["stderr"] = j.stderr.String()
-	return j.artifacts
+	j.artsMu.Lock()
+	defer j.artsMu.Unlock()
+
+	j.arts["stdout"] = j.stdout.String()
+	j.arts["stderr"] = j.stderr.String()
+	return maps.Clone(j.arts)
 }
 
 var _ job.Job = &BashJob{}

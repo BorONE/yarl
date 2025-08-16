@@ -30,7 +30,6 @@ message NodeState {
 
     message DoneState {
         optional string Error = 1;
-        map<string, string> Arts = 2;
         required bool IsStopped = 3;
         required bool IsSkipped = 4;
         optional bool FromIdle = 5;

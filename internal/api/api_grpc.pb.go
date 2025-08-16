@@ -354,16 +354,17 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Node_Run_FullMethodName      = "/api.Node/Run"
-	Node_Schedule_FullMethodName = "/api.Node/Schedule"
-	Node_Done_FullMethodName     = "/api.Node/Done"
-	Node_Plan_FullMethodName     = "/api.Node/Plan"
-	Node_Stop_FullMethodName     = "/api.Node/Stop"
-	Node_Skip_FullMethodName     = "/api.Node/Skip"
-	Node_Reset_FullMethodName    = "/api.Node/Reset"
-	Node_Add_FullMethodName      = "/api.Node/Add"
-	Node_Edit_FullMethodName     = "/api.Node/Edit"
-	Node_Delete_FullMethodName   = "/api.Node/Delete"
+	Node_Run_FullMethodName         = "/api.Node/Run"
+	Node_Schedule_FullMethodName    = "/api.Node/Schedule"
+	Node_Done_FullMethodName        = "/api.Node/Done"
+	Node_Plan_FullMethodName        = "/api.Node/Plan"
+	Node_Stop_FullMethodName        = "/api.Node/Stop"
+	Node_Skip_FullMethodName        = "/api.Node/Skip"
+	Node_Reset_FullMethodName       = "/api.Node/Reset"
+	Node_CollectArts_FullMethodName = "/api.Node/CollectArts"
+	Node_Add_FullMethodName         = "/api.Node/Add"
+	Node_Edit_FullMethodName        = "/api.Node/Edit"
+	Node_Delete_FullMethodName      = "/api.Node/Delete"
 )
 
 // NodeClient is the client API for Node service.
@@ -377,6 +378,7 @@ type NodeClient interface {
 	Stop(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Skip(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
 	Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
+	CollectArts(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Arts, error)
 	Add(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	Edit(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*Nothing, error)
 	Delete(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
@@ -460,6 +462,16 @@ func (c *nodeClient) Reset(ctx context.Context, in *NodeIdentifier, opts ...grpc
 	return out, nil
 }
 
+func (c *nodeClient) CollectArts(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Arts, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Arts)
+	err := c.cc.Invoke(ctx, Node_CollectArts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *nodeClient) Add(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*NodeIdentifier, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(NodeIdentifier)
@@ -501,6 +513,7 @@ type NodeServer interface {
 	Stop(context.Context, *NodeIdentifier) (*Nothing, error)
 	Skip(context.Context, *NodeIdentifier) (*Nothing, error)
 	Reset(context.Context, *NodeIdentifier) (*Nothing, error)
+	CollectArts(context.Context, *NodeIdentifier) (*Arts, error)
 	Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error)
 	Edit(context.Context, *graph.NodeConfig) (*Nothing, error)
 	Delete(context.Context, *NodeIdentifier) (*Nothing, error)
@@ -534,6 +547,9 @@ func (UnimplementedNodeServer) Skip(context.Context, *NodeIdentifier) (*Nothing,
 }
 func (UnimplementedNodeServer) Reset(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reset not implemented")
+}
+func (UnimplementedNodeServer) CollectArts(context.Context, *NodeIdentifier) (*Arts, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CollectArts not implemented")
 }
 func (UnimplementedNodeServer) Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
@@ -691,6 +707,24 @@ func _Node_Reset_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Node_CollectArts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeIdentifier)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).CollectArts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_CollectArts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).CollectArts(ctx, req.(*NodeIdentifier))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Node_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(graph.NodeConfig)
 	if err := dec(in); err != nil {
@@ -779,6 +813,10 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Reset",
 			Handler:    _Node_Reset_Handler,
+		},
+		{
+			MethodName: "CollectArts",
+			Handler:    _Node_CollectArts_Handler,
 		},
 		{
 			MethodName: "Add",
