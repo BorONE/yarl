@@ -29,12 +29,12 @@ import * as config from './gen/internal/graph/config_pb';
 import * as client from './client'
 
 import {
-    type Node,
+    type Node as BaseNode,
 } from '@xyflow/react';
 import { extractJobType } from './util';
 import { getBorderColor } from './misc';
 
-export default memo(({ data }) => {
+export default memo(({ data } : { data: NodeData }) => {
     const genButton = (onClick: () => void, icon: string, style = {}, className: string | undefined = undefined) => {
         return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}} className={className}>
             <img src={icon}/>
@@ -170,7 +170,7 @@ export default memo(({ data }) => {
             fontSize: 6,
             color: "#747474",
         }}>
-            {extractJobType(data.config.Job.typeUrl)} #{data.id}
+            {data.config.Job ? extractJobType(data.config.Job.typeUrl) : "Unknown job type"} #{data.id}
         </label>
 
         <img
@@ -221,6 +221,14 @@ export const nodeInitParams : Partial<Node> = {
         borderWidth: borderWidth,
     }
 }
+
+export type NodeData = {
+    id: bigint,
+    config: config.NodeConfig,
+    state: config.NodeState,
+}
+
+export type Node = BaseNode<NodeData>
 
 const buttonStyle : React.CSSProperties = {
     position: "absolute",

@@ -1,9 +1,9 @@
 import { useRef, useState } from "react"
 import * as client from "./client"
-import { type Node } from '@xyflow/react';
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from './components/ui/label';
 import type { NodeState } from "./gen/internal/graph/config_pb";
+import type { Node } from "./JobNode";
 
 
 function AreArtsEqual(a: {[key: string]: string}, b: {[key: string]: string}) {

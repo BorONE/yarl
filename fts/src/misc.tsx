@@ -1,10 +1,9 @@
 import {
   Position,
-  type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { nodeInitParams } from './JobNode';
+import { nodeInitParams, type Node } from './JobNode';
 import * as config from './gen/internal/graph/config_pb'
 
 export function isReady(state: config.NodeState) {

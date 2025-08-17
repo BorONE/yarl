@@ -5,7 +5,6 @@ import {
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
-  type Node,
   type Edge,
   type FitViewOptions,
   type OnConnect,
@@ -18,7 +17,7 @@ import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
 
-import JobNode from './JobNode';
+import JobNode, { type Node } from './JobNode';
 
 import * as client from './client'
 
@@ -66,7 +65,7 @@ function Flow() {
   syncer.sync()
 
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds) as Node[]),
     [setNodes],
   );
   const onNodesDelete: OnNodesDelete = useCallback(
@@ -85,8 +84,8 @@ function Flow() {
     async (connection) => {
       client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
       setEdges((eds) => {
-        const node = nodes.find(nd => nd.id == connection.source)
-        return addEdge({...connection, animated: !isReady(node?.data.state)}, eds)
+        const node = nodes.find(nd => nd.id == connection.source) as Node
+        return addEdge({...connection, animated: !isReady(node.data.state)}, eds)
       })
     },
     [nodes, setEdges],
