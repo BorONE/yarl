@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import * as client from "./client"
 import { type Node } from '@xyflow/react';
 import { Textarea } from "@/components/ui/textarea"
@@ -42,6 +42,7 @@ const renderTime = (key: string, value: string) => {
 export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: (content: any[]) => void }) => {
     const initArts : {[key: string]: string} = {}
     const [arts, setArts] = useState(initArts)
+    const alreadyUpdatingInProgressRef = useRef(false)
 
     const update = async () => {
         const msg = await client.node.collectArts({Id: selectedNode.data.id})
@@ -50,9 +51,11 @@ export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: 
         }
 
         const state : NodeState = selectedNode.data.state
-        if (state.State.case == 'InProgress') {
+        if (!alreadyUpdatingInProgressRef.current && state.State.case == 'InProgress') {
+            alreadyUpdatingInProgressRef.current = true
             await timeout(1000)
             setArts({...msg.Arts}) // force update
+            alreadyUpdatingInProgressRef.current = false
         }
     }
 
