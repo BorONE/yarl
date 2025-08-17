@@ -100,8 +100,8 @@ function Flow() {
   );
  
   const newGraph = useCallback(async () => await client.graph.new({}), [setNodes, setEdges])
-  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current.value}), [])
-  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current.value}), [])
+  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current?.value}), [])
+  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current?.value}), [])
   
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
@@ -123,7 +123,8 @@ function Flow() {
     setNodes((nds) => [...nds, buildNode(config, state)]);
   }, [setNodes]);
 
-  var graphPathRef = useRef(null)
+  // var graphPathRef = useRef(null)
+  var graphPathRef = useRef<HTMLInputElement>(null)
 
   const isLayout = (obj: any, expectedLenght?: number) => {
     return Array.isArray(obj)
@@ -173,7 +174,7 @@ function Flow() {
                 onConnect={onConnect}
                 onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
                 onNodesDelete={onNodesDelete}
-                onNodeDragStop={(event: React.MouseEvent, node: Node, nodes: Node[]) => {
+                onNodeDragStop={(_event: React.MouseEvent, node: Node, _nodes: Node[]) => {
                   node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
                   client.node.edit(node.data.config)
                 }}

@@ -16,8 +16,8 @@ export class Syncer {
   initialGraph : { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] }
   stream = client.graph.sync({})
   
-  setNodes
-  setEdges
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
 
   async sync() {
     for await (const update of this.stream) {

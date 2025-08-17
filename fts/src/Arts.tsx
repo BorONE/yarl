@@ -43,7 +43,7 @@ export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: 
     const initArts : {[key: string]: string} = {}
     const [arts, setArts] = useState(initArts)
 
-    const [forceUpdate, setForceUpdate] = useState({})
+    const [_forceUpdate, setForceUpdate] = useState({})
     const alreadyUpdatingRef = useRef(false)
     const delayForceUpdate = async (value: { delayMs: number; }) => {
         if (alreadyUpdatingRef.current) {
