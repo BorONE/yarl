@@ -42,7 +42,18 @@ const renderTime = (key: string, value: string) => {
 export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: (content: any[]) => void }) => {
     const initArts : {[key: string]: string} = {}
     const [arts, setArts] = useState(initArts)
-    const alreadyUpdatingInProgressRef = useRef(false)
+
+    const [forceUpdate, setForceUpdate] = useState({})
+    const alreadyUpdatingRef = useRef(false)
+    const delayForceUpdate = async (value: { delayMs: number; }) => {
+        if (alreadyUpdatingRef.current) {
+            return
+        }
+        alreadyUpdatingRef.current = true
+        await timeout(value.delayMs)
+        setForceUpdate({})
+        alreadyUpdatingRef.current = false
+    }
 
     const update = async () => {
         const msg = await client.node.collectArts({Id: selectedNode.data.id})
@@ -51,11 +62,8 @@ export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: 
         }
 
         const state : NodeState = selectedNode.data.state
-        if (!alreadyUpdatingInProgressRef.current && state.State.case == 'InProgress') {
-            alreadyUpdatingInProgressRef.current = true
-            await timeout(1000)
-            setArts({...msg.Arts}) // force update
-            alreadyUpdatingInProgressRef.current = false
+        if (state.State.case == 'InProgress') {
+            delayForceUpdate({ delayMs: 1000 })
         }
     }
 
