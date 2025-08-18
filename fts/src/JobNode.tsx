@@ -160,7 +160,7 @@ export default memo(({ data } : { data: NodeData }) => {
             textAlign: "left",
             color: data.config.Name == "" ? "#747474" : "#080808"
         }}>
-            {data.config.Name == "" ? "Node" : data.config.Name}
+            {data.config.Name == "" ? `Node ${data.id}` : data.config.Name}
         </label>
     
         <label style={{

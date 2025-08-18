@@ -104,7 +104,7 @@ function Flow() {
   
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
-      Name: `Node`,
+      Name: "",
       Job: create(AnySchema, {
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
         value: createBinary(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }),
