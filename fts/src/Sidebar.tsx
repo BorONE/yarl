@@ -115,14 +115,16 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         (evt) => setNodes(
             (nds: Node[]) => {
                 return nds.map((nd) => {
-                    if (nd.selected) {
-                        const config : NodeConfig = nd.data.config
-                        const schema = ShellCommandConfigSchema
-                        var job : ShellCommandConfig = config.Job ? fromBinary(schema, config.Job.value) : create(schema, {})
-                        job.Command = evt.target.value
-                        client.node.edit({ ...config, Job: anyPack(schema, job) })
+                    if (!nd.selected) {
+                        return nd
                     }
-                    return nd
+                    const config : NodeConfig = nd.data.config
+                    const schema = ShellCommandConfigSchema
+                    var job : ShellCommandConfig = config.Job ? fromBinary(schema, config.Job.value) : create(schema, {})
+                    job.Command = evt.target.value
+                    const editedConfig = { ...config, Job: anyPack(schema, job) }
+                    client.node.edit(editedConfig)
+                    return buildNode(editedConfig, nd.data.state, true)
                 })
             }
         ),
