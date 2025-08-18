@@ -1,10 +1,9 @@
 import {
   Position,
-  type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { nodeInitParams } from './JobNode';
+import { nodeInitParams, type Node } from './JobNode';
 import * as config from './gen/internal/graph/config_pb'
 
 export function isReady(state: config.NodeState) {
@@ -35,23 +34,24 @@ export function buildNode(config: config.NodeConfig, state: config.NodeState, se
 }
 
 export function getBorderColor(nodeState: config.NodeState) {
-  const stateCase = nodeState.State.case;
-  const state = nodeState.State.value;
-  switch (stateCase) {
+  const state = nodeState.State
+  switch (state.case) {
   case "Idle":
     return "#D9D9D9"
   case "InProgress":
-    if (state.Status == config.NodeState_InProgressState_InProgressStatus.Skipping) {
+    const inProgress = state.value
+    if (inProgress.Status == config.NodeState_InProgressState_InProgressStatus.Skipping) {
       return "#6DDD52"
     } else {
       return "#5773E4"
     }
   case "Done":
-    if (state.IsStopped) {
+    const done = state.value
+    if (done.IsStopped) {
       return "#DD5274"
-    } else if (state.IsSkipped) {
+    } else if (done.IsSkipped) {
       return "#6DDD52"
-    } else if (state.Error) {
+    } else if (done.Error) {
       return "#DD5274"
     } else {
       return "#6DDD52"

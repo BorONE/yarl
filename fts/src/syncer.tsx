@@ -1,10 +1,10 @@
 import * as client from './client'
 import {
-    type Node,
     type Edge,
 } from '@xyflow/react';
 import * as config from './gen/internal/graph/config_pb'
 import { buildNode, isReady } from './misc';
+import type { Node } from './JobNode';
 
 enum SyncerState {
   init = 0,
@@ -16,8 +16,8 @@ export class Syncer {
   initialGraph : { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] }
   stream = client.graph.sync({})
   
-  setNodes
-  setEdges
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
 
   async sync() {
     for await (const update of this.stream) {
@@ -36,14 +36,17 @@ export class Syncer {
   handleInit(update: config.SyncResponse) {
     switch (update.Type) {
       case config.SyncType.InitNode: {
-        const config : config.NodeConfig = update.NodeConfig
-        const state : config.NodeState = update.NodeState
-        this.initialGraph.nodes.push(buildNode(config, state))
+        const config = update.NodeConfig as config.NodeConfig
+        const state = update.NodeState as config.NodeState
+        const node = buildNode(config, state)
+        this.initialGraph.nodes.push(node)
         break
       }
       case config.SyncType.InitEdge: {
-        const edge : config.EdgeConfig = update.EdgeConfig
-        const state : config.NodeState = this.initialGraph.nodes.map(node => node.data.state).find((state) => state.Id == BigInt(edge.FromNodeId));
+        const edge = update.EdgeConfig as config.EdgeConfig
+        const state = this.initialGraph.nodes
+          .map(node => node.data.state)
+          .find((state) => state.Id == BigInt(edge.FromNodeId)) as config.NodeState
         this.initialGraph.edges.push({
           id: `${edge.FromNodeId}-${edge.ToNodeId}`,
           source: `${edge.FromNodeId}`,

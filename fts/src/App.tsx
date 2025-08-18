@@ -5,7 +5,6 @@ import {
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
-  type Node,
   type Edge,
   type FitViewOptions,
   type OnConnect,
@@ -18,7 +17,7 @@ import '@xyflow/react/dist/style.css';
 
 import Sidebar from './Sidebar';
 
-import JobNode from './JobNode';
+import JobNode, { type Node } from './JobNode';
 
 import * as client from './client'
 
@@ -66,7 +65,7 @@ function Flow() {
   syncer.sync()
 
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds) as Node[]),
     [setNodes],
   );
   const onNodesDelete: OnNodesDelete = useCallback(
@@ -85,8 +84,8 @@ function Flow() {
     async (connection) => {
       client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
       setEdges((eds) => {
-        const node = nodes.find(nd => nd.id == connection.source)
-        return addEdge({...connection, animated: !isReady(node?.data.state)}, eds)
+        const node = nodes.find(nd => nd.id == connection.source) as Node
+        return addEdge({...connection, animated: !isReady(node.data.state)}, eds)
       })
     },
     [nodes, setEdges],
@@ -100,12 +99,12 @@ function Flow() {
   );
  
   const newGraph = useCallback(async () => await client.graph.new({}), [setNodes, setEdges])
-  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current.value}), [])
-  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current.value}), [])
+  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current?.value}), [])
+  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current?.value}), [])
   
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
-      Name: `Node`,
+      Name: "",
       Job: create(AnySchema, {
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
         value: createBinary(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }),
@@ -123,7 +122,8 @@ function Flow() {
     setNodes((nds) => [...nds, buildNode(config, state)]);
   }, [setNodes]);
 
-  var graphPathRef = useRef(null)
+  // var graphPathRef = useRef(null)
+  var graphPathRef = useRef<HTMLInputElement>(null)
 
   const isLayout = (obj: any, expectedLenght?: number) => {
     return Array.isArray(obj)
@@ -173,7 +173,7 @@ function Flow() {
                 onConnect={onConnect}
                 onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
                 onNodesDelete={onNodesDelete}
-                onNodeDragStop={(event: React.MouseEvent, node: Node, nodes: Node[]) => {
+                onNodeDragStop={(_event: React.MouseEvent, node: Node, _nodes: Node[]) => {
                   node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
                   client.node.edit(node.data.config)
                 }}

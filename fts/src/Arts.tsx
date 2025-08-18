@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import * as client from "./client"
-import { type Node } from '@xyflow/react';
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from './components/ui/label';
 import type { NodeState } from "./gen/internal/graph/config_pb";
+import type { Node } from "./JobNode";
 
 
 function AreArtsEqual(a: {[key: string]: string}, b: {[key: string]: string}) {
@@ -43,6 +43,18 @@ export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: 
     const initArts : {[key: string]: string} = {}
     const [arts, setArts] = useState(initArts)
 
+    const [_forceUpdate, setForceUpdate] = useState({})
+    const alreadyUpdatingRef = useRef(false)
+    const delayForceUpdate = async (value: { delayMs: number; }) => {
+        if (alreadyUpdatingRef.current) {
+            return
+        }
+        alreadyUpdatingRef.current = true
+        await timeout(value.delayMs)
+        setForceUpdate({})
+        alreadyUpdatingRef.current = false
+    }
+
     const update = async () => {
         const msg = await client.node.collectArts({Id: selectedNode.data.id})
         if (!AreArtsEqual(arts, msg.Arts)) {
@@ -51,8 +63,7 @@ export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: 
 
         const state : NodeState = selectedNode.data.state
         if (state.State.case == 'InProgress') {
-            await timeout(1000)
-            setArts({...msg.Arts}) // force update
+            delayForceUpdate({ delayMs: 1000 })
         }
     }
 

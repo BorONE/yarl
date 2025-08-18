@@ -29,12 +29,12 @@ import * as config from './gen/internal/graph/config_pb';
 import * as client from './client'
 
 import {
-    type Node,
+    type Node as BaseNode,
 } from '@xyflow/react';
 import { extractJobType } from './util';
 import { getBorderColor } from './misc';
 
-export default memo(({ data }) => {
+export default memo(({ data } : { data: NodeData }) => {
     const genButton = (onClick: () => void, icon: string, style = {}, className: string | undefined = undefined) => {
         return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}} className={className}>
             <img src={icon}/>
@@ -66,8 +66,10 @@ export default memo(({ data }) => {
     }
 
     const genFirstButton = () => {
-        const style = {
-            position: "absolute", top: 20 - borderWidth, left: 20 - borderWidth,
+        const style : React.CSSProperties = {
+            ...extraButtonStyle,
+            top: 20 - borderWidth + extraButtonSizeOffset / 2,
+            left: 20 - borderWidth + extraButtonSizeOffset / 2,
         }
         const state : config.NodeState = data.state
         switch (state.State.case) {
@@ -160,7 +162,7 @@ export default memo(({ data }) => {
             textAlign: "left",
             color: data.config.Name == "" ? "#747474" : "#080808"
         }}>
-            {data.config.Name == "" ? "Node" : data.config.Name}
+            {data.config.Name == "" ? `Node ${data.id}` : data.config.Name}
         </label>
     
         <label style={{
@@ -170,7 +172,7 @@ export default memo(({ data }) => {
             fontSize: 6,
             color: "#747474",
         }}>
-            {extractJobType(data.config.Job.typeUrl)} #{data.id}
+            {data.config.Job ? extractJobType(data.config.Job.typeUrl) : "Unknown job type"} #{data.id}
         </label>
 
         <img
@@ -222,10 +224,26 @@ export const nodeInitParams : Partial<Node> = {
     }
 }
 
+export type NodeData = {
+    id: bigint,
+    config: config.NodeConfig,
+    state: config.NodeState,
+}
+
+export type Node = BaseNode<NodeData>
+
 const buttonStyle : React.CSSProperties = {
     position: "absolute",
     height: 20,
     width: 20,
     borderRadius: 10,
     borderWidth: borderWidth,
+}
+
+const extraButtonSizeOffset = 2
+
+const extraButtonStyle : React.CSSProperties = {
+    ...buttonStyle,
+    height: buttonStyle.height as number - extraButtonSizeOffset,
+    width: buttonStyle.width as number - extraButtonSizeOffset,
 }

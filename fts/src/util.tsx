@@ -1,4 +1,4 @@
-import { create, toBinary,  type DescMessage, type MessageInitShape, type MessageShape } from '@bufbuild/protobuf';
+import { create, toBinary,  type DescMessage, type MessageInitShape } from '@bufbuild/protobuf';
 
 export const extractJobType = (typeUrl: string) => {
     const splitted = typeUrl.split('.');
