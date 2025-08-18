@@ -66,8 +66,10 @@ export default memo(({ data } : { data: NodeData }) => {
     }
 
     const genFirstButton = () => {
-        const style = {
-            position: "absolute", top: 20 - borderWidth, left: 20 - borderWidth,
+        const style : React.CSSProperties = {
+            ...extraButtonStyle,
+            top: 20 - borderWidth + extraButtonSizeOffset / 2,
+            left: 20 - borderWidth + extraButtonSizeOffset / 2,
         }
         const state : config.NodeState = data.state
         switch (state.State.case) {
@@ -236,4 +238,12 @@ const buttonStyle : React.CSSProperties = {
     width: 20,
     borderRadius: 10,
     borderWidth: borderWidth,
+}
+
+const extraButtonSizeOffset = 2
+
+const extraButtonStyle : React.CSSProperties = {
+    ...buttonStyle,
+    height: buttonStyle.height as number - extraButtonSizeOffset,
+    width: buttonStyle.width as number - extraButtonSizeOffset,
 }
