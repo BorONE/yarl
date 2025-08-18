@@ -2,21 +2,21 @@ import React, { useCallback, useState, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary } from '@bufbuild/protobuf';
 import { type NodeConfig } from './gen/internal/graph/config_pb';
-import { ShellCommandConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
+import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 import { anyPack, type Any } from '@bufbuild/protobuf/wkt';
 
@@ -30,24 +30,26 @@ import type { Node } from './JobNode';
 import { buildNode } from './misc';
 
 
-type TypeInfo = {
+type JobInfo = {
     type: string,
     typeUrl: string,
     schema: any,
     init: any,
     editor: (job: any, ctx: Context) => ReactElement,
+    disabled?: boolean,
 }
 
 type Context = {
     onShellCommandChange: React.ChangeEventHandler<HTMLInputElement>
 }
 
-const typeInfos : { [id: string] : TypeInfo} = {
-    ShellCommand: {
+
+const jobInfos : JobInfo[] = [
+    {
         type: 'ShellCommand',
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
         schema: ShellCommandConfigSchema,
-        init: {Command: "echo \"Hello, YaRL!\""},
+        init: create(ShellCommandConfigSchema, {Command: "echo \"Hello, YaRL!\""}),
         editor: (job: ShellCommandConfig, ctx: Context) => {
             return <div className="grid w-full items-center gap-3">
                 <Label htmlFor="ShellCommand.Command">Command</Label>
@@ -61,24 +63,25 @@ const typeInfos : { [id: string] : TypeInfo} = {
             </div>
         }
     },
-    // ShellScript: {
-    //     type: 'ShellScript',
-    //     typeUrl: "type.googleapis.com/register.ShellScriptConfig",
-    //     schema: ShellScriptConfigSchema,
-    //     init: {Path: "/dev/null"},
-    // },
-}
+    {
+        type: 'ShellScript',
+        typeUrl: "type.googleapis.com/register.ShellScriptConfig",
+        schema: ShellScriptConfigSchema,
+        init: create(ShellScriptConfigSchema, {Path: "/dev/null", Args: []}),
+        editor: (_job: ShellCommandConfig, _ctx: Context) => <>Not implemented</>,
+        disabled: true
+    },
+]
+
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void }) => {
     const [artsLength, setArtsLength] = useState(0)
-
-    const onJobSelected = (info: TypeInfo) => useCallback(
-        () => setNodes(
+    
+    const onJobTypeSelected = useCallback(
+        (jobType: string) => setNodes(
             (nds) => {
-                const selectedNode = nds.filter((nd) => nd.selected)[0]
-                if (selectedNode.data.config.Job?.typeUrl == info.typeUrl) {
-                    return nds
-                }
+                const info = jobInfos.find(info => info.type == jobType) as JobInfo
+                const selectedNode = nds.find((nd) => nd.selected) as Node
                 const job = anyPack(info.schema, info.init)
                 const editedConfig = {...selectedNode.data.config, Job: job}
                 const editedNode = buildNode(editedConfig, selectedNode.data.state, true)
@@ -88,9 +91,6 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         ),
         [setNodes],
     )
-
-    const jobTypes = Object.keys(typeInfos)
-        .map(key => <DropdownMenuItem key={key} onSelect={onJobSelected(typeInfos[key])}> {key} </DropdownMenuItem>)
 
     const onNameChange : React.ChangeEventHandler<HTMLInputElement> = useCallback(
         (evt) => setNodes(
@@ -131,16 +131,6 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         [setNodes],
     )
 
-    const context : Context = {
-        onShellCommandChange,
-    }
-
-    const getCurrentEditor = (job: Any) => {
-        const info = typeInfos[extractJobType(job.typeUrl)]
-        const msg = fromBinary(info.schema, job.value)
-        return info.editor(msg, context)
-    }
-
     const selectedNodes = nodes.filter((nd) => nd.selected)
 
     if (selectedNodes.length == 0) {
@@ -151,7 +141,13 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
 
     const selectedNode = selectedNodes[0]
     const config: NodeConfig = selectedNode.data.config
-    const job = config?.Job
+    const job = config.Job as Any
+    const jobType = extractJobType(job.typeUrl)
+    const jobInfo = jobInfos.find(info => info.type == jobType) as JobInfo
+    const jobMsg = fromBinary(jobInfo.schema, job.value)
+    const jobEditor = jobInfo.editor(jobMsg, {
+        onShellCommandChange,
+    })
 
     return <aside>
         <Input
@@ -172,17 +168,15 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             <AccordionItem value="editor">
                 <AccordionTrigger>Editor</AccordionTrigger>
                 <AccordionContent>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="nodrag p-1">
-                                {job ? extractJobType(job.typeUrl) : ""}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            {jobTypes}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    {job != undefined ? getCurrentEditor(job) : <></>}
+                    <Select value={jobType} onValueChange={onJobTypeSelected}>
+                        <SelectTrigger className="w-full" style={{marginBottom: 10}}>
+                            <SelectValue/>
+                        </SelectTrigger>
+                        <SelectContent>
+                            {jobInfos.map(info => <SelectItem key={info.type} value={info.type} disabled={info.disabled}>{info.type}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    {jobEditor}
                 </AccordionContent>
             </AccordionItem>
             <AccordionItem value="arts" disabled={artsLength == 0}>
