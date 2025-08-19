@@ -9,7 +9,7 @@ import (
 
 type Job interface {
 	Run() error
-	Reset() error
+	Kill() error
 	CollectArtifacts() Artifacts
 }
 

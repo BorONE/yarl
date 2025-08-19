@@ -164,7 +164,7 @@ func (node *Node) Stop() error {
 		// already stopping
 	case NodeState_InProgressState_Running, NodeState_InProgressState_Skipping:
 		state.InProgress.Status = NodeState_InProgressState_Stopping.Enum()
-		node.Job.Reset()
+		node.Job.Kill()
 	default:
 		log.Panicln("unexpected state: ", node.GetStateString())
 	}
