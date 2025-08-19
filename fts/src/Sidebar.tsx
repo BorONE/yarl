@@ -156,7 +156,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             placeholder={`Node ${config.Id}`}
             value={config.Name}
             style={{ fontSize: 20 }}
-            className='grid w-full items-center gap-3 -border file:font-medium'
+            className='grid w-full items-center gap-3 -border file:font-medium NodeName'
         />
 
         <Separator/>
