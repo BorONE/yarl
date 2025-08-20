@@ -127,7 +127,7 @@ function Flow() {
       State: { case: "Idle", value: { IsReady: true } },
     })
 
-    setNodes((nds) => [...nds, buildNode(config, state)]);
+    setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
   }, [setNodes]);
 
   // var graphPathRef = useRef(null)
