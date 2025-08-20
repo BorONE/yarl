@@ -12,6 +12,7 @@ import {
   type OnNodesChange,
   type OnEdgesChange,
   type DefaultEdgeOptions,
+  Background,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -183,7 +184,9 @@ function Flow() {
                 defaultEdgeOptions={defaultEdgeOptions}
                 snapToGrid
                 snapGrid={[20, 20]}
-              />
+              >
+                <Background variant='dots' />
+              </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
             <ResizablePanel defaultSize={layout[1]}>
