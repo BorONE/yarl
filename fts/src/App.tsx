@@ -99,9 +99,15 @@ function Flow() {
     [setEdges],
   );
  
-  const newGraph = useCallback(async () => await client.graph.new({}), [setNodes, setEdges])
-  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current?.value}), [])
-  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current?.value}), [])
+  const newGraph = useCallback(() => {
+    if (graphPathRef.current != null) {
+      graphPathRef.current.value = ""
+    }
+    new Cookies().set('graph-path', "")
+    client.graph.new({})
+  }, [])
+  const saveGraph = useCallback(() => client.graph.save({Path: graphPathRef.current?.value}), [])
+  const loadGraph = useCallback(() => client.graph.load({Path: graphPathRef.current?.value}), [])
   
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
