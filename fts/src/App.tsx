@@ -13,6 +13,7 @@ import {
   type OnEdgesChange,
   type DefaultEdgeOptions,
   Background,
+  BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -191,7 +192,7 @@ function Flow() {
                 snapToGrid
                 snapGrid={[20, 20]}
               >
-                <Background variant='dots' />
+                <Background variant={BackgroundVariant.Dots} />
               </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
