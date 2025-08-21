@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
+  MiniMap,
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
@@ -47,7 +48,7 @@ import {
 } from "@/components/ui/menubar"
 
 import { Syncer } from './syncer';
-import { buildNode, isReady } from './misc';
+import { buildNode, getBorderColor, isReady } from './misc';
 
 import Cookies from 'universal-cookie';
 
@@ -193,6 +194,7 @@ function Flow() {
                 snapGrid={[20, 20]}
               >
                 <Background variant={BackgroundVariant.Dots} />
+                <MiniMap nodeColor={node => getBorderColor(node.data.state)} zoomable pannable />
               </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
