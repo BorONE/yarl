@@ -1,7 +1,6 @@
 package register
 
 import (
-	"context"
 	"maps"
 	"os/exec"
 	"pipegraph/internal/job"
@@ -16,8 +15,8 @@ import (
 type BashJob struct {
 	args []string
 
-	cmd    *exec.Cmd
-	cancel func()
+	cmd  *exec.Cmd
+	kill func()
 
 	arts   job.Artifacts
 	artsMu sync.Mutex
@@ -26,41 +25,31 @@ type BashJob struct {
 }
 
 func (j *BashJob) reset() {
-	j.cancel = func() {}
+	j.kill = func() {}
 }
 
 func (j *BashJob) Run() error {
-	j.cmd, j.cancel = makeCommandWithGroupCancel(context.Background(), "/bin/sh", j.args...)
-	defer j.cancel()
+	j.cmd, j.kill = startCommandWithKill("/bin/sh", j.args...)
 
 	j.cmd.Stdout = &j.stdout
 	j.cmd.Stderr = &j.stderr
+	j.cmd.Start()
 
 	j.resetArts(job.Artifacts{"started_at": time.Now().String()})
 	defer func() { j.setArt("finished_at", time.Now().String()) }()
-	return j.cmd.Run()
+	return j.cmd.Wait()
 }
 
 // Default cancel just kills main process, not child processes. This function
 // creates group which can be killed with cancel.
-func makeCommandWithGroupCancel(ctx context.Context, name string, args ...string) (*exec.Cmd, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(ctx)
-
+func startCommandWithKill(name string, args ...string) (*exec.Cmd, func()) {
 	cmd := exec.Command(name, args...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-
-	go func() {
-		<-ctx.Done()
-		if cmd.Process != nil {
-			_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-		}
-	}()
-
-	return cmd, cancel
+	return cmd, func() { syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 }
 
-func (j *BashJob) Reset() error {
-	j.cancel()
+func (j *BashJob) Kill() error {
+	j.kill()
 	j.reset()
 	return nil
 }

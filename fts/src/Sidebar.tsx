@@ -133,10 +133,17 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
 
     const selectedNodes = nodes.filter((nd) => nd.selected)
 
-    if (selectedNodes.length == 0) {
-        return <></>
-    } else if (selectedNodes.length > 1) {
-        return <>More than one node is selected</>
+    if (selectedNodes.length != 1) {
+        return <aside>
+            <Input
+                id="Node.Name"
+                disabled
+                style={{ fontSize: 20 }}
+                className='grid w-full items-center gap-3 -border file:font-medium NodeName'
+                value={"Select a node"}
+            />
+            <Separator/>
+        </aside>
     }
 
     const selectedNode = selectedNodes[0]
@@ -156,7 +163,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             placeholder={`Node ${config.Id}`}
             value={config.Name}
             style={{ fontSize: 20 }}
-            className='grid w-full items-center gap-3 -border file:font-medium'
+            className='grid w-full items-center gap-3 -border file:font-medium NodeName'
         />
 
         <Separator/>

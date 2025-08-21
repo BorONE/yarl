@@ -261,3 +261,28 @@ button {
     transform: scale(0.9)
   }
 }
+
+input {
+  box-shadow: none;
+  padding: 10px;
+}
+
+.NodeName {
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+
+.NodeName:not(:hover) {
+  border: none;
+}
+
+.NodeName:hover {
+  position: relative;
+  left: -1px;
+}
+
+.NodeName:focus {
+  position: relative;
+  left: -1px;
+  border: 1px solid var(--sidebar-ring);
+}

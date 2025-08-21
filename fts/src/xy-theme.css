@@ -11,8 +11,10 @@
     --xy-node-border-default: 1px solid #ededed;
   
     --xy-node-boxshadow-default:
-      0px 3.54px 4.55px 0px #00000005, 0px 3.54px 4.55px 0px #0000000d,
-      0px 0.51px 1.01px 0px #0000001a;
+      0px 2px 2px 0px #0000000d;
+
+    --xy-node-boxshadow-selected:
+      0px 0px 0px 4.5px #0000000d;
   
     --xy-node-border-radius-default: 8px;
   
@@ -51,12 +53,7 @@
   }
   
   .react-flow__node.selectable:focus {
-    box-shadow: 0px 0px 0px 4px var(--xy-theme-color-focus);
     border-color: #d9d9d9;
-  }
-  
-  .react-flow__node.selectable:focus:active {
-    box-shadow: var(--xy-node-boxshadow-default);
   }
   
   .react-flow__node.selectable:hover,
@@ -66,7 +63,7 @@
   
   .react-flow__node.selectable.selected {
     border-color: var(--xy-theme-selected);
-    box-shadow: var(--xy-node-boxshadow-default);
+    box-shadow: var(--xy-node-boxshadow-selected);
   }
   
   .react-flow__node-group {

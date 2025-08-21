@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
+  MiniMap,
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
@@ -12,6 +13,8 @@ import {
   type OnNodesChange,
   type OnEdgesChange,
   type DefaultEdgeOptions,
+  Background,
+  BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -45,7 +48,7 @@ import {
 } from "@/components/ui/menubar"
 
 import { Syncer } from './syncer';
-import { buildNode, isReady } from './misc';
+import { buildNode, getBorderColor, isReady } from './misc';
 
 import Cookies from 'universal-cookie';
 
@@ -98,9 +101,15 @@ function Flow() {
     [setEdges],
   );
  
-  const newGraph = useCallback(async () => await client.graph.new({}), [setNodes, setEdges])
-  const saveGraph = useCallback(async () => await client.graph.save({Path: graphPathRef.current?.value}), [])
-  const loadGraph = useCallback(async () => await client.graph.load({Path: graphPathRef.current?.value}), [])
+  const newGraph = useCallback(() => {
+    if (graphPathRef.current != null) {
+      graphPathRef.current.value = ""
+    }
+    new Cookies().set('graph-path', "")
+    client.graph.new({})
+  }, [])
+  const saveGraph = useCallback(() => client.graph.save({Path: graphPathRef.current?.value}), [])
+  const loadGraph = useCallback(() => client.graph.load({Path: graphPathRef.current?.value}), [])
   
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
@@ -119,7 +128,7 @@ function Flow() {
       State: { case: "Idle", value: { IsReady: true } },
     })
 
-    setNodes((nds) => [...nds, buildNode(config, state)]);
+    setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
   }, [setNodes]);
 
   // var graphPathRef = useRef(null)
@@ -183,7 +192,10 @@ function Flow() {
                 defaultEdgeOptions={defaultEdgeOptions}
                 snapToGrid
                 snapGrid={[20, 20]}
-              />
+              >
+                <Background variant={BackgroundVariant.Dots} />
+                <MiniMap nodeColor={node => getBorderColor(node.data.state)} zoomable pannable />
+              </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
             <ResizablePanel defaultSize={layout[1]}>
