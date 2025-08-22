@@ -267,6 +267,11 @@ input {
   padding: 10px;
 }
 
+textarea {
+  box-shadow: none;
+  padding: 10px;
+}
+
 .NodeName {
   margin-bottom: 10px;
   border: 1px solid var(--border);

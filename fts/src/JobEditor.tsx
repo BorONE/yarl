@@ -54,6 +54,7 @@ export default ({
                 placeholder: init[field.name],
                 defaultValue: job[field.name],
                 style: { fontFamily: "monospace" },
+                className: "no-shadow",
             }
 
             var input
