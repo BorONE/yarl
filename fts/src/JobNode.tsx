@@ -36,7 +36,18 @@ import { getBorderColor } from './misc';
 
 export default memo(({ data } : { data: NodeData }) => {
     const genButton = (onClick: () => void, icon: string, style = {}, className: string | undefined = undefined) => {
-        return <button onClick={onClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}} className={className}>
+        const tryOnClick = async () => {
+            try {
+                console.log('try')
+                await onClick()
+                console.log('done')
+            } catch (e) {
+                console.log(e)
+                console.log(Object.keys(e))
+                console.log(Object.values(e))
+            }
+        }
+        return <button onClick={tryOnClick} style={{...buttonStyle, borderColor: getBorderColor(data.state), ...style}} className={className}>
             <img src={icon}/>
         </button>
     }
@@ -50,7 +61,7 @@ export default memo(({ data } : { data: NodeData }) => {
         switch (state.State.case) {
         case "Idle":
             if (state.State.value.IsReady) {
-                return genButton(() => client.node.run({Id: data.id}), runIcon, style)
+                return genButton(async () => await client.node.run({Id: data.id}), runIcon, style)
             } else if (state.State.value.Plan != config.NodeState_IdleState_IdlePlan.Scheduled) {
                 return genButton(() => client.node.schedule({Id: data.id}), scheduleIcon, style)
             } else {

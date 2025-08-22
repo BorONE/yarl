@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"log"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -10,10 +11,8 @@ import (
 type Job interface {
 	Run() error
 	Kill() error
-	CollectArtifacts() Artifacts
+	CollectArtifacts() map[string]string
 }
-
-type Artifacts map[string]string
 
 type Creator func(*anypb.Any) (Job, error)
 
@@ -28,8 +27,10 @@ var creators map[string]Creator = make(map[string]Creator)
 func Register(cfg proto.Message, creator Creator) error {
 	job, err := anypb.New(cfg)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
+	log.Println(job.TypeUrl)
 	creators[job.TypeUrl] = creator
 	return nil
 }

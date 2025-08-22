@@ -1,6 +1,6 @@
 import React, { useCallback, useState, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
-import { create, fromBinary } from '@bufbuild/protobuf';
+import { create, fromBinary, type DescMessage, type Message } from '@bufbuild/protobuf';
 import { type NodeConfig } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
@@ -28,6 +28,8 @@ import Cookies from 'universal-cookie';
 import Artifacts from './Arts';
 import type { Node } from './JobNode';
 import { buildNode } from './misc';
+import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
+import JobEditor from './JobEditor';
 
 
 type JobInfo = {
@@ -41,6 +43,7 @@ type JobInfo = {
 
 type Context = {
     onShellCommandChange: React.ChangeEventHandler<HTMLInputElement>
+    onJobChange: (schema: DescMessage, job: Message) => void
 }
 
 
@@ -70,6 +73,26 @@ const jobInfos : JobInfo[] = [
         init: create(ShellScriptConfigSchema, {Path: "/dev/null", Args: []}),
         editor: (_job: ShellCommandConfig, _ctx: Context) => <>Not implemented</>,
         disabled: true
+    },
+    {
+        type: 'Script',
+        typeUrl: "type.googleapis.com/register.ScriptConfig",
+        schema: ScriptConfigSchema,
+        init: create(ScriptConfigSchema, {
+            Interpreter: "bash",
+            Args: ["script.sh"],
+            Filename: "script.sh",
+            Source: ["echo 'hello yarl'"],
+        }),
+        editor: (job: ScriptConfig, ctx: Context) => {
+            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
+            return <JobEditor
+                job={job}
+                onChange={ctx.onJobChange}
+                schema={info.schema}
+                init={info.init}
+            />
+        }
     },
 ]
 
@@ -131,6 +154,20 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         [setNodes],
     )
 
+    const onJobChange = useCallback(
+        (schema: DescMessage, job: Message) => setNodes(
+            (nds: Node[]) => nds.map((nd) => {
+                if (!nd.selected) {
+                    return nd
+                }
+                const editedConfig = { ...nd.data.config, Job: anyPack(schema, job) }
+                client.node.edit(editedConfig)
+                return buildNode(editedConfig, nd.data.state, true)
+            })
+        ),
+        [setNodes],
+    )
+
     const selectedNodes = nodes.filter((nd) => nd.selected)
 
     if (selectedNodes.length != 1) {
@@ -154,6 +191,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
     const jobMsg = fromBinary(jobInfo.schema, job.value)
     const jobEditor = jobInfo.editor(jobMsg, {
         onShellCommandChange,
+        onJobChange,
     })
 
     return <aside>

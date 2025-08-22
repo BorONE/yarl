@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package register;
+option go_package = "pipegraph/register";
+
+message ScriptConfig {
+    optional string Interpreter = 1;
+    repeated string Args = 2;
+    optional string Filename = 3;
+    repeated string Source = 4;
+}

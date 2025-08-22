@@ -194,7 +194,7 @@ function Flow() {
                 snapGrid={[20, 20]}
               >
                 <Background variant={BackgroundVariant.Dots} />
-                <MiniMap nodeColor={node => getBorderColor(node.data.state)} zoomable pannable />
+                <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
               </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
