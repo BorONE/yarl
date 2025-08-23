@@ -3,6 +3,8 @@ package graph
 import (
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
 	"sync"
@@ -45,24 +47,32 @@ func (node *Node) Run() error {
 		return fmt.Errorf("job creation failed: %s", err.Error())
 	}
 
+	ctx := job.RunContext{
+		Dir: path.Join("/home/bor1-ss/.yarl/nodes", fmt.Sprint(node.Config.GetId())),
+	}
+
+	err = os.MkdirAll(ctx.Dir, 0777)
+	if err != nil {
+		return fmt.Errorf("failed to prepare context for node execution: %v", err)
+	}
+
 	log.Printf("job(id=%v) is starting...", node.Config.GetId())
 	node.SetState(&NodeState_InProgressState{Status: NodeState_InProgressState_Running.Enum()})
 	node.Job = createdJob
 
 	go func() {
-		jobErr := node.Job.Run()
+		err = node.Job.Run(ctx)
 
 		EndGuard.Lock()
 		defer EndGuard.Unlock()
 
-		log.Printf("job(id=%v) finished", node.Config.GetId())
-		log.Printf("job(id=%v) finished %v", node.Config.GetId(), jobErr)
+		log.Printf("job(id=%v) finished (err=\"%v\")", node.Config.GetId(), err)
 
 		state := node.state.(*NodeState_InProgress)
 		isStopped := *state.InProgress.Status == NodeState_InProgressState_Stopping
 		isSkipped := *state.InProgress.Status == NodeState_InProgressState_Skipping
 		node.SetState(&NodeState_DoneState{
-			Error:     asStringPtr(jobErr),
+			Error:     asStringPtr(err),
 			IsStopped: &isStopped,
 			IsSkipped: &isSkipped,
 		})

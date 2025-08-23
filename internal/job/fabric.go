@@ -7,13 +7,15 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-type Job interface {
-	Run() error
-	Kill() error
-	CollectArtifacts() Artifacts
+type RunContext struct {
+	Dir string
 }
 
-type Artifacts map[string]string
+type Job interface {
+	Run(ctx RunContext) error
+	Kill() error
+	CollectArtifacts() map[string]string
+}
 
 type Creator func(*anypb.Any) (Job, error)
 

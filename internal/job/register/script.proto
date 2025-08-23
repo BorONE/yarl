@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package register;
+option go_package = "pipegraph/register";
+
+message ScriptConfig {
+    repeated string Source = 1;
+}

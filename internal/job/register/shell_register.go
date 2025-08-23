@@ -1,12 +1,9 @@
 package register
 
 import (
-	"maps"
 	"os/exec"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
-	"sync"
-	"syscall"
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -19,7 +16,6 @@ type BashJob struct {
 	kill func()
 
 	arts   job.Artifacts
-	artsMu sync.Mutex
 	stdout util.ThreadSafeStringBuilder
 	stderr util.ThreadSafeStringBuilder
 }
@@ -28,24 +24,18 @@ func (j *BashJob) reset() {
 	j.kill = func() {}
 }
 
-func (j *BashJob) Run() error {
-	j.cmd, j.kill = startCommandWithKill("/bin/sh", j.args...)
+func (j *BashJob) Run(ctx job.RunContext) error {
+	j.cmd, j.kill = job.NewCommandWithKill("/bin/sh", j.args...)
+
+	j.cmd.Dir = ctx.Dir
 
 	j.cmd.Stdout = &j.stdout
 	j.cmd.Stderr = &j.stderr
 	j.cmd.Start()
 
-	j.resetArts(job.Artifacts{"started_at": time.Now().String()})
-	defer func() { j.setArt("finished_at", time.Now().String()) }()
+	j.arts.Reset(map[string]string{"started_at": time.Now().String()})
+	defer j.arts.Set("finished_at", time.Now().String())
 	return j.cmd.Wait()
-}
-
-// Default cancel just kills main process, not child processes. This function
-// creates group which can be killed with cancel.
-func startCommandWithKill(name string, args ...string) (*exec.Cmd, func()) {
-	cmd := exec.Command(name, args...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	return cmd, func() { syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 }
 
 func (j *BashJob) Kill() error {
@@ -54,27 +44,11 @@ func (j *BashJob) Kill() error {
 	return nil
 }
 
-func (j *BashJob) resetArts(init job.Artifacts) {
-	j.artsMu.Lock()
-	defer j.artsMu.Unlock()
-
-	j.arts = init
-}
-
-func (j *BashJob) setArt(key, value string) {
-	j.artsMu.Lock()
-	defer j.artsMu.Unlock()
-
-	j.arts[key] = value
-}
-
-func (j *BashJob) CollectArtifacts() job.Artifacts {
-	j.artsMu.Lock()
-	defer j.artsMu.Unlock()
-
-	j.arts["stdout"] = j.stdout.String()
-	j.arts["stderr"] = j.stderr.String()
-	return maps.Clone(j.arts)
+func (j *BashJob) CollectArtifacts() map[string]string {
+	arts := j.arts.Dump()
+	arts["stdout"] = j.stdout.String()
+	arts["stderr"] = j.stderr.String()
+	return arts
 }
 
 var _ job.Job = &BashJob{}
