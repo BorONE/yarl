@@ -79,10 +79,10 @@ const jobInfos : JobInfo[] = [
         typeUrl: "type.googleapis.com/register.ScriptConfig",
         schema: ScriptConfigSchema,
         init: create(ScriptConfigSchema, {
-            Interpreter: "bash",
-            Args: ["script.sh"],
-            Filename: "script.sh",
-            Source: ["echo 'hello yarl'"],
+            Source: [
+                "#!/bin/bash",
+                "echo 'hello yarl'",
+            ],
         }),
         editor: (job: ScriptConfig, ctx: Context) => {
             const info = jobInfos.find(info => info.type == 'Script') as JobInfo

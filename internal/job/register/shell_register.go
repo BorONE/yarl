@@ -24,8 +24,10 @@ func (j *BashJob) reset() {
 	j.kill = func() {}
 }
 
-func (j *BashJob) Run() error {
+func (j *BashJob) Run(ctx job.RunContext) error {
 	j.cmd, j.kill = job.NewCommandWithKill("/bin/sh", j.args...)
+
+	j.cmd.Dir = ctx.Dir
 
 	j.cmd.Stdout = &j.stdout
 	j.cmd.Stderr = &j.stderr
@@ -43,7 +45,10 @@ func (j *BashJob) Kill() error {
 }
 
 func (j *BashJob) CollectArtifacts() map[string]string {
-	return j.arts.Dump()
+	arts := j.arts.Dump()
+	arts["stdout"] = j.stdout.String()
+	arts["stderr"] = j.stderr.String()
+	return arts
 }
 
 var _ job.Job = &BashJob{}

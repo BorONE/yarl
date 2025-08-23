@@ -1,5 +1,6 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcWebTransport } from "@connectrpc/connect-web";
+// import { createGrpcWebTransport } from "@connectrpc/connect-web";
 
 import * as api from './gen/internal/api/api_pb'
 

@@ -8,8 +8,12 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
+type RunContext struct {
+	Dir string
+}
+
 type Job interface {
-	Run() error
+	Run(ctx RunContext) error
 	Kill() error
 	CollectArtifacts() map[string]string
 }

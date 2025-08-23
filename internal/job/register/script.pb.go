@@ -23,10 +23,7 @@ const (
 
 type ScriptConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Interpreter   *string                `protobuf:"bytes,1,opt,name=Interpreter" json:"Interpreter,omitempty"`
-	Args          []string               `protobuf:"bytes,2,rep,name=Args" json:"Args,omitempty"`
-	Filename      *string                `protobuf:"bytes,3,opt,name=Filename" json:"Filename,omitempty"`
-	Source        []string               `protobuf:"bytes,4,rep,name=Source" json:"Source,omitempty"`
+	Source        []string               `protobuf:"bytes,1,rep,name=Source" json:"Source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,27 +58,6 @@ func (*ScriptConfig) Descriptor() ([]byte, []int) {
 	return file_internal_job_register_script_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ScriptConfig) GetInterpreter() string {
-	if x != nil && x.Interpreter != nil {
-		return *x.Interpreter
-	}
-	return ""
-}
-
-func (x *ScriptConfig) GetArgs() []string {
-	if x != nil {
-		return x.Args
-	}
-	return nil
-}
-
-func (x *ScriptConfig) GetFilename() string {
-	if x != nil && x.Filename != nil {
-		return *x.Filename
-	}
-	return ""
-}
-
 func (x *ScriptConfig) GetSource() []string {
 	if x != nil {
 		return x.Source
@@ -93,12 +69,9 @@ var File_internal_job_register_script_proto protoreflect.FileDescriptor
 
 const file_internal_job_register_script_proto_rawDesc = "" +
 	"\n" +
-	"\"internal/job/register/script.proto\x12\bregister\"x\n" +
-	"\fScriptConfig\x12 \n" +
-	"\vInterpreter\x18\x01 \x01(\tR\vInterpreter\x12\x12\n" +
-	"\x04Args\x18\x02 \x03(\tR\x04Args\x12\x1a\n" +
-	"\bFilename\x18\x03 \x01(\tR\bFilename\x12\x16\n" +
-	"\x06Source\x18\x04 \x03(\tR\x06SourceB\x14Z\x12pipegraph/register"
+	"\"internal/job/register/script.proto\x12\bregister\"&\n" +
+	"\fScriptConfig\x12\x16\n" +
+	"\x06Source\x18\x01 \x03(\tR\x06SourceB\x14Z\x12pipegraph/register"
 
 var (
 	file_internal_job_register_script_proto_rawDescOnce sync.Once

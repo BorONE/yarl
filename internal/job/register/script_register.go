@@ -1,9 +1,11 @@
 package register
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
 	"strings"
@@ -13,7 +15,7 @@ import (
 )
 
 type ScriptJob struct {
-	args []string
+	source string
 
 	cmd  *exec.Cmd
 	kill func()
@@ -27,13 +29,29 @@ func (j *ScriptJob) reset() {
 	j.kill = func() {}
 }
 
-func (j *ScriptJob) Run() error {
-	j.cmd, j.kill = job.NewCommandWithKill(j.args[0], j.args[1:]...)
-	log.Println("cmd:", j.cmd.Args)
+func (j *ScriptJob) Run(ctx job.RunContext) error {
+	filename := "script"
+	filepath := path.Join(ctx.Dir, filename)
+
+	err := os.WriteFile(filepath, []byte(j.source), 0777)
+	if err != nil {
+		j.arts.Reset(map[string]string{})
+		return fmt.Errorf("failed to create script: %v", err)
+	}
+
+	log.Println(path.Join(".", filename))
+	j.cmd, j.kill = job.NewCommandWithKill(fmt.Sprintf("./%s", filename))
+
+	j.cmd.Dir = ctx.Dir
 
 	j.cmd.Stdout = &j.stdout
 	j.cmd.Stderr = &j.stderr
-	j.cmd.Start()
+
+	err = j.cmd.Start()
+	if err != nil {
+		j.arts.Reset(map[string]string{})
+		return fmt.Errorf("failed to start script: %v", err)
+	}
 
 	j.arts.Reset(map[string]string{"started_at": time.Now().String()})
 	defer j.arts.Set("finished_at", time.Now().String())
@@ -64,14 +82,9 @@ func init() {
 		}
 
 		job := &ScriptJob{
-			args: append([]string{*cfg.Interpreter}, cfg.Args...),
+			source: strings.Join(cfg.GetSource(), "\n"),
 		}
 		job.reset()
-
-		err = os.WriteFile(cfg.GetFilename(), []byte(strings.Join(cfg.GetSource(), "\n")), 0644)
-		if err != nil {
-			return nil, err
-		}
 
 		return job, nil
 	})
