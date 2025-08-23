@@ -53,7 +53,6 @@ func (node *Node) Run() error {
 
 	err = os.MkdirAll(ctx.Dir, 0777)
 	if err != nil {
-		log.Println(fmt.Errorf("failed to prepare context for node execution: %v", err))
 		return fmt.Errorf("failed to prepare context for node execution: %v", err)
 	}
 

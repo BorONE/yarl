@@ -2,7 +2,6 @@ package register
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -39,7 +38,6 @@ func (j *ScriptJob) Run(ctx job.RunContext) error {
 		return fmt.Errorf("failed to create script: %v", err)
 	}
 
-	log.Println(path.Join(".", filename))
 	j.cmd, j.kill = job.NewCommandWithKill(fmt.Sprintf("./%s", filename))
 
 	j.cmd.Dir = ctx.Dir
