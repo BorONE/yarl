@@ -1,10 +1,9 @@
 import { create, type DescMessage, type Message } from "@bufbuild/protobuf"
-import { anyUnpack, anyUnpackTo, FieldDescriptorProto_Type, type Any } from "@bufbuild/protobuf/wkt"
+import { FieldDescriptorProto_Type } from "@bufbuild/protobuf/wkt"
 import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import { useRef } from "react"
 import { Textarea } from "./components/ui/textarea"
-import type { Node } from "./JobNode"
 
 export default ({
     job,
