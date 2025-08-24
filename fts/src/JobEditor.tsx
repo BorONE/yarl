@@ -37,8 +37,6 @@ export default ({
                     break
                 }
             }
-            
-            
         })
         onChange(schema, job)
     }
@@ -51,7 +49,7 @@ export default ({
                 ref: refs.find(ref => ref.name == field.name)?.ref,
                 onChange: onFieldChange,
                 placeholder: init[field.name],
-                defaultValue: job[field.name],
+                value: job[field.name],
                 style: { fontFamily: "monospace" },
                 className: "no-shadow",
             }
@@ -65,8 +63,8 @@ export default ({
                     input = <Input {...props}/>
                     break
                 case "list":
-                    props.rows = props.defaultValue.length
-                    props.defaultValue = props.defaultValue.join('\n')
+                    props.rows = props.value.length
+                    props.value = props.value.join('\n')
                     input = <Textarea {...props}/>
                     break
                 }

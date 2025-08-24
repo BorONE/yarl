@@ -98,7 +98,7 @@ const jobInfos : JobInfo[] = [
 
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void }) => {
-    const [artsLength, setArtsLength] = useState(0)
+    const [artsLength, setArtsLength] = useState(-1)
     
     const onJobTypeSelected = useCallback(
         (jobType: string) => setNodes(
