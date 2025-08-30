@@ -35,7 +35,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { convertConnectionToEdge, createBinary } from './util';
+import { canonizeConnection, convertConnectionToEdge, createBinary } from './util';
 import { Input } from './components/ui/input';
 
 import {
@@ -92,8 +92,8 @@ function Flow() {
 
       client.graph.connect(convertConnectionToEdge(connection))
       setEdges((eds) => {
-        const node = nodes.find(nd => nd.id == connection.source) as Node
-        return addEdge({...connection, animated: !isReady(node.data.state)}, eds)
+        const input = nodes.find(nd => nd.id == connection.source) as Node
+        return addEdge(canonizeConnection(connection, input.data.state), eds)
       })
     },
     [nodes, setEdges],
@@ -196,7 +196,7 @@ function Flow() {
                 fitViewOptions={fitViewOptions}
                 defaultEdgeOptions={defaultEdgeOptions}
                 snapToGrid
-                snapGrid={[20, 20]}
+                snapGrid={[10, 10]}
               >
                 <Background variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />

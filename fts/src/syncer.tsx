@@ -5,7 +5,7 @@ import {
 import * as config from './gen/internal/graph/config_pb'
 import { buildNode, isReady } from './misc';
 import type { Node } from './JobNode';
-import { convertEdgeToConnection } from './util';
+import { canonizeConnection, convertEdgeToConnection } from './util';
 
 enum SyncerState {
   init = 0,
@@ -64,7 +64,7 @@ export class Syncer {
     switch (update.Type) {
       case config.SyncType.UpdateState: {
         this.setNodes((nds: Node[]) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState, nd.selected) : nd))
-        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
+        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? canonizeConnection(ed) : ed))
         break
       }
       case config.SyncType.Reset: {

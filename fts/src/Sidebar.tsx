@@ -199,7 +199,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
     })
 
     const onIOChange = (change: React.ChangeEvent<HTMLTextAreaElement>, target: string) => {
-        patchConfigOfSelected({ [target]: change.target.value.split("\n").filter(value => value.length > 0) })
+        patchConfigOfSelected({ [target]: change.target.value == "" ? [] : change.target.value.split("\n") })
     }
 
     return <aside>
