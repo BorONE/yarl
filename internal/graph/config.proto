@@ -53,11 +53,17 @@ message Position {
     optional int32 Y = 2;
 }
 
+message FileLike {
+    optional string Path = 1;
+}
+
 message NodeConfig {
     optional uint64 Id = 1;
     optional string Name = 2;
     optional google.protobuf.Any Job = 3;
     optional Position Position = 4;
+    repeated FileLike Input = 5;
+    repeated FileLike Output = 6;
 }
 
 message EdgeConfig {

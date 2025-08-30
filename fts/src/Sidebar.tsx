@@ -1,7 +1,7 @@
 import React, { useCallback, useState, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
-import { create, fromBinary, type DescMessage, type Message } from '@bufbuild/protobuf';
-import { type NodeConfig } from './gen/internal/graph/config_pb';
+import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
+import { FileLikeSchema, NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
@@ -30,6 +30,9 @@ import type { Node } from './JobNode';
 import { buildNode } from './misc';
 import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
 import JobEditor from './JobEditor';
+import { Textarea } from './components/ui/textarea';
+import { ArtsSchema } from './gen/internal/api/api_pb';
+import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 
 
 type JobInfo = {
@@ -154,17 +157,19 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         [setNodes],
     )
 
+    const patchConfigOfSelected = (configPatch: MessageInitShape<GenMessage<NodeConfig>>) => setNodes(
+        (nds: Node[]) => nds.map((nd) => {
+            if (!nd.selected) {
+                return nd
+            }
+            const editedConfig : NodeConfig = { ...nd.data.config, ...create(NodeConfigSchema, configPatch) }
+            client.node.edit(editedConfig)
+            return buildNode(editedConfig, nd.data.state, true)
+        })
+    )
+
     const onJobChange = useCallback(
-        (schema: DescMessage, job: Message) => setNodes(
-            (nds: Node[]) => nds.map((nd) => {
-                if (!nd.selected) {
-                    return nd
-                }
-                const editedConfig = { ...nd.data.config, Job: anyPack(schema, job) }
-                client.node.edit(editedConfig)
-                return buildNode(editedConfig, nd.data.state, true)
-            })
-        ),
+        (schema: DescMessage, job: Message) => patchConfigOfSelected({ Job: anyPack(schema, job) }),
         [setNodes],
     )
 
@@ -194,6 +199,12 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         onJobChange,
     })
 
+    const onIOChange = (change: React.ChangeEvent<HTMLTextAreaElement>, target: string) => {
+        const files = change.target.value.split("\n").map(path => ({Path: path}))
+        console.log(target, files)
+        patchConfigOfSelected({ [target]: files })
+    }
+
     return <aside>
         <Input
             id="Node.Name"
@@ -210,6 +221,32 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             type="multiple"
             defaultValue={new Cookies().get('sidebar-accordion')}
             onValueChange={(values) => new Cookies().set('sidebar-accordion', values)}>
+            <AccordionItem value="io">
+                <AccordionTrigger>IO</AccordionTrigger>
+                <AccordionContent>
+                    <div className="grid w-full gap-3" style={{marginBottom: 10}}>
+                        <Label htmlFor="input-files">Input files</Label>
+                        <Textarea
+                            placeholder={"input.txt\nconfig.pb"}
+                            id="input-files"
+                            onChange={change => onIOChange(change, 'Input')}
+                            value={selectedNode.data.config.Input.map(fl => fl.Path).join("\n")}
+                            />
+                    </div>
+                    <div className="grid w-full gap-3" style={{marginBottom: 10}}>
+                        <Label htmlFor="output-files">Output files</Label>
+                        <Textarea
+                            placeholder={"output.txt\nresult.pb"}
+                            id="output-files"
+                            onChange={change => onIOChange(change, 'Output')}
+                            value={selectedNode.data.config.Output.map(fl => fl.Path).join("\n")}
+                            />
+                    </div>
+                    <p className="text-muted-foreground text-sm">
+                        One file per line
+                    </p>
+                </AccordionContent>
+            </AccordionItem>
             <AccordionItem value="editor">
                 <AccordionTrigger>Editor</AccordionTrigger>
                 <AccordionContent>

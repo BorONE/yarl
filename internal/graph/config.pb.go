@@ -418,19 +418,65 @@ func (x *Position) GetY() int32 {
 	return 0
 }
 
+type FileLike struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          *string                `protobuf:"bytes,1,opt,name=Path" json:"Path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FileLike) Reset() {
+	*x = FileLike{}
+	mi := &file_internal_graph_config_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileLike) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileLike) ProtoMessage() {}
+
+func (x *FileLike) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_graph_config_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FileLike.ProtoReflect.Descriptor instead.
+func (*FileLike) Descriptor() ([]byte, []int) {
+	return file_internal_graph_config_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *FileLike) GetPath() string {
+	if x != nil && x.Path != nil {
+		return *x.Path
+	}
+	return ""
+}
+
 type NodeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            *uint64                `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
 	Name          *string                `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
 	Job           *any1.Any              `protobuf:"bytes,3,opt,name=Job" json:"Job,omitempty"`
 	Position      *Position              `protobuf:"bytes,4,opt,name=Position" json:"Position,omitempty"`
+	Input         []*FileLike            `protobuf:"bytes,5,rep,name=Input" json:"Input,omitempty"`
+	Output        []*FileLike            `protobuf:"bytes,6,rep,name=Output" json:"Output,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NodeConfig) Reset() {
 	*x = NodeConfig{}
-	mi := &file_internal_graph_config_proto_msgTypes[3]
+	mi := &file_internal_graph_config_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -442,7 +488,7 @@ func (x *NodeConfig) String() string {
 func (*NodeConfig) ProtoMessage() {}
 
 func (x *NodeConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_graph_config_proto_msgTypes[3]
+	mi := &file_internal_graph_config_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -455,7 +501,7 @@ func (x *NodeConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeConfig.ProtoReflect.Descriptor instead.
 func (*NodeConfig) Descriptor() ([]byte, []int) {
-	return file_internal_graph_config_proto_rawDescGZIP(), []int{3}
+	return file_internal_graph_config_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *NodeConfig) GetId() uint64 {
@@ -486,6 +532,20 @@ func (x *NodeConfig) GetPosition() *Position {
 	return nil
 }
 
+func (x *NodeConfig) GetInput() []*FileLike {
+	if x != nil {
+		return x.Input
+	}
+	return nil
+}
+
+func (x *NodeConfig) GetOutput() []*FileLike {
+	if x != nil {
+		return x.Output
+	}
+	return nil
+}
+
 type EdgeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FromNodeId    *uint64                `protobuf:"varint,1,opt,name=FromNodeId" json:"FromNodeId,omitempty"`
@@ -496,7 +556,7 @@ type EdgeConfig struct {
 
 func (x *EdgeConfig) Reset() {
 	*x = EdgeConfig{}
-	mi := &file_internal_graph_config_proto_msgTypes[4]
+	mi := &file_internal_graph_config_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +568,7 @@ func (x *EdgeConfig) String() string {
 func (*EdgeConfig) ProtoMessage() {}
 
 func (x *EdgeConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_graph_config_proto_msgTypes[4]
+	mi := &file_internal_graph_config_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +581,7 @@ func (x *EdgeConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EdgeConfig.ProtoReflect.Descriptor instead.
 func (*EdgeConfig) Descriptor() ([]byte, []int) {
-	return file_internal_graph_config_proto_rawDescGZIP(), []int{4}
+	return file_internal_graph_config_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *EdgeConfig) GetFromNodeId() uint64 {
@@ -550,7 +610,7 @@ type SyncResponse struct {
 
 func (x *SyncResponse) Reset() {
 	*x = SyncResponse{}
-	mi := &file_internal_graph_config_proto_msgTypes[5]
+	mi := &file_internal_graph_config_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +622,7 @@ func (x *SyncResponse) String() string {
 func (*SyncResponse) ProtoMessage() {}
 
 func (x *SyncResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_graph_config_proto_msgTypes[5]
+	mi := &file_internal_graph_config_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +635,7 @@ func (x *SyncResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncResponse.ProtoReflect.Descriptor instead.
 func (*SyncResponse) Descriptor() ([]byte, []int) {
-	return file_internal_graph_config_proto_rawDescGZIP(), []int{5}
+	return file_internal_graph_config_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SyncResponse) GetType() SyncType {
@@ -616,7 +676,7 @@ type NodeState_IdleState struct {
 
 func (x *NodeState_IdleState) Reset() {
 	*x = NodeState_IdleState{}
-	mi := &file_internal_graph_config_proto_msgTypes[6]
+	mi := &file_internal_graph_config_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -628,7 +688,7 @@ func (x *NodeState_IdleState) String() string {
 func (*NodeState_IdleState) ProtoMessage() {}
 
 func (x *NodeState_IdleState) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_graph_config_proto_msgTypes[6]
+	mi := &file_internal_graph_config_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -667,7 +727,7 @@ type NodeState_InProgressState struct {
 
 func (x *NodeState_InProgressState) Reset() {
 	*x = NodeState_InProgressState{}
-	mi := &file_internal_graph_config_proto_msgTypes[7]
+	mi := &file_internal_graph_config_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +739,7 @@ func (x *NodeState_InProgressState) String() string {
 func (*NodeState_InProgressState) ProtoMessage() {}
 
 func (x *NodeState_InProgressState) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_graph_config_proto_msgTypes[7]
+	mi := &file_internal_graph_config_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,7 +774,7 @@ type NodeState_DoneState struct {
 
 func (x *NodeState_DoneState) Reset() {
 	*x = NodeState_DoneState{}
-	mi := &file_internal_graph_config_proto_msgTypes[8]
+	mi := &file_internal_graph_config_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -726,7 +786,7 @@ func (x *NodeState_DoneState) String() string {
 func (*NodeState_DoneState) ProtoMessage() {}
 
 func (x *NodeState_DoneState) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_graph_config_proto_msgTypes[8]
+	mi := &file_internal_graph_config_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,13 +867,17 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"\x05Edges\x18\x02 \x03(\v2\x11.graph.EdgeConfigR\x05Edges\"&\n" +
 	"\bPosition\x12\f\n" +
 	"\x01X\x18\x01 \x01(\x05R\x01X\x12\f\n" +
-	"\x01Y\x18\x02 \x01(\x05R\x01Y\"\x85\x01\n" +
+	"\x01Y\x18\x02 \x01(\x05R\x01Y\"\x1e\n" +
+	"\bFileLike\x12\x12\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path\"\xd5\x01\n" +
 	"\n" +
 	"NodeConfig\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x04R\x02Id\x12\x12\n" +
 	"\x04Name\x18\x02 \x01(\tR\x04Name\x12&\n" +
 	"\x03Job\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x03Job\x12+\n" +
-	"\bPosition\x18\x04 \x01(\v2\x0f.graph.PositionR\bPosition\"H\n" +
+	"\bPosition\x18\x04 \x01(\v2\x0f.graph.PositionR\bPosition\x12%\n" +
+	"\x05Input\x18\x05 \x03(\v2\x0f.graph.FileLikeR\x05Input\x12'\n" +
+	"\x06Output\x18\x06 \x03(\v2\x0f.graph.FileLikeR\x06Output\"H\n" +
 	"\n" +
 	"EdgeConfig\x12\x1e\n" +
 	"\n" +
@@ -849,7 +913,7 @@ func file_internal_graph_config_proto_rawDescGZIP() []byte {
 }
 
 var file_internal_graph_config_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_internal_graph_config_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_internal_graph_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_internal_graph_config_proto_goTypes = []any{
 	(SyncType)(0),                                   // 0: graph.SyncType
 	(NodeState_IdleState_IdlePlan)(0),               // 1: graph.NodeState.IdleState.IdlePlan
@@ -857,33 +921,36 @@ var file_internal_graph_config_proto_goTypes = []any{
 	(*NodeState)(nil),                               // 3: graph.NodeState
 	(*Config)(nil),                                  // 4: graph.Config
 	(*Position)(nil),                                // 5: graph.Position
-	(*NodeConfig)(nil),                              // 6: graph.NodeConfig
-	(*EdgeConfig)(nil),                              // 7: graph.EdgeConfig
-	(*SyncResponse)(nil),                            // 8: graph.SyncResponse
-	(*NodeState_IdleState)(nil),                     // 9: graph.NodeState.IdleState
-	(*NodeState_InProgressState)(nil),               // 10: graph.NodeState.InProgressState
-	(*NodeState_DoneState)(nil),                     // 11: graph.NodeState.DoneState
-	(*any1.Any)(nil),                                // 12: google.protobuf.Any
+	(*FileLike)(nil),                                // 6: graph.FileLike
+	(*NodeConfig)(nil),                              // 7: graph.NodeConfig
+	(*EdgeConfig)(nil),                              // 8: graph.EdgeConfig
+	(*SyncResponse)(nil),                            // 9: graph.SyncResponse
+	(*NodeState_IdleState)(nil),                     // 10: graph.NodeState.IdleState
+	(*NodeState_InProgressState)(nil),               // 11: graph.NodeState.InProgressState
+	(*NodeState_DoneState)(nil),                     // 12: graph.NodeState.DoneState
+	(*any1.Any)(nil),                                // 13: google.protobuf.Any
 }
 var file_internal_graph_config_proto_depIdxs = []int32{
-	9,  // 0: graph.NodeState.Idle:type_name -> graph.NodeState.IdleState
-	10, // 1: graph.NodeState.InProgress:type_name -> graph.NodeState.InProgressState
-	11, // 2: graph.NodeState.Done:type_name -> graph.NodeState.DoneState
-	6,  // 3: graph.Config.Nodes:type_name -> graph.NodeConfig
-	7,  // 4: graph.Config.Edges:type_name -> graph.EdgeConfig
-	12, // 5: graph.NodeConfig.Job:type_name -> google.protobuf.Any
+	10, // 0: graph.NodeState.Idle:type_name -> graph.NodeState.IdleState
+	11, // 1: graph.NodeState.InProgress:type_name -> graph.NodeState.InProgressState
+	12, // 2: graph.NodeState.Done:type_name -> graph.NodeState.DoneState
+	7,  // 3: graph.Config.Nodes:type_name -> graph.NodeConfig
+	8,  // 4: graph.Config.Edges:type_name -> graph.EdgeConfig
+	13, // 5: graph.NodeConfig.Job:type_name -> google.protobuf.Any
 	5,  // 6: graph.NodeConfig.Position:type_name -> graph.Position
-	0,  // 7: graph.SyncResponse.Type:type_name -> graph.SyncType
-	6,  // 8: graph.SyncResponse.NodeConfig:type_name -> graph.NodeConfig
-	3,  // 9: graph.SyncResponse.NodeState:type_name -> graph.NodeState
-	7,  // 10: graph.SyncResponse.EdgeConfig:type_name -> graph.EdgeConfig
-	1,  // 11: graph.NodeState.IdleState.Plan:type_name -> graph.NodeState.IdleState.IdlePlan
-	2,  // 12: graph.NodeState.InProgressState.Status:type_name -> graph.NodeState.InProgressState.InProgressStatus
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	6,  // 7: graph.NodeConfig.Input:type_name -> graph.FileLike
+	6,  // 8: graph.NodeConfig.Output:type_name -> graph.FileLike
+	0,  // 9: graph.SyncResponse.Type:type_name -> graph.SyncType
+	7,  // 10: graph.SyncResponse.NodeConfig:type_name -> graph.NodeConfig
+	3,  // 11: graph.SyncResponse.NodeState:type_name -> graph.NodeState
+	8,  // 12: graph.SyncResponse.EdgeConfig:type_name -> graph.EdgeConfig
+	1,  // 13: graph.NodeState.IdleState.Plan:type_name -> graph.NodeState.IdleState.IdlePlan
+	2,  // 14: graph.NodeState.InProgressState.Status:type_name -> graph.NodeState.InProgressState.InProgressStatus
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_internal_graph_config_proto_init() }
@@ -902,7 +969,7 @@ func file_internal_graph_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_graph_config_proto_rawDesc), len(file_internal_graph_config_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
