@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/graph/config.proto.
  */
 export const file_internal_graph_config: GenFile = /*@__PURE__*/
-  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIqsECglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAagQEKCUlkbGVTdGF0ZRIPCgdJc1JlYWR5GAEgASgIEjEKBFBsYW4YAiABKA4yIy5ncmFwaC5Ob2RlU3RhdGUuSWRsZVN0YXRlLklkbGVQbGFuIjAKCElkbGVQbGFuEggKBE5vbmUQABINCglTY2hlZHVsZWQQARILCgdTa2lwcGVkEAIaoAEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiSgoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhIMCghTa2lwcGluZxADGlIKCURvbmVTdGF0ZRINCgVFcnJvchgBIAEoCRIRCglJc1N0b3BwZWQYAyACKAgSEQoJSXNTa2lwcGVkGAQgAigIEhAKCEZyb21JZGxlGAUgASgIQgcKBVN0YXRlIkwKBkNvbmZpZxIgCgVOb2RlcxgBIAMoCzIRLmdyYXBoLk5vZGVDb25maWcSIAoFRWRnZXMYAiADKAsyES5ncmFwaC5FZGdlQ29uZmlnIiAKCFBvc2l0aW9uEgkKAVgYASABKAUSCQoBWRgCIAEoBSIYCghGaWxlTGlrZRIMCgRQYXRoGAEgASgJIq0BCgpOb2RlQ29uZmlnEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAkSIQoDSm9iGAMgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueRIhCghQb3NpdGlvbhgEIAEoCzIPLmdyYXBoLlBvc2l0aW9uEh4KBUlucHV0GAUgAygLMg8uZ3JhcGguRmlsZUxpa2USHwoGT3V0cHV0GAYgAygLMg8uZ3JhcGguRmlsZUxpa2UiMgoKRWRnZUNvbmZpZxISCgpGcm9tTm9kZUlkGAEgASgEEhAKCFRvTm9kZUlkGAIgASgEIqABCgxTeW5jUmVzcG9uc2USHQoEVHlwZRgBIAEoDjIPLmdyYXBoLlN5bmNUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypQCghTeW5jVHlwZRIMCghJbml0Tm9kZRABEgwKCEluaXRFZGdlEAISDAoISW5pdERvbmUQAxIPCgtVcGRhdGVTdGF0ZRAEEgkKBVJlc2V0EAVCGloYcGlwZWdyYXBoL2ludGVybmFsL2dyYXBo", [file_google_protobuf_any]);
+  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIqsECglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAagQEKCUlkbGVTdGF0ZRIPCgdJc1JlYWR5GAEgASgIEjEKBFBsYW4YAiABKA4yIy5ncmFwaC5Ob2RlU3RhdGUuSWRsZVN0YXRlLklkbGVQbGFuIjAKCElkbGVQbGFuEggKBE5vbmUQABINCglTY2hlZHVsZWQQARILCgdTa2lwcGVkEAIaoAEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiSgoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhIMCghTa2lwcGluZxADGlIKCURvbmVTdGF0ZRINCgVFcnJvchgBIAEoCRIRCglJc1N0b3BwZWQYAyACKAgSEQoJSXNTa2lwcGVkGAQgAigIEhAKCEZyb21JZGxlGAUgASgIQgcKBVN0YXRlIkwKBkNvbmZpZxIgCgVOb2RlcxgBIAMoCzIRLmdyYXBoLk5vZGVDb25maWcSIAoFRWRnZXMYAiADKAsyES5ncmFwaC5FZGdlQ29uZmlnIiAKCFBvc2l0aW9uEgkKAVgYASABKAUSCQoBWRgCIAEoBSKNAQoKTm9kZUNvbmZpZxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEiEKA0pvYhgDIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSIQoIUG9zaXRpb24YBCABKAsyDy5ncmFwaC5Qb3NpdGlvbhIOCgZJbnB1dHMYBSADKAkSDwoHT3V0cHV0cxgGIAMoCSJUCgpFZGdlQ29uZmlnEhIKCkZyb21Ob2RlSWQYASABKAQSEAoIVG9Ob2RlSWQYAiABKAQSEAoIRnJvbUZpbGUYAyABKAkSDgoGVG9GaWxlGAQgASgJIqABCgxTeW5jUmVzcG9uc2USHQoEVHlwZRgBIAEoDjIPLmdyYXBoLlN5bmNUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypQCghTeW5jVHlwZRIMCghJbml0Tm9kZRABEgwKCEluaXRFZGdlEAISDAoISW5pdERvbmUQAxIPCgtVcGRhdGVTdGF0ZRAEEgkKBVJlc2V0EAVCGloYcGlwZWdyYXBoL2ludGVybmFsL2dyYXBo", [file_google_protobuf_any]);
 
 /**
  * @generated from message graph.NodeState
@@ -229,23 +229,6 @@ export const PositionSchema: GenMessage<Position> = /*@__PURE__*/
   messageDesc(file_internal_graph_config, 2);
 
 /**
- * @generated from message graph.FileLike
- */
-export type FileLike = Message<"graph.FileLike"> & {
-  /**
-   * @generated from field: optional string Path = 1;
-   */
-  Path: string;
-};
-
-/**
- * Describes the message graph.FileLike.
- * Use `create(FileLikeSchema)` to create a new message.
- */
-export const FileLikeSchema: GenMessage<FileLike> = /*@__PURE__*/
-  messageDesc(file_internal_graph_config, 3);
-
-/**
  * @generated from message graph.NodeConfig
  */
 export type NodeConfig = Message<"graph.NodeConfig"> & {
@@ -270,14 +253,14 @@ export type NodeConfig = Message<"graph.NodeConfig"> & {
   Position?: Position;
 
   /**
-   * @generated from field: repeated graph.FileLike Input = 5;
+   * @generated from field: repeated string Inputs = 5;
    */
-  Input: FileLike[];
+  Inputs: string[];
 
   /**
-   * @generated from field: repeated graph.FileLike Output = 6;
+   * @generated from field: repeated string Outputs = 6;
    */
-  Output: FileLike[];
+  Outputs: string[];
 };
 
 /**
@@ -285,7 +268,7 @@ export type NodeConfig = Message<"graph.NodeConfig"> & {
  * Use `create(NodeConfigSchema)` to create a new message.
  */
 export const NodeConfigSchema: GenMessage<NodeConfig> = /*@__PURE__*/
-  messageDesc(file_internal_graph_config, 4);
+  messageDesc(file_internal_graph_config, 3);
 
 /**
  * @generated from message graph.EdgeConfig
@@ -300,6 +283,16 @@ export type EdgeConfig = Message<"graph.EdgeConfig"> & {
    * @generated from field: optional uint64 ToNodeId = 2;
    */
   ToNodeId: bigint;
+
+  /**
+   * @generated from field: optional string FromFile = 3;
+   */
+  FromFile: string;
+
+  /**
+   * @generated from field: optional string ToFile = 4;
+   */
+  ToFile: string;
 };
 
 /**
@@ -307,7 +300,7 @@ export type EdgeConfig = Message<"graph.EdgeConfig"> & {
  * Use `create(EdgeConfigSchema)` to create a new message.
  */
 export const EdgeConfigSchema: GenMessage<EdgeConfig> = /*@__PURE__*/
-  messageDesc(file_internal_graph_config, 5);
+  messageDesc(file_internal_graph_config, 4);
 
 /**
  * @generated from message graph.SyncResponse
@@ -339,7 +332,7 @@ export type SyncResponse = Message<"graph.SyncResponse"> & {
  * Use `create(SyncResponseSchema)` to create a new message.
  */
 export const SyncResponseSchema: GenMessage<SyncResponse> = /*@__PURE__*/
-  messageDesc(file_internal_graph_config, 6);
+  messageDesc(file_internal_graph_config, 5);
 
 /**
  * @generated from enum graph.SyncType

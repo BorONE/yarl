@@ -48,8 +48,6 @@
     border: 1px solid #ededed;
     color: var(--xy-node-color, var(--xy-node-color-default));
     transition: border-color 0.25s;
-    height: 20px;
-    width: 100px;
   }
   
   .react-flow__node.selectable:focus {

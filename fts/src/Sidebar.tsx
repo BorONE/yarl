@@ -1,7 +1,7 @@
 import React, { useCallback, useState, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
-import { FileLikeSchema, NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
+import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
@@ -31,7 +31,6 @@ import { buildNode } from './misc';
 import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
 import JobEditor from './JobEditor';
 import { Textarea } from './components/ui/textarea';
-import { ArtsSchema } from './gen/internal/api/api_pb';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 
 
@@ -162,7 +161,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             if (!nd.selected) {
                 return nd
             }
-            const editedConfig : NodeConfig = { ...nd.data.config, ...create(NodeConfigSchema, configPatch) }
+            const editedConfig = { ...nd.data.config, ...configPatch } as NodeConfig
             client.node.edit(editedConfig)
             return buildNode(editedConfig, nd.data.state, true)
         })
@@ -200,9 +199,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
     })
 
     const onIOChange = (change: React.ChangeEvent<HTMLTextAreaElement>, target: string) => {
-        const files = change.target.value.split("\n").map(path => ({Path: path}))
-        console.log(target, files)
-        patchConfigOfSelected({ [target]: files })
+        patchConfigOfSelected({ [target]: change.target.value.split("\n").filter(value => value.length > 0) })
     }
 
     return <aside>
@@ -229,8 +226,8 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                         <Textarea
                             placeholder={"input.txt\nconfig.pb"}
                             id="input-files"
-                            onChange={change => onIOChange(change, 'Input')}
-                            value={selectedNode.data.config.Input.map(fl => fl.Path).join("\n")}
+                            onChange={change => onIOChange(change, 'Inputs')}
+                            value={selectedNode.data.config.Inputs.join("\n")}
                             />
                     </div>
                     <div className="grid w-full gap-3" style={{marginBottom: 10}}>
@@ -238,8 +235,8 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                         <Textarea
                             placeholder={"output.txt\nresult.pb"}
                             id="output-files"
-                            onChange={change => onIOChange(change, 'Output')}
-                            value={selectedNode.data.config.Output.map(fl => fl.Path).join("\n")}
+                            onChange={change => onIOChange(change, 'Outputs')}
+                            value={selectedNode.data.config.Outputs.join("\n")}
                             />
                     </div>
                     <p className="text-muted-foreground text-sm">

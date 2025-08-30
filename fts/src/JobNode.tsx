@@ -66,9 +66,10 @@ export default memo(({ data } : { data: NodeData }) => {
     }
 
     const genFirstButton = () => {
+        const magicOffset = 2
         const style : React.CSSProperties = {
             ...extraButtonStyle,
-            top: 20 - borderWidth + extraButtonSizeOffset / 2,
+            top: - borderWidth + extraButtonSizeOffset / 2 + magicOffset,
             left: 20 - borderWidth + extraButtonSizeOffset / 2,
         }
         const state : config.NodeState = data.state
@@ -193,7 +194,7 @@ export default memo(({ data } : { data: NodeData }) => {
             style={{
                 position: 'absolute',
                 left: 0,
-                top: 20-borderWidth,
+                bottom: -20 - borderWidth,
                 height: 20,
                 width: 20,
                 visibility: hasExtraButtons() ? "visible" : "hidden"
@@ -202,7 +203,7 @@ export default memo(({ data } : { data: NodeData }) => {
             <img src={moreIcon}/>
         </div>
         
-        <div className='extra-buttons' style={{position: "absolute", top: 0, left: 0}}>
+        <div className='extra-buttons' style={{position: "absolute", bottom: 0, left: 0}}>
             {genFirstButton()}
         </div>
 
@@ -212,6 +213,56 @@ export default memo(({ data } : { data: NodeData }) => {
 
         <Handle type="target" position={Position.Left} style={{position: "absolute", top: "9px", left: '-1px'}}/>
         <Handle type="source" position={Position.Right} style={{position: "absolute", top: "9px", right: '-1px'}}/>
+
+        {
+            data.config.Inputs.map((file, i) => <div key={i}>
+                <div style={{
+                    fontSize: 8,
+                    position: "absolute",
+                    top: 9 + 20 * (i + 1) - 6,
+                    left: -1 + 5,
+                    color: "#888",
+                }}>
+                    {file}
+                </div>
+                <Handle
+                    type="target"
+                    position={Position.Left}
+                    style={{
+                        position: "absolute",
+                        top: 9 + 20 * (i + 1),
+                        left: -1,
+                        backgroundColor: "#888",
+                    }}
+                    id={file}
+                    />
+            </div>)
+        }
+
+        {
+            data.config.Outputs.map((file, i) => <div key={i}>
+                <div style={{
+                    fontSize: 8,
+                    position: "absolute",
+                    top: 9 + 20 * (i + 1) - 6,
+                    right: -1 + 5,
+                    color: "#888",
+                }}>
+                    {file}
+                </div>
+                <Handle
+                    type="source"
+                    position={Position.Right}
+                    style={{
+                        position: "absolute",
+                        top: 9 + 20 * (i + 1),
+                        right: -1,
+                        backgroundColor: "#888",
+                    }}
+                    id={file}
+                    />
+            </div>)
+        }
     </>
 });
 

@@ -12,6 +12,7 @@ export function isReady(state: config.NodeState) {
 }
 
 export function buildNode(config: config.NodeConfig, state: config.NodeState, selected?: boolean) {
+  const ioLength = config.Inputs.length > config.Outputs.length ? config.Inputs.length : config.Outputs.length
   var node : Node = {
     id: `${config.Id}`,
     type: 'JobNode',
@@ -25,6 +26,8 @@ export function buildNode(config: config.NodeConfig, state: config.NodeState, se
     targetPosition: Position.Left,
     selected,
     ...nodeInitParams,
+    height: 20 + 20 * ioLength,
+    width: 100,
   }
   node.style = {
     ...node.style,

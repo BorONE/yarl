@@ -24,7 +24,7 @@ func (j *BashJob) reset() {
 	j.kill = func() {}
 }
 
-func (j *BashJob) Run(ctx job.RunContext) error {
+func (j *BashJob) Run(ctx *job.RunContext) error {
 	j.cmd, j.kill = job.NewCommandWithKill("/bin/sh", j.args...)
 
 	j.cmd.Dir = ctx.Dir

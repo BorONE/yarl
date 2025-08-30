@@ -12,7 +12,7 @@ type RunContext struct {
 }
 
 type Job interface {
-	Run(ctx RunContext) error
+	Run(ctx *RunContext) error
 	Kill() error
 	CollectArtifacts() map[string]string
 }

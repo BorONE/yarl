@@ -2,11 +2,13 @@ package graph
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
+	"slices"
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -47,13 +49,9 @@ func (node *Node) Run() error {
 		return fmt.Errorf("job creation failed: %s", err.Error())
 	}
 
-	ctx := job.RunContext{
-		Dir: path.Join("/home/bor1-ss/.yarl/nodes", fmt.Sprint(node.Config.GetId())),
-	}
-
-	err = os.MkdirAll(ctx.Dir, 0777)
+	ctx, err := node.prepareRunContext()
 	if err != nil {
-		return fmt.Errorf("failed to prepare context for node execution: %v", err)
+		return fmt.Errorf("job context preparation failed: %v", err)
 	}
 
 	log.Printf("job(id=%v) is starting...", node.Config.GetId())
@@ -85,6 +83,57 @@ func (node *Node) Run() error {
 		node.DoneEvent.Trigger()
 	}()
 	return nil
+}
+
+const YARL_ROOT = "/home/bor1-ss/.yarl/nodes"
+
+func (node *Node) prepareRunContext() (*job.RunContext, error) {
+	ctx := &job.RunContext{
+		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
+	}
+
+	err := os.MkdirAll(ctx.Dir, 0777)
+	if err != nil {
+		return nil, fmt.Errorf("mkdir failed: %v", err)
+	}
+
+	for _, input := range node.Config.Inputs {
+		isInputEdge := func(e *EdgeConfig) bool { return e.GetToNodeId() == node.Config.GetId() && e.GetToFile() == input }
+		inputEdgeIndex := slices.IndexFunc(node.graph.Config.Edges, isInputEdge)
+		if inputEdgeIndex == -1 {
+			return nil, fmt.Errorf("missing edge for input: %v", input)
+		}
+
+		err := copyEdgeFile(node.graph.Config.Edges[inputEdgeIndex])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ctx, nil
+}
+
+func copyEdgeFile(edge *EdgeConfig) error {
+	srcPath := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), edge.GetFromFile())
+	dstPath := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), edge.GetToFile())
+	return copyFile(dstPath, srcPath)
+}
+
+func copyFile(dstPath, srcPath string) error {
+	srcFile, err := os.Open(srcPath)
+	if err != nil {
+		return err
+	}
+	dstFile, err := os.Create(dstPath)
+	if err != nil {
+		return err
+	}
+	io.Copy(dstFile, srcFile)
+	return nil
+}
+
+func (node *Node) resetRunContext() error {
+	return os.RemoveAll(path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())))
 }
 
 func (node *Node) Plan(plan NodeState_IdleState_IdlePlan) error {
@@ -143,6 +192,7 @@ func (node *Node) Reset() error {
 	}
 
 	node.SetState(&NodeState_IdleState{})
+	node.resetRunContext()
 	node.Job = nil
 
 	for _, outputId := range node.Output {

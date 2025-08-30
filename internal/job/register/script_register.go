@@ -28,7 +28,7 @@ func (j *ScriptJob) reset() {
 	j.kill = func() {}
 }
 
-func (j *ScriptJob) Run(ctx job.RunContext) error {
+func (j *ScriptJob) Run(ctx *job.RunContext) error {
 	filename := "script"
 	filepath := path.Join(ctx.Dir, filename)
 

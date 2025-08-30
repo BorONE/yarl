@@ -54,19 +54,19 @@ func (graph *Graph) CollectNodeStates() []*NodeState {
 
 func isEdgeEqualsFunc(edge *EdgeConfig) func(e *EdgeConfig) bool {
 	return func(e *EdgeConfig) bool {
-		return *e.FromNodeId == *edge.FromNodeId && *e.ToNodeId == *edge.ToNodeId
+		return prototext.Format(edge) == prototext.Format(e)
 	}
 }
 
-func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (*Node, *Node, error) {
+func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (from *Node, to *Node, isFileConnection bool, err error) {
 	from, ok := graph.Nodes[NodeId(*edge.FromNodeId)]
 	if !ok {
-		return nil, nil, fmt.Errorf("from node (id=%v) does not exist", *edge.FromNodeId)
+		return nil, nil, false, fmt.Errorf("from node (id=%v) does not exist", *edge.FromNodeId)
 	}
 
-	to, ok := graph.Nodes[NodeId(*edge.ToNodeId)]
+	to, ok = graph.Nodes[NodeId(*edge.ToNodeId)]
 	if !ok {
-		return nil, nil, fmt.Errorf("to node (id=%v) does not exist", *edge.ToNodeId)
+		return nil, nil, false, fmt.Errorf("to node (id=%v) does not exist", *edge.ToNodeId)
 	}
 
 	if slices.ContainsFunc(graph.Config.Edges, isEdgeEqualsFunc(edge)) != existing {
@@ -76,20 +76,26 @@ func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (*Node, *Node,
 		} else {
 			errorFormat = "edge {%v} already exists"
 		}
-		return nil, nil, fmt.Errorf(errorFormat, prototext.MarshalOptions{}.Format(edge))
+		return nil, nil, false, fmt.Errorf(errorFormat, prototext.MarshalOptions{}.Format(edge))
 	}
 
-	return from, to, nil
+	if (edge.FromFile == nil) != (edge.ToFile == nil) {
+		return nil, nil, false, fmt.Errorf("invalid edge: source target type mismatch (file-node connection)")
+	}
+
+	return from, to, edge.FromFile != nil, nil
 }
 
 func (graph *Graph) Connect(edge *EdgeConfig) error {
-	from, to, err := graph.getEdgeNodes(edge, false)
+	from, to, isFile, err := graph.getEdgeNodes(edge, false)
 	if err != nil {
 		return err
 	}
 
-	to.Input = append(to.Input, NodeId(*edge.FromNodeId))
-	from.Output = append(from.Output, NodeId(*edge.ToNodeId))
+	if !isFile {
+		to.Input = append(to.Input, NodeId(*edge.FromNodeId))
+		from.Output = append(from.Output, NodeId(*edge.ToNodeId))
+	}
 	graph.Config.Edges = append(graph.Config.Edges, edge)
 
 	to.OnInputChange()
@@ -98,13 +104,15 @@ func (graph *Graph) Connect(edge *EdgeConfig) error {
 }
 
 func (graph *Graph) Disconnect(edge *EdgeConfig) error {
-	from, to, err := graph.getEdgeNodes(edge, true)
+	from, to, isFile, err := graph.getEdgeNodes(edge, true)
 	if err != nil {
 		return err
 	}
 
-	to.Input = slices.DeleteFunc(to.Input, func(id NodeId) bool { return id == NodeId(*edge.FromNodeId) })
-	from.Output = slices.DeleteFunc(from.Output, func(id NodeId) bool { return id == NodeId(*edge.ToNodeId) })
+	if !isFile {
+		to.Input = slices.DeleteFunc(to.Input, func(id NodeId) bool { return id == NodeId(*edge.FromNodeId) })
+		from.Output = slices.DeleteFunc(from.Output, func(id NodeId) bool { return id == NodeId(*edge.ToNodeId) })
+	}
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
 
 	to.OnInputChange()

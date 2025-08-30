@@ -35,7 +35,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { createBinary } from './util';
+import { convertConnectionToEdge, createBinary } from './util';
 import { Input } from './components/ui/input';
 
 import {
@@ -85,7 +85,12 @@ function Flow() {
   );
   const onConnect: OnConnect = useCallback(
     async (connection) => {
-      client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
+      const isValidConnection = (connection.sourceHandle === null) == (connection.targetHandle === null)
+      if (!isValidConnection) {
+        return
+      }
+
+      client.graph.connect(convertConnectionToEdge(connection))
       setEdges((eds) => {
         const node = nodes.find(nd => nd.id == connection.source) as Node
         return addEdge({...connection, animated: !isReady(node.data.state)}, eds)
@@ -95,7 +100,7 @@ function Flow() {
   );
   const onDisconnect = useCallback(
     async (connection: Edge) => {
-      client.graph.disconnect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
+      client.graph.disconnect(convertConnectionToEdge(connection))
       setEdges((eds) => eds.filter((ed) => ed != connection))
     },
     [setEdges],

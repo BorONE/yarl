@@ -5,6 +5,7 @@ import {
 import * as config from './gen/internal/graph/config_pb'
 import { buildNode, isReady } from './misc';
 import type { Node } from './JobNode';
+import { convertEdgeToConnection } from './util';
 
 enum SyncerState {
   init = 0,
@@ -47,12 +48,7 @@ export class Syncer {
         const state = this.initialGraph.nodes
           .map(node => node.data.state)
           .find((state) => state.Id == BigInt(edge.FromNodeId)) as config.NodeState
-        this.initialGraph.edges.push({
-          id: `${edge.FromNodeId}-${edge.ToNodeId}`,
-          source: `${edge.FromNodeId}`,
-          target: `${edge.ToNodeId}`,
-          animated: !isReady(state),
-        })
+        this.initialGraph.edges.push(convertEdgeToConnection(edge, state))
         break
       }
       case config.SyncType.InitDone: {
