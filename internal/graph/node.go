@@ -101,7 +101,7 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 		isInputEdge := func(e *EdgeConfig) bool { return e.GetToNodeId() == node.Config.GetId() && e.GetToFile() == input }
 		inputEdgeIndex := slices.IndexFunc(node.graph.Config.Edges, isInputEdge)
 		if inputEdgeIndex == -1 {
-			return nil, fmt.Errorf("missing edge for input: %v", input)
+			continue
 		}
 
 		err := copyEdgeFile(node.graph.Config.Edges[inputEdgeIndex])
