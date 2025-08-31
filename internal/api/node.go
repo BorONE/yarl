@@ -30,6 +30,12 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
+	err := node.Run()
+	if err != nil {
+		log.Printf("node{%v}.Run() failed: %v\n", prototext.MarshalOptions{}.Format(id), err)
+	}
+	return nil, err
+
 	return nil, node.Run()
 }
 
@@ -55,6 +61,7 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 		if state.Idle.GetIsReady() {
 			err := nodeToSchedule.Run()
 			if err != nil {
+				log.Printf("node{Id: %v}.Run() failed: %v\n", nodeToSchedule.Config.GetId(), err)
 				return nil, err
 			}
 		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {

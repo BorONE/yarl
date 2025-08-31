@@ -1,7 +1,7 @@
 import React, { useCallback, useState, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
-import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
+import { type NodeConfig } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
@@ -51,6 +51,26 @@ type Context = {
 
 const jobInfos : JobInfo[] = [
     {
+        type: 'Script',
+        typeUrl: "type.googleapis.com/register.ScriptConfig",
+        schema: ScriptConfigSchema,
+        init: create(ScriptConfigSchema, {
+            Source: [
+                "#!/bin/bash",
+                "echo 'hello yarl'",
+            ],
+        }),
+        editor: (job: ScriptConfig, ctx: Context) => {
+            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
+            return <JobEditor
+                job={job}
+                onChange={ctx.onJobChange}
+                schema={info.schema}
+                init={info.init}
+            />
+        }
+    },
+    {
         type: 'ShellCommand',
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
         schema: ShellCommandConfigSchema,
@@ -76,27 +96,9 @@ const jobInfos : JobInfo[] = [
         editor: (_job: ShellCommandConfig, _ctx: Context) => <>Not implemented</>,
         disabled: true
     },
-    {
-        type: 'Script',
-        typeUrl: "type.googleapis.com/register.ScriptConfig",
-        schema: ScriptConfigSchema,
-        init: create(ScriptConfigSchema, {
-            Source: [
-                "#!/bin/bash",
-                "echo 'hello yarl'",
-            ],
-        }),
-        editor: (job: ScriptConfig, ctx: Context) => {
-            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
-            return <JobEditor
-                job={job}
-                onChange={ctx.onJobChange}
-                schema={info.schema}
-                init={info.init}
-            />
-        }
-    },
 ]
+
+export const defaultJobInfo = jobInfos[0]
 
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void }) => {

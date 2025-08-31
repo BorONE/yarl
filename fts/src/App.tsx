@@ -18,7 +18,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import Sidebar from './Sidebar';
+import Sidebar, { defaultJobInfo } from './Sidebar';
 
 import JobNode, { type Node } from './JobNode';
 
@@ -27,15 +27,14 @@ import * as client from './client'
 import * as config from './gen/internal/graph/config_pb'
 import { create } from '@bufbuild/protobuf';
 import { NodeConfigSchema, NodeStateSchema } from './gen/internal/graph/config_pb';
-import { ShellCommandConfigSchema } from './gen/internal/job/register/shell_pb';
-import { AnySchema } from '@bufbuild/protobuf/wkt';
+import { anyPack } from '@bufbuild/protobuf/wkt';
 
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { canonizeConnection, convertConnectionToEdge, createBinary } from './util';
+import { canonizeConnection, convertConnectionToEdge } from './util';
 import { Input } from './components/ui/input';
 
 import {
@@ -48,7 +47,7 @@ import {
 } from "@/components/ui/menubar"
 
 import { Syncer } from './syncer';
-import { buildNode, getBorderColor, isReady } from './misc';
+import { buildNode, getBorderColor } from './misc';
 
 import Cookies from 'universal-cookie';
 
@@ -119,10 +118,7 @@ function Flow() {
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
       Name: "",
-      Job: create(AnySchema, {
-        typeUrl: "type.googleapis.com/register.ShellCommandConfig",
-        value: createBinary(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }),
-      }),
+      Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
       Position: { X: 0, Y: 0 },
     })
     const response = await client.node.add(config);

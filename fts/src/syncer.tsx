@@ -3,7 +3,7 @@ import {
     type Edge,
 } from '@xyflow/react';
 import * as config from './gen/internal/graph/config_pb'
-import { buildNode, isReady } from './misc';
+import { buildNode } from './misc';
 import type { Node } from './JobNode';
 import { canonizeConnection, convertEdgeToConnection } from './util';
 
@@ -64,7 +64,7 @@ export class Syncer {
     switch (update.Type) {
       case config.SyncType.UpdateState: {
         this.setNodes((nds: Node[]) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState, nd.selected) : nd))
-        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? canonizeConnection(ed) : ed))
+        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? canonizeConnection(ed, update.NodeState) : ed))
         break
       }
       case config.SyncType.Reset: {

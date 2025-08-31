@@ -2,9 +2,9 @@ package graph
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
@@ -92,7 +92,12 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
 	}
 
-	err := os.MkdirAll(ctx.Dir, 0777)
+	err := os.RemoveAll(ctx.Dir)
+	if err != nil {
+		return nil, fmt.Errorf("rmdir failed: %v", err)
+	}
+
+	err = os.MkdirAll(ctx.Dir, 0777)
 	if err != nil {
 		return nil, fmt.Errorf("mkdir failed: %v", err)
 	}
@@ -104,31 +109,25 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 			continue
 		}
 
-		err := copyEdgeFile(node.graph.Config.Edges[inputEdgeIndex])
+		inputEdge := node.graph.Config.Edges[inputEdgeIndex]
+		err := copyEdge(inputEdge)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("copying on edge{%v} failed: %v", prototext.MarshalOptions{}.Format(inputEdge), err)
 		}
 	}
 
 	return ctx, nil
 }
 
-func copyEdgeFile(edge *EdgeConfig) error {
-	srcPath := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), edge.GetFromFile())
-	dstPath := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), edge.GetToFile())
-	return copyFile(dstPath, srcPath)
-}
-
-func copyFile(dstPath, srcPath string) error {
-	srcFile, err := os.Open(srcPath)
+func copyEdge(edge *EdgeConfig) error {
+	src := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), edge.GetFromFile())
+	dst := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), edge.GetToFile())
+	// TODO use more go-like solution
+	cp := exec.Command("cp", "--recursive", src, dst)
+	output, err := cp.CombinedOutput()
 	if err != nil {
-		return err
+		return fmt.Errorf("cp=`%v` failed: err=\"%v\" %v", cp, err, string(output))
 	}
-	dstFile, err := os.Create(dstPath)
-	if err != nil {
-		return err
-	}
-	io.Copy(dstFile, srcFile)
 	return nil
 }
 
@@ -258,6 +257,7 @@ func (node *Node) OnInputChange() {
 		case NodeState_IdleState_Scheduled:
 			err := node.Run()
 			if err != nil {
+				log.Printf("node{Id: %v}.Run() failed: %v\n", node.Config.GetId(), err)
 				// TODO
 			}
 
