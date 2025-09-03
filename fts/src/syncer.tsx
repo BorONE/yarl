@@ -45,10 +45,9 @@ export class Syncer {
       }
       case config.SyncType.InitEdge: {
         const edge = update.EdgeConfig as config.EdgeConfig
-        const state = this.initialGraph.nodes
-          .map(node => node.data.state)
-          .find((state) => state.Id == BigInt(edge.FromNodeId)) as config.NodeState
-        this.initialGraph.edges.push(convertEdgeToConnection(edge, state))
+        const source = this.initialGraph.nodes.find(node => node.data.id == edge.FromNodeId) as Node
+        const target = this.initialGraph.nodes.find(node => node.data.id == edge.ToNodeId) as Node
+        this.initialGraph.edges.push(convertEdgeToConnection(edge, source, target))
         break
       }
       case config.SyncType.InitDone: {

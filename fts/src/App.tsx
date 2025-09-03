@@ -89,7 +89,9 @@ function Flow() {
         return
       }
 
-      client.graph.connect(convertConnectionToEdge(connection))
+      const source = nodes.find(node => node.id == connection.source) as Node
+      const target = nodes.find(node => node.id == connection.target) as Node
+      client.graph.connect(convertConnectionToEdge(connection, source, target))
       setEdges((eds) => {
         const input = nodes.find(nd => nd.id == connection.source) as Node
         return addEdge(canonizeConnection(connection, input.data.state), eds)

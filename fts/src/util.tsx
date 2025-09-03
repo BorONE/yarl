@@ -2,6 +2,7 @@ import { create, toBinary,  type DescMessage, type MessageInitShape } from '@buf
 import * as config from './gen/internal/graph/config_pb'
 import { type Connection, type Edge } from '@xyflow/react';
 import { getBorderColor } from './misc';
+import type { Node } from './JobNode';
 
 export const extractJobType = (typeUrl: string) => {
     const splitted = typeUrl.split('.');
@@ -14,33 +15,46 @@ export function createBinary<Desc extends DescMessage>(schema: Desc, init?: Mess
     return toBinary(schema, create(schema, init))
 }
 
-export function convertEdgeToConnection(edge: config.EdgeConfig, inputState?: config.NodeState): Edge {
-    const connection = {
-        id: `${edge.FromNodeId}-${edge.ToNodeId}:${edge.FromFile ? edge.FromFile : undefined}-${edge.ToFile ? edge.ToFile : undefined}`,
-        source: `${edge.FromNodeId}`,
-        target: `${edge.ToNodeId}`,
-        sourceHandle: edge.FromFile ? edge.FromFile : undefined,
-        targetHandle: edge.ToFile ? edge.ToFile : undefined,
+function isFileEdge(edge: config.EdgeConfig): boolean {
+    if (!!edge.FromFile != !!edge.ToFile) {
+        throw `edge ${edge} is invalid (either both or none ends must be files)`
     }
-    return canonizeConnection(connection, inputState)
+    return !!edge.FromFile
 }
 
-export function convertConnectionToEdge(connection: Edge | Connection): config.EdgeConfig {
+function isFileConnection(connection: Edge | Connection): boolean {
+    if (!!connection.sourceHandle != !!connection.targetHandle) {
+        throw `connection ${connection} is invalid (either both or none ends must be files)`
+    }
+    return !!connection.sourceHandle
+}
+
+export function convertEdgeToConnection(edge: config.EdgeConfig, source: Node, target: Node): Edge {
+    const connection = {
+        source: `${edge.FromNodeId}`,
+        target: `${edge.ToNodeId}`,
+        sourceHandle: isFileEdge(edge) ? `${source.data.config.Outputs.indexOf(edge.FromFile)}` : null,
+        targetHandle: isFileEdge(edge) ? `${target.data.config.Inputs.indexOf(edge.ToFile)}` : null,
+    }
+    return canonizeConnection(connection, source.data.state)
+}
+
+export function convertConnectionToEdge(connection: Edge | Connection, source: Node, target: Node): config.EdgeConfig {
     return create(config.EdgeConfigSchema, {
         FromNodeId: BigInt(connection.source),
-        FromFile: connection.sourceHandle ? connection.sourceHandle : undefined,
+        FromFile: connection.sourceHandle ? source.data.config.Outputs[Number(connection.sourceHandle)] : undefined,
         ToNodeId: BigInt(connection.target),
-        ToFile: connection.targetHandle ? connection.targetHandle : undefined,
+        ToFile: connection.targetHandle ? target.data.config.Inputs[Number(connection.targetHandle)] : undefined,
     })
 }
 
-export function canonizeConnection<T = Edge | Connection>(connection: T, inputState?: config.NodeState) : T {
-    const isFile = !!connection.sourceHandle
-    const nodeEdgeStyle : React.CSSProperties = {
-        stroke: inputState ? getBorderColor(inputState) : undefined,
-    }
-    const fileEdgeStyle : React.CSSProperties = {
-        strokeOpacity: 0.5,
-    }
-    return { ...connection, style: isFile ? fileEdgeStyle : nodeEdgeStyle, animated: isFile }
+export function canonizeConnection(connection: Edge | Connection, inputState?: config.NodeState) : Edge {
+    const isFile = isFileConnection(connection)
+    const style : React.CSSProperties = isFile
+        ? { stroke: inputState ? getBorderColor(inputState) : undefined }
+        : { strokeOpacity: 0.5 }
+    const id = isFile
+        ? `${connection.source}-${connection.target}:${connection.sourceHandle}-${connection.targetHandle}`
+        : `${connection.source}-${connection.target}`
+    return { ...connection, id, style, animated: isFile }
 }
