@@ -8,7 +8,6 @@ import (
 	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
-	"slices"
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -88,13 +87,13 @@ func (node *Node) Run() error {
 const YARL_ROOT = "/home/bor1-ss/.yarl/nodes"
 
 func (node *Node) prepareRunContext() (*job.RunContext, error) {
-	ctx := &job.RunContext{
-		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
+	err := node.resetRunContext()
+	if err != nil {
+		return nil, fmt.Errorf("reset failed: %v", err)
 	}
 
-	err := os.RemoveAll(ctx.Dir)
-	if err != nil {
-		return nil, fmt.Errorf("rmdir failed: %v", err)
+	ctx := &job.RunContext{
+		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
 	}
 
 	err = os.MkdirAll(ctx.Dir, 0777)
@@ -103,16 +102,16 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 	}
 
 	for _, input := range node.Config.Inputs {
-		isInputEdge := func(e *EdgeConfig) bool { return e.GetToNodeId() == node.Config.GetId() && e.GetToFile() == input }
-		inputEdgeIndex := slices.IndexFunc(node.graph.Config.Edges, isInputEdge)
-		if inputEdgeIndex == -1 {
-			continue
-		}
+		for _, edge := range node.graph.Config.Edges {
+			isInputEdge := edge.GetToNodeId() == node.Config.GetId() && edge.GetToFile() == input
+			if !isInputEdge {
+				continue
+			}
 
-		inputEdge := node.graph.Config.Edges[inputEdgeIndex]
-		err := copyEdge(inputEdge)
-		if err != nil {
-			return nil, fmt.Errorf("copying on edge{%v} failed: %v", prototext.MarshalOptions{}.Format(inputEdge), err)
+			err := copyEdge(edge)
+			if err != nil {
+				return nil, fmt.Errorf("copying on edge{%v} failed: %v", prototext.MarshalOptions{}.Format(edge), err)
+			}
 		}
 	}
 
