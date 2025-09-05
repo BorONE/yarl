@@ -51,8 +51,8 @@ export function convertConnectionToEdge(connection: Edge | Connection, source: N
 export function canonizeConnection(connection: Edge | Connection, inputState?: config.NodeState) : Edge {
     const isFile = isFileConnection(connection)
     const style : React.CSSProperties = isFile
-        ? { stroke: inputState ? getBorderColor(inputState) : undefined }
-        : { strokeOpacity: 0.5 }
+        ? { strokeOpacity: 0.5 }
+        : { stroke: inputState ? getBorderColor(inputState) : undefined }
     const id = isFile
         ? `${connection.source}-${connection.target}:${connection.sourceHandle}-${connection.targetHandle}`
         : `${connection.source}-${connection.target}`

@@ -19,7 +19,7 @@ function timeout(ms: number) {
 const renderStream = (key: string, value: string) => {
     return <div className="grid w-full gap-3" style={{padding: 5}}>
         <Label htmlFor={key}>{key}</Label>
-        <Textarea id={key} readOnly={true} value={value} style={{fontFamily: "monospace"}}/>
+        <Textarea id={key} readOnly={true} value={value} style={{fontFamily: "monospace"}} wrap="off" />
     </div>
 }
 

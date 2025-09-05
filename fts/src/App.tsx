@@ -101,10 +101,12 @@ function Flow() {
   );
   const onDisconnect = useCallback(
     async (connection: Edge) => {
-      client.graph.disconnect(convertConnectionToEdge(connection))
+      const source = nodes.find(node => node.id == connection.source) as Node
+      const target = nodes.find(node => node.id == connection.target) as Node
+      client.graph.disconnect(convertConnectionToEdge(connection, source, target))
       setEdges((eds) => eds.filter((ed) => ed != connection))
     },
-    [setEdges],
+    [nodes, setEdges],
   );
  
   const newGraph = useCallback(() => {
