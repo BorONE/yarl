@@ -8,6 +8,7 @@ import (
 	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
+	"strings"
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -16,8 +17,6 @@ import (
 
 type Node struct {
 	Config *NodeConfig
-	Output []NodeId
-	Input  []NodeId
 	graph  *Graph
 
 	state isNodeState_State
@@ -33,8 +32,8 @@ func NewNode(graph *Graph, config *NodeConfig) *Node {
 	node := &Node{
 		Config: config,
 		graph:  graph,
+		state:  &NodeState_Idle{Idle: &NodeState_IdleState{}},
 	}
-	node.SetState(&NodeState_IdleState{})
 	return node
 }
 
@@ -74,10 +73,7 @@ func (node *Node) Run() error {
 			IsSkipped: &isSkipped,
 		})
 
-		for _, outputId := range node.Output {
-			output := node.graph.Nodes[outputId]
-			output.OnInputChange()
-		}
+		node.NotifyOutputOnInputChange()
 
 		node.DoneEvent.Trigger()
 	}()
@@ -102,6 +98,13 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 	}
 
 	for _, input := range node.Config.Inputs {
+		if strings.HasSuffix(input, "/") {
+			err = os.MkdirAll(path.Join(ctx.Dir, input), 0777)
+			if err != nil {
+				return nil, fmt.Errorf("mkdir failed: %v", err)
+			}
+		}
+
 		for _, edge := range node.graph.Config.Edges {
 			isInputEdge := edge.GetToNodeId() == node.Config.GetId() && edge.GetToFile() == input
 			if !isInputEdge {
@@ -166,10 +169,7 @@ func (node *Node) Done() error {
 		FromIdle:  &fromIdle,
 	})
 
-	for _, outputId := range node.Output {
-		output := node.graph.Nodes[outputId]
-		output.OnInputChange()
-	}
+	node.NotifyOutputOnInputChange()
 
 	node.DoneEvent.Trigger()
 	return nil
@@ -193,8 +193,7 @@ func (node *Node) Reset() error {
 	node.resetRunContext()
 	node.Job = nil
 
-	for _, outputId := range node.Output {
-		output := node.graph.Nodes[outputId]
+	for _, output := range node.CollectOutput() {
 		switch output.state.(type) {
 		case *NodeState_Idle:
 			output.OnInputChange()
@@ -239,11 +238,6 @@ func (node *Node) Skip() error {
 	state.InProgress.Status = NodeState_InProgressState_Skipping.Enum()
 	node.ReportUpdate()
 
-	for _, outputId := range node.Output {
-		output := node.graph.Nodes[outputId]
-		output.OnInputChange()
-	}
-
 	return nil
 }
 
@@ -269,17 +263,20 @@ func (node *Node) OnInputChange() {
 	}
 }
 
+func (node *Node) isReadyAsInput() bool {
+	switch state := node.state.(type) {
+	case *NodeState_InProgress:
+		return state.InProgress.GetStatus() == NodeState_InProgressState_Skipping
+	case *NodeState_Done:
+		return state.Done.Error == nil || state.Done.GetIsSkipped()
+	default:
+		return false
+	}
+}
+
 func (node *Node) isReady() bool {
-	for _, inputId := range node.Input {
-		input := node.graph.Nodes[inputId]
-		stillReady := false
-		switch state := input.state.(type) {
-		case *NodeState_InProgress:
-			stillReady = state.InProgress.GetStatus() == NodeState_InProgressState_Skipping
-		case *NodeState_Done:
-			stillReady = state.Done.Error == nil || state.Done.GetIsSkipped()
-		}
-		if !stillReady {
+	for _, input := range node.CollectInput() {
+		if !input.isReadyAsInput() {
 			return false
 		}
 	}
@@ -321,4 +318,30 @@ func (node *Node) SetState(message proto.Message) {
 		log.Panicln("invalid state: ", prototext.MarshalOptions{}.Format(message))
 	}
 	node.ReportUpdate()
+}
+
+func (node *Node) CollectInput() []*Node {
+	result := []*Node{}
+	for _, edge := range node.graph.Config.Edges {
+		if edge.GetToNodeId() == node.Config.GetId() {
+			result = append(result, node.graph.Nodes[NodeId(edge.GetFromNodeId())])
+		}
+	}
+	return result
+}
+
+func (node *Node) CollectOutput() []*Node {
+	result := []*Node{}
+	for _, edge := range node.graph.Config.Edges {
+		if edge.GetFromNodeId() == node.Config.GetId() {
+			result = append(result, node.graph.Nodes[NodeId(edge.GetToNodeId())])
+		}
+	}
+	return result
+}
+
+func (node *Node) NotifyOutputOnInputChange() {
+	for _, output := range node.CollectOutput() {
+		output.OnInputChange()
+	}
 }

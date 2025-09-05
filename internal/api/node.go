@@ -50,6 +50,8 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
+	isScheduled := map[graph.NodeId]bool{}
+
 	for nodesToSchedule := []*graph.Node{node}; len(nodesToSchedule) > 0; {
 		var nodeToSchedule *graph.Node
 		nodeToSchedule, nodesToSchedule = nodesToSchedule[0], nodesToSchedule[1:]
@@ -58,22 +60,28 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 			continue
 		}
 
+		id := graph.NodeId(*nodeToSchedule.Config.Id)
+		if isScheduled[id] {
+			continue
+		}
+		isScheduled[id] = true
+
 		if state.Idle.GetIsReady() {
+			log.Println("sch: running\t", id)
 			err := nodeToSchedule.Run()
 			if err != nil {
 				log.Printf("node{Id: %v}.Run() failed: %v\n", nodeToSchedule.Config.GetId(), err)
 				return nil, err
 			}
 		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {
+			log.Println("sch: scheduling\t", id)
 			err := nodeToSchedule.Plan(graph.NodeState_IdleState_Scheduled)
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		for _, nodeId := range nodeToSchedule.Input {
-			nodesToSchedule = append(nodesToSchedule, s.graph.Nodes[nodeId])
-		}
+		nodesToSchedule = append(nodesToSchedule, nodeToSchedule.CollectInput()...)
 	}
 
 	return nil, nil
@@ -206,7 +214,7 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	if len(node.Input) > 0 || len(node.Output) > 0 {
+	if len(node.CollectInput()) > 0 || len(node.CollectOutput()) > 0 {
 		return nil, fmt.Errorf("node (id=%v) has edges", id.GetId())
 	}
 

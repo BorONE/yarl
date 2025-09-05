@@ -35,11 +35,6 @@ func NewGraph(config *Config, ctx context.Context) *Graph {
 	for _, nodeConfig := range config.Nodes {
 		g.Nodes[NodeId(*nodeConfig.Id)] = NewNode(g, nodeConfig)
 	}
-	for _, edgeConfig := range config.Edges {
-		from, to := g.Nodes[NodeId(*edgeConfig.FromNodeId)], g.Nodes[NodeId(*edgeConfig.ToNodeId)]
-		from.Output = append(from.Output, NodeId(edgeConfig.GetToNodeId()))
-		to.Input = append(to.Input, NodeId(edgeConfig.GetFromNodeId()))
-	}
 	return g
 }
 
@@ -87,36 +82,24 @@ func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (from *Node, t
 }
 
 func (graph *Graph) Connect(edge *EdgeConfig) error {
-	from, to, isFile, err := graph.getEdgeNodes(edge, false)
+	_, to, _, err := graph.getEdgeNodes(edge, false)
 	if err != nil {
 		return err
 	}
 
-	if !isFile {
-		to.Input = append(to.Input, NodeId(*edge.FromNodeId))
-		from.Output = append(from.Output, NodeId(*edge.ToNodeId))
-	}
 	graph.Config.Edges = append(graph.Config.Edges, edge)
-
 	to.OnInputChange()
-
 	return nil
 }
 
 func (graph *Graph) Disconnect(edge *EdgeConfig) error {
-	from, to, isFile, err := graph.getEdgeNodes(edge, true)
+	_, to, _, err := graph.getEdgeNodes(edge, true)
 	if err != nil {
 		return err
 	}
 
-	if !isFile {
-		to.Input = slices.DeleteFunc(to.Input, func(id NodeId) bool { return id == NodeId(*edge.FromNodeId) })
-		from.Output = slices.DeleteFunc(from.Output, func(id NodeId) bool { return id == NodeId(*edge.ToNodeId) })
-	}
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
-
 	to.OnInputChange()
-
 	return nil
 }
 
