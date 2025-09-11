@@ -67,14 +67,12 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 		isScheduled[id] = true
 
 		if state.Idle.GetIsReady() {
-			log.Println("sch: running\t", id)
 			err := nodeToSchedule.Run()
 			if err != nil {
 				log.Printf("node{Id: %v}.Run() failed: %v\n", nodeToSchedule.Config.GetId(), err)
 				return nil, err
 			}
 		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {
-			log.Println("sch: scheduling\t", id)
 			err := nodeToSchedule.Plan(graph.NodeState_IdleState_Scheduled)
 			if err != nil {
 				return nil, err
