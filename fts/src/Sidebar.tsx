@@ -32,6 +32,7 @@ import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/regist
 import JobEditor from './JobEditor';
 import { Textarea } from './components/ui/textarea';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
+import Io from './io';
 
 
 type JobInfo = {
@@ -223,27 +224,32 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             <AccordionItem value="io">
                 <AccordionTrigger>IO</AccordionTrigger>
                 <AccordionContent>
-                    <div className="grid w-full gap-3" style={{marginBottom: 10}}>
-                        <Label htmlFor="input-files">Input files</Label>
-                        <Textarea
-                            placeholder={"input.txt\nconfig.pb"}
-                            id="input-files"
-                            onChange={change => onIOChange(change, 'Inputs')}
-                            value={selectedNode.data.config.Inputs.join("\n")}
-                            />
-                    </div>
-                    <div className="grid w-full gap-3" style={{marginBottom: 10}}>
-                        <Label htmlFor="output-files">Output files</Label>
-                        <Textarea
-                            placeholder={"output.txt\nresult.pb"}
-                            id="output-files"
-                            onChange={change => onIOChange(change, 'Outputs')}
-                            value={selectedNode.data.config.Outputs.join("\n")}
-                            />
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                        One file per line
-                    </p>
+
+                    <Accordion
+                        type="multiple"
+                        defaultValue={new Cookies().get('io-accordion')}
+                        onValueChange={(values) => new Cookies().set('io-accordion', values)}
+                        style={{ paddingLeft: 10, paddingRight: 10 }}
+                    >
+                        <AccordionItem value="i">
+                            <AccordionTrigger>Input</AccordionTrigger>
+                            <AccordionContent>
+                                <Io
+                                    files={selectedNode.data.config.Inputs}
+                                    setFiles={fs => patchConfigOfSelected({ Inputs: fs })}
+                                    />
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="o">
+                            <AccordionTrigger>Output</AccordionTrigger>
+                            <AccordionContent>
+                                <Io
+                                    files={selectedNode.data.config.Outputs}
+                                    setFiles={fs => patchConfigOfSelected({ Outputs: fs })}
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
                 </AccordionContent>
             </AccordionItem>
             <AccordionItem value="editor">
