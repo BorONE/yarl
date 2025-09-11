@@ -51,6 +51,18 @@ import { buildNode, getBorderColor } from './misc';
 
 import Cookies from 'universal-cookie';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Button } from './components/ui/button';
+import { DialogClose } from '@radix-ui/react-dialog';
+
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
@@ -156,13 +168,17 @@ function Flow() {
         <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
+              <Dialog>
               <Menubar style={{ padding: 0 }}>
                 <MenubarMenu>
                   <MenubarTrigger>Graph</MenubarTrigger>
                   <MenubarContent>
                     <MenubarItem onSelect={newGraph}>New</MenubarItem>
-                    <MenubarItem onSelect={saveGraph}>Save</MenubarItem>
-                    <MenubarItem onSelect={loadGraph}>Load</MenubarItem>
+                    <DialogTrigger asChild>
+                      <MenubarItem>
+                        Open
+                      </MenubarItem>
+                    </DialogTrigger>
                     <MenubarSeparator/>
                     <MenubarItem onSelect={() => client.graph.scheduleAll({})}>Schedule</MenubarItem>
                   </MenubarContent>
@@ -172,13 +188,27 @@ function Flow() {
                     <MenubarItem onSelect={addNewNode}>New</MenubarItem>
                   </MenubarContent>
                 </MenubarMenu>
-                <Input
+              </Menubar>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Open graph</DialogTitle>
+                  <DialogDescription></DialogDescription>
+                </DialogHeader>
+                <div style={{ display: "flex" }}>
+                  <Input
                     ref={graphPathRef}
                     placeholder='yarl.proto.txt'
                     defaultValue={new Cookies().get('graph-path')}
                     onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-                />
-              </Menubar>
+                  />
+                  <DialogClose asChild>
+                    <Button type="button" variant="secondary" onClick={loadGraph}>
+                      Open
+                    </Button>
+                  </DialogClose>
+                </div>
+              </DialogContent>
+              </Dialog>
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
