@@ -24,36 +24,28 @@ type ScriptJob struct {
 	stderr util.ThreadSafeStringBuilder
 }
 
+const SCRIPT_FILENAME = ".script"
+
 func (j *ScriptJob) reset() {
-	j.kill = func() {}
+	j.cmd, j.kill = job.NewCommandWithKill("./" + SCRIPT_FILENAME)
+	j.cmd.Stdout = &j.stdout
+	j.cmd.Stderr = &j.stderr
+	j.arts.Reset(map[string]string{})
 }
 
 func (j *ScriptJob) Run(ctx *job.RunContext) error {
-	filename := "script"
-	filepath := path.Join(ctx.Dir, filename)
-
-	err := os.WriteFile(filepath, []byte(j.source), 0777)
+	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(j.source), 0777)
 	if err != nil {
 		j.arts.Reset(map[string]string{})
 		return fmt.Errorf("failed to create script: %v", err)
 	}
 
-	j.cmd, j.kill = job.NewCommandWithKill(fmt.Sprintf("./%s", filename))
-
 	j.cmd.Dir = ctx.Dir
 
-	j.cmd.Stdout = &j.stdout
-	j.cmd.Stderr = &j.stderr
-
-	err = j.cmd.Start()
-	if err != nil {
-		j.arts.Reset(map[string]string{})
-		return fmt.Errorf("failed to start script: %v", err)
-	}
-
-	j.arts.Reset(map[string]string{"started_at": time.Now().String()})
+	j.arts.Set("started_at", time.Now().String())
 	defer j.arts.Set("finished_at", time.Now().String())
-	return j.cmd.Wait()
+
+	return j.cmd.Run()
 }
 
 func (j *ScriptJob) Kill() error {
