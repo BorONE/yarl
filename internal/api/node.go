@@ -181,6 +181,12 @@ func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig
 
 	nodeId := s.graph.AddNewNode(config)
 	id := uint64(nodeId)
+
+	err := s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &NodeIdentifier{Id: &id}, nil
 }
 
@@ -197,6 +203,11 @@ func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfi
 
 	node.Config.Reset()
 	proto.Merge(node.Config, config)
+
+	err := s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
@@ -218,6 +229,11 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 
 	delete(s.graph.Nodes, graph.NodeId(id.GetId()))
 	s.graph.Config.Nodes = slices.DeleteFunc(s.graph.Config.Nodes, func(nodeConfig *graph.NodeConfig) bool { return nodeConfig.GetId() == id.GetId() })
+
+	err := s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }

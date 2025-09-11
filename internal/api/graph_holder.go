@@ -14,15 +14,18 @@ type GraphHolder struct {
 
 	ctx    context.Context
 	cancel context.CancelFunc
+
+	CurrentPath string
 }
 
 func (holder *GraphHolder) New(ctx context.Context) error {
 	holder.resetGraph(&graph.Config{})
+	holder.CurrentPath = "yarl.proto.txt"
 	return nil
 }
 
-func (holder *GraphHolder) Load(ctx context.Context, path *Path) error {
-	file, err := os.Open(path.GetPath())
+func (holder *GraphHolder) Load(ctx context.Context, path string) error {
+	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
@@ -39,11 +42,16 @@ func (holder *GraphHolder) Load(ctx context.Context, path *Path) error {
 	}
 
 	holder.resetGraph(config)
+	holder.CurrentPath = path
 	return nil
 }
 
-func (holder *GraphHolder) Save(ctx context.Context, path *Path) error {
-	file, err := os.Create(path.GetPath())
+func (holder *GraphHolder) SaveCurrent(ctx context.Context) error {
+	return holder.Save(ctx, holder.CurrentPath)
+}
+
+func (holder *GraphHolder) Save(ctx context.Context, path string) error {
+	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
@@ -58,6 +66,7 @@ func (holder *GraphHolder) Save(ctx context.Context, path *Path) error {
 		return err
 	}
 
+	holder.CurrentPath = path
 	return nil
 }
 

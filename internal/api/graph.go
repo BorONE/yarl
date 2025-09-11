@@ -30,7 +30,7 @@ func (s ImplementedGraphServer) Load(ctx context.Context, path *Path) (*Nothing,
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Load(%v)\n", prototext.MarshalOptions{}.Format(path))
-	return nil, s.graph.Load(ctx, path)
+	return nil, s.graph.Load(ctx, path.GetPath())
 }
 
 func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing, error) {
@@ -38,7 +38,7 @@ func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing,
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Save(%v)\n", prototext.MarshalOptions{}.Format(path))
-	return nil, s.graph.Save(ctx, path)
+	return nil, s.graph.Save(ctx, path.GetPath())
 }
 
 func generateInit(g *graph.Graph, gen func(*graph.SyncResponse)) {
@@ -111,7 +111,17 @@ func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeCon
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Connect(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	return nil, s.graph.Connect(edge)
+	err := s.graph.Connect(edge)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
@@ -119,5 +129,15 @@ func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.Edge
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Disconnect(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	return nil, s.graph.Disconnect(edge)
+	err := s.graph.Disconnect(edge)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }

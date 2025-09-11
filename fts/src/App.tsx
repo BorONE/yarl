@@ -162,6 +162,8 @@ function Flow() {
     return isLayout(layout, 2) ? layout : [85, 15]
   })()
 
+  const [selectedDialog, selectDialog] = useState("")
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <div className="providerflow">
@@ -169,45 +171,75 @@ function Flow() {
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
               <Dialog>
-              <Menubar style={{ padding: 0 }}>
-                <MenubarMenu>
-                  <MenubarTrigger>Graph</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem onSelect={newGraph}>New</MenubarItem>
-                    <DialogTrigger asChild>
-                      <MenubarItem>
-                        Open
-                      </MenubarItem>
-                    </DialogTrigger>
-                    <MenubarSeparator/>
-                    <MenubarItem onSelect={() => client.graph.scheduleAll({})}>Schedule</MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu><MenubarMenu>
-                  <MenubarTrigger>Node</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem onSelect={addNewNode}>New</MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Open graph</DialogTitle>
-                  <DialogDescription></DialogDescription>
-                </DialogHeader>
-                <div style={{ display: "flex" }}>
-                  <Input
-                    ref={graphPathRef}
-                    placeholder='yarl.proto.txt'
-                    defaultValue={new Cookies().get('graph-path')}
-                    onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-                  />
-                  <DialogClose asChild>
-                    <Button type="button" variant="secondary" onClick={loadGraph}>
-                      Open
-                    </Button>
-                  </DialogClose>
-                </div>
-              </DialogContent>
+                <Menubar style={{ padding: 0 }}>
+                  <MenubarMenu>
+                    <MenubarTrigger>Graph</MenubarTrigger>
+                    <MenubarContent>
+                      <MenubarItem onSelect={newGraph}> New </MenubarItem>
+                      <DialogTrigger asChild>
+                        <MenubarItem onSelect={() => selectDialog("open")}> Open </MenubarItem>
+                      </DialogTrigger>
+                      <DialogTrigger asChild>
+                        <MenubarItem onSelect={() => selectDialog("save")}> Save as </MenubarItem>
+                      </DialogTrigger>
+                      <MenubarSeparator/>
+                      <MenubarItem onSelect={() => client.graph.scheduleAll({})}>Schedule</MenubarItem>
+                    </MenubarContent>
+                  </MenubarMenu><MenubarMenu>
+                    <MenubarTrigger>Node</MenubarTrigger>
+                    <MenubarContent>
+                      <MenubarItem onSelect={addNewNode}>New</MenubarItem>
+                    </MenubarContent>
+                  </MenubarMenu>
+                </Menubar>
+                {(() => {
+                  switch (selectedDialog) {
+                    case "open":
+                      return (
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Open graph</DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+                          <div style={{ display: "flex" }}>
+                            <Input
+                              ref={graphPathRef}
+                              placeholder='yarl.proto.txt'
+                              defaultValue={new Cookies().get('graph-path')}
+                              onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
+                            />
+                            <DialogClose asChild>
+                              <Button type="button" variant="secondary" onClick={loadGraph}>
+                                Open
+                              </Button>
+                            </DialogClose>
+                          </div>
+                        </DialogContent>
+                      )
+                    case "save":
+                      return (
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Save graph as</DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+                          <div style={{ display: "flex" }}>
+                            <Input
+                              ref={graphPathRef}
+                              placeholder='yarl.proto.txt'
+                              defaultValue={new Cookies().get('graph-path')}
+                              onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
+                            />
+                            <DialogClose asChild>
+                              <Button type="button" variant="secondary" onClick={saveGraph}>
+                                Save
+                              </Button>
+                            </DialogClose>
+                          </div>
+                        </DialogContent>
+                      )
+                  }
+                })()}
               </Dialog>
               <ReactFlow
                 nodes={nodes}
