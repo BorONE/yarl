@@ -97,7 +97,7 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 		return nil, fmt.Errorf("mkdir failed: %v", err)
 	}
 
-	for _, input := range node.Config.Inputs {
+	for inputPort0Indexed, input := range node.Config.Inputs {
 		if strings.HasSuffix(input, "/") {
 			err = os.MkdirAll(path.Join(ctx.Dir, input), 0777)
 			if err != nil {
@@ -106,12 +106,12 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 		}
 
 		for _, edge := range node.graph.Config.Edges {
-			isInputEdge := edge.GetToNodeId() == node.Config.GetId() && edge.GetToFile() == input
+			isInputEdge := edge.GetToNodeId() == node.Config.GetId() && edge.GetToPort() == uint64(inputPort0Indexed+1)
 			if !isInputEdge {
 				continue
 			}
 
-			err := copyEdge(edge)
+			err := copyEdge(edge, node.graph.Nodes)
 			if err != nil {
 				return nil, fmt.Errorf("copying on edge{%v} failed: %v", prototext.MarshalOptions{}.Format(edge), err)
 			}
@@ -121,9 +121,9 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 	return ctx, nil
 }
 
-func copyEdge(edge *EdgeConfig) error {
-	src := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), edge.GetFromFile())
-	dst := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), edge.GetToFile())
+func copyEdge(edge *EdgeConfig, nodes map[NodeId]*Node) error {
+	src := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), nodes[NodeId(*edge.FromNodeId)].Config.Outputs[*edge.FromPort-1])
+	dst := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), nodes[NodeId(*edge.ToNodeId)].Config.Inputs[*edge.ToPort-1])
 	// TODO use more go-like solution
 	cp := exec.Command("cp", "--recursive", src, dst)
 	output, err := cp.CombinedOutput()

@@ -74,11 +74,11 @@ func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (from *Node, t
 		return nil, nil, false, fmt.Errorf(errorFormat, prototext.MarshalOptions{}.Format(edge))
 	}
 
-	if (edge.FromFile == nil) != (edge.ToFile == nil) {
+	if (edge.FromPort == nil) != (edge.ToPort == nil) {
 		return nil, nil, false, fmt.Errorf("invalid edge: source target type mismatch (file-node connection)")
 	}
 
-	return from, to, edge.FromFile != nil, nil
+	return from, to, edge.FromPort != nil, nil
 }
 
 func (graph *Graph) Connect(edge *EdgeConfig) error {

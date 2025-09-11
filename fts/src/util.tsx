@@ -15,13 +15,6 @@ export function createBinary<Desc extends DescMessage>(schema: Desc, init?: Mess
     return toBinary(schema, create(schema, init))
 }
 
-function isFileEdge(edge: config.EdgeConfig): boolean {
-    if (!!edge.FromFile != !!edge.ToFile) {
-        throw `edge ${edge} is invalid (either both or none ends must be files)`
-    }
-    return !!edge.FromFile
-}
-
 function isFileConnection(connection: Edge | Connection): boolean {
     if (!!connection.sourceHandle != !!connection.targetHandle) {
         throw `connection ${connection} is invalid (either both or none ends must be files)`
@@ -29,22 +22,22 @@ function isFileConnection(connection: Edge | Connection): boolean {
     return !!connection.sourceHandle
 }
 
-export function convertEdgeToConnection(edge: config.EdgeConfig, source: Node, target: Node): Edge {
+export function convertEdgeToConnection(edge: config.EdgeConfig, source: Node, _target: Node): Edge {
     const connection = {
         source: `${edge.FromNodeId}`,
         target: `${edge.ToNodeId}`,
-        sourceHandle: isFileEdge(edge) ? `${source.data.config.Outputs.indexOf(edge.FromFile)}` : null,
-        targetHandle: isFileEdge(edge) ? `${target.data.config.Inputs.indexOf(edge.ToFile)}` : null,
+        sourceHandle: edge.FromPort == BigInt(0) ? null : edge.FromPort.toString(),
+        targetHandle: edge.ToPort == BigInt(0) ? null : edge.ToPort.toString(),
     }
     return canonizeConnection(connection, source.data.state)
 }
 
-export function convertConnectionToEdge(connection: Edge | Connection, source: Node, target: Node): config.EdgeConfig {
+export function convertConnectionToEdge(connection: Edge | Connection, _source: Node, _target: Node): config.EdgeConfig {
     return create(config.EdgeConfigSchema, {
         FromNodeId: BigInt(connection.source),
-        FromFile: connection.sourceHandle ? source.data.config.Outputs[Number(connection.sourceHandle)] : undefined,
+        FromPort: connection.sourceHandle ? BigInt(connection.sourceHandle) : undefined,
         ToNodeId: BigInt(connection.target),
-        ToFile: connection.targetHandle ? target.data.config.Inputs[Number(connection.targetHandle)] : undefined,
+        ToPort: connection.targetHandle ? BigInt(connection.targetHandle) : undefined,
     })
 }
 

@@ -237,7 +237,7 @@ export default memo(({ data } : { data: NodeData }) => {
                         left: -1,
                         backgroundColor: "#888",
                     }}
-                    id={i.toString()}
+                    id={(i + 1).toString()}
                     />
             </div>)
         }
@@ -262,7 +262,7 @@ export default memo(({ data } : { data: NodeData }) => {
                         right: -1,
                         backgroundColor: "#888",
                     }}
-                    id={i.toString()}
+                    id={(i + 1).toString()}
                     />
             </div>)
         }

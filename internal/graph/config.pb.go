@@ -506,8 +506,8 @@ type EdgeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FromNodeId    *uint64                `protobuf:"varint,1,opt,name=FromNodeId" json:"FromNodeId,omitempty"`
 	ToNodeId      *uint64                `protobuf:"varint,2,opt,name=ToNodeId" json:"ToNodeId,omitempty"`
-	FromFile      *string                `protobuf:"bytes,3,opt,name=FromFile" json:"FromFile,omitempty"`
-	ToFile        *string                `protobuf:"bytes,4,opt,name=ToFile" json:"ToFile,omitempty"`
+	FromPort      *uint64                `protobuf:"varint,3,opt,name=FromPort" json:"FromPort,omitempty"` // 1-indexed
+	ToPort        *uint64                `protobuf:"varint,4,opt,name=ToPort" json:"ToPort,omitempty"`     // 1-indexed
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -556,18 +556,18 @@ func (x *EdgeConfig) GetToNodeId() uint64 {
 	return 0
 }
 
-func (x *EdgeConfig) GetFromFile() string {
-	if x != nil && x.FromFile != nil {
-		return *x.FromFile
+func (x *EdgeConfig) GetFromPort() uint64 {
+	if x != nil && x.FromPort != nil {
+		return *x.FromPort
 	}
-	return ""
+	return 0
 }
 
-func (x *EdgeConfig) GetToFile() string {
-	if x != nil && x.ToFile != nil {
-		return *x.ToFile
+func (x *EdgeConfig) GetToPort() uint64 {
+	if x != nil && x.ToPort != nil {
+		return *x.ToPort
 	}
-	return ""
+	return 0
 }
 
 type SyncResponse struct {
@@ -854,8 +854,8 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"FromNodeId\x18\x01 \x01(\x04R\n" +
 	"FromNodeId\x12\x1a\n" +
 	"\bToNodeId\x18\x02 \x01(\x04R\bToNodeId\x12\x1a\n" +
-	"\bFromFile\x18\x03 \x01(\tR\bFromFile\x12\x16\n" +
-	"\x06ToFile\x18\x04 \x01(\tR\x06ToFile\"\xc9\x01\n" +
+	"\bFromPort\x18\x03 \x01(\x04R\bFromPort\x12\x16\n" +
+	"\x06ToPort\x18\x04 \x01(\x04R\x06ToPort\"\xc9\x01\n" +
 	"\fSyncResponse\x12#\n" +
 	"\x04Type\x18\x01 \x01(\x0e2\x0f.graph.SyncTypeR\x04Type\x121\n" +
 	"\n" +
