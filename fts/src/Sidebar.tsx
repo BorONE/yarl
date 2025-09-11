@@ -30,7 +30,6 @@ import type { Node } from './JobNode';
 import { buildNode } from './misc';
 import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
 import JobEditor from './JobEditor';
-import { Textarea } from './components/ui/textarea';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';
 
@@ -200,10 +199,6 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         onShellCommandChange,
         onJobChange,
     })
-
-    const onIOChange = (change: React.ChangeEvent<HTMLTextAreaElement>, target: string) => {
-        patchConfigOfSelected({ [target]: change.target.value == "" ? [] : change.target.value.split("\n") })
-    }
 
     return <aside>
         <Input

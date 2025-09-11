@@ -1,6 +1,5 @@
 import Button from "react-bootstrap/esm/Button"
 import { Input } from "./components/ui/input"
-import { Label } from "./components/ui/label"
 
 function pop<T>(arr: T[], i: number) : T[] {
     return [...arr.slice(undefined, i), ...arr.slice(i + 1, undefined)]
