@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -35,32 +35,12 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { canonizeConnection, convertConnectionToEdge } from './util';
-import { Input } from './components/ui/input';
-
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from "@/components/ui/menubar"
 
 import { Syncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
+import Menubar from './Menubar';
 
 import Cookies from 'universal-cookie';
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from './components/ui/button';
-import { DialogClose } from '@radix-ui/react-dialog';
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -119,17 +99,7 @@ function Flow() {
     },
     [nodes, setEdges],
   );
- 
-  const newGraph = useCallback(() => {
-    if (graphPathRef.current != null) {
-      graphPathRef.current.value = ""
-    }
-    new Cookies().set('graph-path', "")
-    client.graph.new({})
-  }, [])
-  const saveGraph = useCallback(() => client.graph.save({Path: graphPathRef.current?.value}), [])
-  const loadGraph = useCallback(() => client.graph.load({Path: graphPathRef.current?.value}), [])
-  
+
   const addNewNode = useCallback(async () => {
     var config = create(NodeConfigSchema, {
       Name: "",
@@ -147,21 +117,17 @@ function Flow() {
     setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
   }, [setNodes]);
 
-  // var graphPathRef = useRef(null)
-  var graphPathRef = useRef<HTMLInputElement>(null)
-
   const isLayout = (obj: any, expectedLenght?: number) => {
     return Array.isArray(obj)
       && (typeof expectedLenght == 'undefined' || obj.length == expectedLenght)
       && obj.map(el => typeof el == 'number' && el >= 0).reduce((r, x) => r && x)
       && obj.reduce((r, x) => r + x) == 100
   }
+
   const layout = (() => {
     const layout = new Cookies(null).get('layout')
     return isLayout(layout, 2) ? layout : [85, 15]
   })()
-
-  const [selectedDialog, selectDialog] = useState("")
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
@@ -169,77 +135,9 @@ function Flow() {
         <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
-              <Dialog>
-                <Menubar style={{ padding: 0 }}>
-                  <MenubarMenu>
-                    <MenubarTrigger>Graph</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarItem onSelect={newGraph}> New </MenubarItem>
-                      <DialogTrigger asChild>
-                        <MenubarItem onSelect={() => selectDialog("open")}> Open </MenubarItem>
-                      </DialogTrigger>
-                      <DialogTrigger asChild>
-                        <MenubarItem onSelect={() => selectDialog("save")}> Save as </MenubarItem>
-                      </DialogTrigger>
-                      <MenubarSeparator/>
-                      <MenubarItem onSelect={() => client.graph.scheduleAll({})}>Schedule</MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu><MenubarMenu>
-                    <MenubarTrigger>Node</MenubarTrigger>
-                    <MenubarContent>
-                      <MenubarItem onSelect={addNewNode}>New</MenubarItem>
-                    </MenubarContent>
-                  </MenubarMenu>
-                </Menubar>
-                {(() => {
-                  switch (selectedDialog) {
-                    case "open":
-                      return (
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Open graph</DialogTitle>
-                            <DialogDescription></DialogDescription>
-                          </DialogHeader>
-                          <div style={{ display: "flex" }}>
-                            <Input
-                              ref={graphPathRef}
-                              placeholder='yarl.proto.txt'
-                              defaultValue={new Cookies().get('graph-path')}
-                              onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-                            />
-                            <DialogClose asChild>
-                              <Button type="button" variant="secondary" onClick={loadGraph}>
-                                Open
-                              </Button>
-                            </DialogClose>
-                          </div>
-                        </DialogContent>
-                      )
-                    case "save":
-                      return (
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Save graph as</DialogTitle>
-                            <DialogDescription></DialogDescription>
-                          </DialogHeader>
-                          <div style={{ display: "flex" }}>
-                            <Input
-                              ref={graphPathRef}
-                              placeholder='yarl.proto.txt'
-                              defaultValue={new Cookies().get('graph-path')}
-                              onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-                            />
-                            <DialogClose asChild>
-                              <Button type="button" variant="secondary" onClick={saveGraph}>
-                                Save
-                              </Button>
-                            </DialogClose>
-                          </div>
-                        </DialogContent>
-                      )
-                  }
-                })()}
-              </Dialog>
+              <Menubar
+                addNewNode={addNewNode}
+              />
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
