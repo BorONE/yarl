@@ -22,7 +22,6 @@ export class Syncer {
 
   async sync() {
     for await (const update of this.stream) {
-      console.log(update)
       switch (this.state) {
       case SyncerState.init:
         this.handleInit(update)
@@ -51,6 +50,7 @@ export class Syncer {
         break
       }
       case config.SyncType.InitDone: {
+        console.log('sync::init', this.initialGraph)
         this.state = SyncerState.sync
         this.setNodes((_) => this.initialGraph.nodes)
         this.setEdges((_) => this.initialGraph.edges)
@@ -60,6 +60,7 @@ export class Syncer {
   }
   
   handleSync(update: config.SyncResponse) {
+    console.log('sync::update', update)
     switch (update.Type) {
       case config.SyncType.UpdateState: {
         this.setNodes((nds: Node[]) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState, nd.selected) : nd))
