@@ -1,4 +1,4 @@
-import React, { useCallback, useState, type ReactElement } from 'react';
+import React, { useCallback, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
 import { type NodeConfig } from './gen/internal/graph/config_pb';
@@ -47,7 +47,6 @@ type Context = {
     onShellCommandChange: React.ChangeEventHandler<HTMLInputElement>
     onJobChange: (schema: DescMessage, job: Message) => void
 }
-
 
 const jobInfos : JobInfo[] = [
     {
@@ -102,8 +101,6 @@ export const defaultJobInfo = jobInfos[0]
 
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void }) => {
-    const [artsLength, setArtsLength] = useState(-1)
-    
     const onJobTypeSelected = useCallback(
         (jobType: string) => setNodes(
             (nds) => {
@@ -215,11 +212,11 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         <Accordion
             type="multiple"
             defaultValue={new Cookies().get('sidebar-accordion')}
-            onValueChange={(values) => new Cookies().set('sidebar-accordion', values)}>
+            onValueChange={(values) => new Cookies().set('sidebar-accordion', values)}
+        >
             <AccordionItem value="io">
                 <AccordionTrigger>IO</AccordionTrigger>
                 <AccordionContent>
-
                     <Accordion
                         type="multiple"
                         defaultValue={new Cookies().get('io-accordion')}
@@ -247,6 +244,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                     </Accordion>
                 </AccordionContent>
             </AccordionItem>
+
             <AccordionItem value="editor">
                 <AccordionTrigger>Editor</AccordionTrigger>
                 <AccordionContent>
@@ -261,13 +259,11 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                     {jobEditor}
                 </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="arts" disabled={artsLength == 0}>
+
+            <AccordionItem value="arts">
                 <AccordionTrigger>Artifacts</AccordionTrigger>
                 <AccordionContent>
-                    <Artifacts
-                        selectedNode={selectedNode}
-                        onContent={content => setArtsLength(content.length)}
-                    />
+                    <Artifacts selectedNode={selectedNode} />
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

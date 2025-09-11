@@ -13,7 +13,7 @@ export default ({ files, setFiles } : { files: string[], setFiles: (files: strin
     return <>
         {
             files.map(
-                (file, i) => <div style={{ display: "flex" }}>
+                (file, i) => <div style={{ display: "flex" }} key={i}>
                     <Input
                         value={file}
                         onChange={change => { setFiles(replace(files, i, change.target.value)) }}
