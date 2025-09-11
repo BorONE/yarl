@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -15,6 +15,7 @@ import {
   type DefaultEdgeOptions,
   Background,
   BackgroundVariant,
+  type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -100,11 +101,18 @@ function Flow() {
     [nodes, setEdges],
   );
 
-  const addNewNode = useCallback(async () => {
+  const ref = useRef<HTMLDivElement>(null)
+  const addNewNode = useCallback(async (vieport: Viewport) => {
+    const rect = ref.current?.getBoundingClientRect() as DOMRect
+    const snap = (value: number) => Math.round(value / 10) * 10
+    const nodeInitSize = {x: 100, y: 30}
+    const x = snap((-vieport.x + rect.width / 2) / vieport.zoom - nodeInitSize.x / 2)
+    const y = snap((-vieport.y + rect.height / 2) / vieport.zoom - nodeInitSize.y / 2)
+
     var config = create(NodeConfigSchema, {
       Name: "",
       Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
-      Position: { X: 0, Y: 0 },
+      Position: { X: x, Y: y},
     })
     const response = await client.node.add(config);
     config.Id = response.Id
@@ -156,6 +164,7 @@ function Flow() {
                 defaultEdgeOptions={defaultEdgeOptions}
                 snapToGrid
                 snapGrid={[10, 10]}
+                ref={ref}
               >
                 <Background variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />

@@ -24,8 +24,9 @@ import { useRef, useState } from 'react';
 import Cookies from 'universal-cookie';
 
 import * as client from './client'
+import { useViewport, type Viewport } from '@xyflow/react';
 
-export default ({ addNewNode } : { addNewNode: (event: Event) => void }) => {
+export default ({ addNewNode } : { addNewNode: (vieport: Viewport) => void }) => {
 	const [selectedDialog, selectDialog] = useState("")
 
 	const getDialogContent = () => {
@@ -88,6 +89,8 @@ export default ({ addNewNode } : { addNewNode: (event: Event) => void }) => {
 	const saveGraph = () => client.graph.save({Path: graphPathRef.current?.value})
 	const loadGraph = () => client.graph.load({Path: graphPathRef.current?.value})
 
+  const viewport = useViewport()
+
 	return (
 		<Dialog>
 			<Menubar style={{ padding: 0 }}>
@@ -111,7 +114,7 @@ export default ({ addNewNode } : { addNewNode: (event: Event) => void }) => {
 				<MenubarMenu>
 					<MenubarTrigger>Node</MenubarTrigger>
 					<MenubarContent>
-						<MenubarItem onSelect={addNewNode}>New</MenubarItem>
+						<MenubarItem onSelect={_ => addNewNode(viewport)}>New</MenubarItem>
 					</MenubarContent>
 				</MenubarMenu>
 			</Menubar>
