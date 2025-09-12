@@ -163,9 +163,11 @@ function InternalFlow() {
                 onConnect={onConnect}
                 onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
                 onNodesDelete={onNodesDelete}
-                onNodeDragStop={(_event: React.MouseEvent, node: Node, _nodes: Node[]) => {
-                  node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
-                  client.node.edit(node.data.config)
+                onNodeDragStop={(_event: React.MouseEvent, _node: Node, nodes: Node[]) => {
+                  nodes.forEach(node => {
+                    node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
+                    client.node.edit(node.data.config)
+                  })
                 }}
                 nodeTypes={{JobNode}}
                 fitView
