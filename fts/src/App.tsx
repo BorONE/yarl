@@ -16,6 +16,8 @@ import {
   Background,
   BackgroundVariant,
   type Viewport,
+  useReactFlow,
+  type Connection,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -50,7 +52,7 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 
 var syncer = new Syncer()
 
-function Flow() {
+function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   
@@ -74,20 +76,24 @@ function Flow() {
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges],
   );
+
+  const connect = (connection: Connection) => {
+    const source = nodes.find(node => node.id == connection.source) as Node
+    const target = nodes.find(node => node.id == connection.target) as Node
+    client.graph.connect(convertConnectionToEdge(connection, source, target))
+    setEdges((eds) => {
+      const input = nodes.find(nd => nd.id == connection.source) as Node
+      return addEdge(canonizeConnection(connection, input.data.state), eds)
+    })
+  }
+
   const onConnect: OnConnect = useCallback(
     async (connection) => {
       const isValidConnection = (connection.sourceHandle === null) == (connection.targetHandle === null)
       if (!isValidConnection) {
         return
       }
-
-      const source = nodes.find(node => node.id == connection.source) as Node
-      const target = nodes.find(node => node.id == connection.target) as Node
-      client.graph.connect(convertConnectionToEdge(connection, source, target))
-      setEdges((eds) => {
-        const input = nodes.find(nd => nd.id == connection.source) as Node
-        return addEdge(canonizeConnection(connection, input.data.state), eds)
-      })
+      connect(connection)
     },
     [nodes, setEdges],
   );
@@ -101,18 +107,24 @@ function Flow() {
     [nodes, setEdges],
   );
 
-  const ref = useRef<HTMLDivElement>(null)
-  const addNewNode = useCallback(async (vieport: Viewport) => {
-    const rect = ref.current?.getBoundingClientRect() as DOMRect
-    const snap = (value: number) => Math.round(value / 10) * 10
-    const nodeInitSize = {x: 100, y: 30}
-    const x = snap((-vieport.x + rect.width / 2) / vieport.zoom - nodeInitSize.x / 2)
-    const y = snap((-vieport.y + rect.height / 2) / vieport.zoom - nodeInitSize.y / 2)
+  const refReactFlow = useRef<HTMLDivElement>(null)
+  const { screenToFlowPosition } = useReactFlow();
 
+  const addNewNodeByButton = useCallback(async (vieport: Viewport) => {
+    const rect = refReactFlow.current?.getBoundingClientRect() as DOMRect
+    const nodeInitSize = {x: 100, y: 30}
+    return addNewNode({
+      x: (-vieport.x + rect.width / 2) / vieport.zoom - nodeInitSize.x / 2,
+      y: (-vieport.y + rect.height / 2) / vieport.zoom - nodeInitSize.y / 2
+    })
+  }, [setNodes]);
+
+  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
+    const snap = (value: number) => Math.round(value / 10) * 10
     var config = create(NodeConfigSchema, {
       Name: "",
       Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
-      Position: { X: x, Y: y},
+      Position: { X: snap(pos.x), Y: snap(pos.y) },
     })
     const response = await client.node.add(config);
     config.Id = response.Id
@@ -123,6 +135,7 @@ function Flow() {
     })
 
     setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
+    return response.Id
   }, [setNodes]);
 
   const isLayout = (obj: any, expectedLenght?: number) => {
@@ -139,13 +152,9 @@ function Flow() {
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <div className="providerflow">
-        <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
-              <Menubar
-                addNewNode={addNewNode}
-              />
+              <Menubar addNewNode={addNewNodeByButton} />
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -164,7 +173,20 @@ function Flow() {
                 defaultEdgeOptions={defaultEdgeOptions}
                 snapToGrid
                 snapGrid={[10, 10]}
-                ref={ref}
+                ref={refReactFlow}
+                onConnectEnd={async (event, connectionState) => {
+                  if (!connectionState.isValid) {
+                    const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
+                    const pos = screenToFlowPosition({ x: clientX, y: clientY })
+                    const id = await addNewNode({x: pos.x, y: pos.y - 10})
+                    connect({
+                      source: connectionState.fromNode?.id as string,
+                      target: id.toString(),
+                      sourceHandle: null,
+                      targetHandle: null,
+                    })
+                  }
+                }}
               >
                 <Background variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
@@ -175,10 +197,18 @@ function Flow() {
               <Sidebar nodes={nodes} setNodes={setNodes}/>
             </ResizablePanel>
           </ResizablePanelGroup>
-        </ReactFlowProvider>
-      </div>
     </div>
   );
+}
+
+function Flow() {
+  return (
+    <div className="providerflow">
+      <ReactFlowProvider>
+        <InternalFlow />
+      </ReactFlowProvider>
+    </div>
+  )
 }
 
 export default Flow;
