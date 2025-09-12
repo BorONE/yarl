@@ -51,6 +51,7 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 };
 
 var syncer = new Syncer()
+const nodeInitSize = {x: 100, y: 30}
 
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -82,8 +83,8 @@ function InternalFlow() {
     const target = nodes.find(node => node.id == connection.target) as Node
     client.graph.connect(convertConnectionToEdge(connection, source, target))
     setEdges((eds) => {
-      const input = nodes.find(nd => nd.id == connection.source) as Node
-      return addEdge(canonizeConnection(connection, input.data.state), eds)
+      const input = nodes.find(nd => nd.id == connection.source)
+      return addEdge(canonizeConnection(connection, input?.data.state), eds)
     })
   }
 
@@ -112,7 +113,6 @@ function InternalFlow() {
 
   const addNewNodeByButton = useCallback(async (vieport: Viewport) => {
     const rect = refReactFlow.current?.getBoundingClientRect() as DOMRect
-    const nodeInitSize = {x: 100, y: 30}
     return addNewNode({
       x: (-vieport.x + rect.width / 2) / vieport.zoom - nodeInitSize.x / 2,
       y: (-vieport.y + rect.height / 2) / vieport.zoom - nodeInitSize.y / 2
@@ -179,14 +179,14 @@ function InternalFlow() {
                 onConnectEnd={async (event, connectionState) => {
                   if (!connectionState.isValid) {
                     const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
-                    const pos = screenToFlowPosition({ x: clientX, y: clientY })
-                    const id = await addNewNode({x: pos.x, y: pos.y - 10})
-                    connect({
-                      source: connectionState.fromNode?.id as string,
-                      target: id.toString(),
-                      sourceHandle: null,
-                      targetHandle: null,
-                    })
+                    const flowPos = screenToFlowPosition({ x: clientX, y: clientY })
+                    const spawnPos = connectionState.fromPosition == 'left'
+                      ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
+                      : {x: flowPos.x, y: flowPos.y - 10}
+                    const id = await addNewNode(spawnPos)
+                    const ends = [connectionState.fromNode?.id as string, id.toString()]
+                    const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
+                    connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
                   }
                 }}
               >
