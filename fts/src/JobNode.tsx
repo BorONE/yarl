@@ -141,8 +141,6 @@ export default memo(({ data } : { data: NodeData }) => {
 
     const getAnimation = () => {
         switch (data.state.State.case) {
-            case "Idle":
-                return "rotation 2s linear 0s infinite"
         case "InProgress":
             return "breathe 1s ease-in-out 0s infinite"
         default:
