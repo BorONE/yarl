@@ -3,7 +3,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { nodeInitParams, type Node } from './JobNode';
+import { ioOffset, nodeInitParams, type Node } from './JobNode';
 import * as config from './gen/internal/graph/config_pb'
 
 export function isReady(state: config.NodeState) {
@@ -12,6 +12,7 @@ export function isReady(state: config.NodeState) {
 }
 
 export function buildNode(config: config.NodeConfig, state: config.NodeState, selected?: boolean) {
+  const ioLength = config.Inputs.length > config.Outputs.length ? config.Inputs.length : config.Outputs.length
   var node : Node = {
     id: `${config.Id}`,
     type: 'JobNode',
@@ -25,6 +26,8 @@ export function buildNode(config: config.NodeConfig, state: config.NodeState, se
     targetPosition: Position.Left,
     selected,
     ...nodeInitParams,
+    height: 20 + ioOffset * ioLength + 10,
+    width: 100,
   }
   node.style = {
     ...node.style,

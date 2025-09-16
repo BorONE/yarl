@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"pipegraph/internal/job"
 	"pipegraph/internal/util"
+	"strings"
 	"sync"
 
 	"google.golang.org/protobuf/encoding/prototext"
@@ -15,8 +17,6 @@ import (
 
 type Node struct {
 	Config *NodeConfig
-	Output []NodeId
-	Input  []NodeId
 	graph  *Graph
 
 	state isNodeState_State
@@ -32,8 +32,8 @@ func NewNode(graph *Graph, config *NodeConfig) *Node {
 	node := &Node{
 		Config: config,
 		graph:  graph,
+		state:  &NodeState_Idle{Idle: &NodeState_IdleState{}},
 	}
-	node.SetState(&NodeState_IdleState{})
 	return node
 }
 
@@ -47,13 +47,9 @@ func (node *Node) Run() error {
 		return fmt.Errorf("job creation failed: %s", err.Error())
 	}
 
-	ctx := job.RunContext{
-		Dir: path.Join("/home/bor1-ss/.yarl/nodes", fmt.Sprint(node.Config.GetId())),
-	}
-
-	err = os.MkdirAll(ctx.Dir, 0777)
+	ctx, err := node.prepareRunContext()
 	if err != nil {
-		return fmt.Errorf("failed to prepare context for node execution: %v", err)
+		return fmt.Errorf("job context preparation failed: %v", err)
 	}
 
 	log.Printf("job(id=%v) is starting...", node.Config.GetId())
@@ -77,14 +73,68 @@ func (node *Node) Run() error {
 			IsSkipped: &isSkipped,
 		})
 
-		for _, outputId := range node.Output {
-			output := node.graph.Nodes[outputId]
-			output.OnInputChange()
-		}
+		node.NotifyOutputOnInputChange()
 
 		node.DoneEvent.Trigger()
 	}()
 	return nil
+}
+
+const YARL_ROOT = "/home/bor1-ss/.yarl/nodes"
+
+func (node *Node) prepareRunContext() (*job.RunContext, error) {
+	err := node.resetRunContext()
+	if err != nil {
+		return nil, fmt.Errorf("reset failed: %v", err)
+	}
+
+	ctx := &job.RunContext{
+		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
+	}
+
+	err = os.MkdirAll(ctx.Dir, 0777)
+	if err != nil {
+		return nil, fmt.Errorf("mkdir failed: %v", err)
+	}
+
+	for inputPort0Indexed, input := range node.Config.Inputs {
+		if strings.HasSuffix(input, "/") {
+			err = os.MkdirAll(path.Join(ctx.Dir, input), 0777)
+			if err != nil {
+				return nil, fmt.Errorf("mkdir failed: %v", err)
+			}
+		}
+
+		for _, edge := range node.graph.Config.Edges {
+			isInputEdge := edge.GetToNodeId() == node.Config.GetId() && edge.GetToPort() == uint64(inputPort0Indexed+1)
+			if !isInputEdge {
+				continue
+			}
+
+			err := copyEdge(edge, node.graph.Nodes)
+			if err != nil {
+				return nil, fmt.Errorf("copying on edge{%v} failed: %v", prototext.MarshalOptions{}.Format(edge), err)
+			}
+		}
+	}
+
+	return ctx, nil
+}
+
+func copyEdge(edge *EdgeConfig, nodes map[NodeId]*Node) error {
+	src := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), nodes[NodeId(*edge.FromNodeId)].Config.Outputs[*edge.FromPort-1])
+	dst := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), nodes[NodeId(*edge.ToNodeId)].Config.Inputs[*edge.ToPort-1])
+	// TODO use more go-like solution
+	cp := exec.Command("cp", "--recursive", src, dst)
+	output, err := cp.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("cp=`%v` failed: err=\"%v\" %v", cp, err, string(output))
+	}
+	return nil
+}
+
+func (node *Node) resetRunContext() error {
+	return os.RemoveAll(path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())))
 }
 
 func (node *Node) Plan(plan NodeState_IdleState_IdlePlan) error {
@@ -119,10 +169,7 @@ func (node *Node) Done() error {
 		FromIdle:  &fromIdle,
 	})
 
-	for _, outputId := range node.Output {
-		output := node.graph.Nodes[outputId]
-		output.OnInputChange()
-	}
+	node.NotifyOutputOnInputChange()
 
 	node.DoneEvent.Trigger()
 	return nil
@@ -143,10 +190,10 @@ func (node *Node) Reset() error {
 	}
 
 	node.SetState(&NodeState_IdleState{})
+	node.resetRunContext()
 	node.Job = nil
 
-	for _, outputId := range node.Output {
-		output := node.graph.Nodes[outputId]
+	for _, output := range node.CollectOutput() {
 		switch output.state.(type) {
 		case *NodeState_Idle:
 			output.OnInputChange()
@@ -191,11 +238,6 @@ func (node *Node) Skip() error {
 	state.InProgress.Status = NodeState_InProgressState_Skipping.Enum()
 	node.ReportUpdate()
 
-	for _, outputId := range node.Output {
-		output := node.graph.Nodes[outputId]
-		output.OnInputChange()
-	}
-
 	return nil
 }
 
@@ -208,6 +250,7 @@ func (node *Node) OnInputChange() {
 		case NodeState_IdleState_Scheduled:
 			err := node.Run()
 			if err != nil {
+				log.Printf("node{Id: %v}.Run() failed: %v\n", node.Config.GetId(), err)
 				// TODO
 			}
 
@@ -220,17 +263,20 @@ func (node *Node) OnInputChange() {
 	}
 }
 
+func (node *Node) isReadyAsInput() bool {
+	switch state := node.state.(type) {
+	case *NodeState_InProgress:
+		return state.InProgress.GetStatus() == NodeState_InProgressState_Skipping
+	case *NodeState_Done:
+		return state.Done.Error == nil || state.Done.GetIsSkipped()
+	default:
+		return false
+	}
+}
+
 func (node *Node) isReady() bool {
-	for _, inputId := range node.Input {
-		input := node.graph.Nodes[inputId]
-		stillReady := false
-		switch state := input.state.(type) {
-		case *NodeState_InProgress:
-			stillReady = state.InProgress.GetStatus() == NodeState_InProgressState_Skipping
-		case *NodeState_Done:
-			stillReady = state.Done.Error == nil || state.Done.GetIsSkipped()
-		}
-		if !stillReady {
+	for _, input := range node.CollectInput() {
+		if !input.isReadyAsInput() {
 			return false
 		}
 	}
@@ -272,4 +318,30 @@ func (node *Node) SetState(message proto.Message) {
 		log.Panicln("invalid state: ", prototext.MarshalOptions{}.Format(message))
 	}
 	node.ReportUpdate()
+}
+
+func (node *Node) CollectInput() []*Node {
+	result := []*Node{}
+	for _, edge := range node.graph.Config.Edges {
+		if edge.GetToNodeId() == node.Config.GetId() {
+			result = append(result, node.graph.Nodes[NodeId(edge.GetFromNodeId())])
+		}
+	}
+	return result
+}
+
+func (node *Node) CollectOutput() []*Node {
+	result := []*Node{}
+	for _, edge := range node.graph.Config.Edges {
+		if edge.GetFromNodeId() == node.Config.GetId() {
+			result = append(result, node.graph.Nodes[NodeId(edge.GetToNodeId())])
+		}
+	}
+	return result
+}
+
+func (node *Node) NotifyOutputOnInputChange() {
+	for _, output := range node.CollectOutput() {
+		output.OnInputChange()
+	}
 }

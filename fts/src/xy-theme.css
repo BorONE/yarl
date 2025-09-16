@@ -48,8 +48,6 @@
     border: 1px solid #ededed;
     color: var(--xy-node-color, var(--xy-node-color-default));
     transition: border-color 0.25s;
-    height: 20px;
-    width: 100px;
   }
   
   .react-flow__node.selectable:focus {
@@ -59,11 +57,13 @@
   .react-flow__node.selectable:hover,
   .react-flow__node.draggable:hover {
     border-color: var(--xy-theme-hover);
+    border-width: 2px;
   }
   
   .react-flow__node.selectable.selected {
     border-color: var(--xy-theme-selected);
     box-shadow: var(--xy-node-boxshadow-selected);
+    border-width: 2px;
   }
   
   .react-flow__node-group {
@@ -74,6 +74,7 @@
   .react-flow__edge.selectable:hover .react-flow__edge-path,
   .react-flow__edge.selectable.selected .react-flow__edge-path {
     stroke: var(--xy-theme-edge-hover);
+    stroke-width: 2px;
   }
   
   .react-flow__handle {

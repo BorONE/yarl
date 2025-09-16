@@ -424,6 +424,8 @@ type NodeConfig struct {
 	Name          *string                `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
 	Job           *any1.Any              `protobuf:"bytes,3,opt,name=Job" json:"Job,omitempty"`
 	Position      *Position              `protobuf:"bytes,4,opt,name=Position" json:"Position,omitempty"`
+	Inputs        []string               `protobuf:"bytes,5,rep,name=Inputs" json:"Inputs,omitempty"`
+	Outputs       []string               `protobuf:"bytes,6,rep,name=Outputs" json:"Outputs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -486,10 +488,26 @@ func (x *NodeConfig) GetPosition() *Position {
 	return nil
 }
 
+func (x *NodeConfig) GetInputs() []string {
+	if x != nil {
+		return x.Inputs
+	}
+	return nil
+}
+
+func (x *NodeConfig) GetOutputs() []string {
+	if x != nil {
+		return x.Outputs
+	}
+	return nil
+}
+
 type EdgeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FromNodeId    *uint64                `protobuf:"varint,1,opt,name=FromNodeId" json:"FromNodeId,omitempty"`
 	ToNodeId      *uint64                `protobuf:"varint,2,opt,name=ToNodeId" json:"ToNodeId,omitempty"`
+	FromPort      *uint64                `protobuf:"varint,3,opt,name=FromPort" json:"FromPort,omitempty"` // 1-indexed
+	ToPort        *uint64                `protobuf:"varint,4,opt,name=ToPort" json:"ToPort,omitempty"`     // 1-indexed
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -534,6 +552,20 @@ func (x *EdgeConfig) GetFromNodeId() uint64 {
 func (x *EdgeConfig) GetToNodeId() uint64 {
 	if x != nil && x.ToNodeId != nil {
 		return *x.ToNodeId
+	}
+	return 0
+}
+
+func (x *EdgeConfig) GetFromPort() uint64 {
+	if x != nil && x.FromPort != nil {
+		return *x.FromPort
+	}
+	return 0
+}
+
+func (x *EdgeConfig) GetToPort() uint64 {
+	if x != nil && x.ToPort != nil {
+		return *x.ToPort
 	}
 	return 0
 }
@@ -807,19 +839,23 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"\x05Edges\x18\x02 \x03(\v2\x11.graph.EdgeConfigR\x05Edges\"&\n" +
 	"\bPosition\x12\f\n" +
 	"\x01X\x18\x01 \x01(\x05R\x01X\x12\f\n" +
-	"\x01Y\x18\x02 \x01(\x05R\x01Y\"\x85\x01\n" +
+	"\x01Y\x18\x02 \x01(\x05R\x01Y\"\xb7\x01\n" +
 	"\n" +
 	"NodeConfig\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x04R\x02Id\x12\x12\n" +
 	"\x04Name\x18\x02 \x01(\tR\x04Name\x12&\n" +
 	"\x03Job\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x03Job\x12+\n" +
-	"\bPosition\x18\x04 \x01(\v2\x0f.graph.PositionR\bPosition\"H\n" +
+	"\bPosition\x18\x04 \x01(\v2\x0f.graph.PositionR\bPosition\x12\x16\n" +
+	"\x06Inputs\x18\x05 \x03(\tR\x06Inputs\x12\x18\n" +
+	"\aOutputs\x18\x06 \x03(\tR\aOutputs\"|\n" +
 	"\n" +
 	"EdgeConfig\x12\x1e\n" +
 	"\n" +
 	"FromNodeId\x18\x01 \x01(\x04R\n" +
 	"FromNodeId\x12\x1a\n" +
-	"\bToNodeId\x18\x02 \x01(\x04R\bToNodeId\"\xc9\x01\n" +
+	"\bToNodeId\x18\x02 \x01(\x04R\bToNodeId\x12\x1a\n" +
+	"\bFromPort\x18\x03 \x01(\x04R\bFromPort\x12\x16\n" +
+	"\x06ToPort\x18\x04 \x01(\x04R\x06ToPort\"\xc9\x01\n" +
 	"\fSyncResponse\x12#\n" +
 	"\x04Type\x18\x01 \x01(\x0e2\x0f.graph.SyncTypeR\x04Type\x121\n" +
 	"\n" +

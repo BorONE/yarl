@@ -12,7 +12,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/graph/config.proto.
  */
 export const file_internal_graph_config: GenFile = /*@__PURE__*/
-  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIqsECglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAagQEKCUlkbGVTdGF0ZRIPCgdJc1JlYWR5GAEgASgIEjEKBFBsYW4YAiABKA4yIy5ncmFwaC5Ob2RlU3RhdGUuSWRsZVN0YXRlLklkbGVQbGFuIjAKCElkbGVQbGFuEggKBE5vbmUQABINCglTY2hlZHVsZWQQARILCgdTa2lwcGVkEAIaoAEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiSgoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhIMCghTa2lwcGluZxADGlIKCURvbmVTdGF0ZRINCgVFcnJvchgBIAEoCRIRCglJc1N0b3BwZWQYAyACKAgSEQoJSXNTa2lwcGVkGAQgAigIEhAKCEZyb21JZGxlGAUgASgIQgcKBVN0YXRlIkwKBkNvbmZpZxIgCgVOb2RlcxgBIAMoCzIRLmdyYXBoLk5vZGVDb25maWcSIAoFRWRnZXMYAiADKAsyES5ncmFwaC5FZGdlQ29uZmlnIiAKCFBvc2l0aW9uEgkKAVgYASABKAUSCQoBWRgCIAEoBSJsCgpOb2RlQ29uZmlnEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAkSIQoDSm9iGAMgASgLMhQuZ29vZ2xlLnByb3RvYnVmLkFueRIhCghQb3NpdGlvbhgEIAEoCzIPLmdyYXBoLlBvc2l0aW9uIjIKCkVkZ2VDb25maWcSEgoKRnJvbU5vZGVJZBgBIAEoBBIQCghUb05vZGVJZBgCIAEoBCKgAQoMU3luY1Jlc3BvbnNlEh0KBFR5cGUYASABKA4yDy5ncmFwaC5TeW5jVHlwZRIlCgpOb2RlQ29uZmlnGAIgASgLMhEuZ3JhcGguTm9kZUNvbmZpZxIjCglOb2RlU3RhdGUYAyABKAsyEC5ncmFwaC5Ob2RlU3RhdGUSJQoKRWRnZUNvbmZpZxgEIAEoCzIRLmdyYXBoLkVkZ2VDb25maWcqUAoIU3luY1R5cGUSDAoISW5pdE5vZGUQARIMCghJbml0RWRnZRACEgwKCEluaXREb25lEAMSDwoLVXBkYXRlU3RhdGUQBBIJCgVSZXNldBAFQhpaGHBpcGVncmFwaC9pbnRlcm5hbC9ncmFwaA", [file_google_protobuf_any]);
+  fileDesc("ChtpbnRlcm5hbC9ncmFwaC9jb25maWcucHJvdG8SBWdyYXBoIqsECglOb2RlU3RhdGUSCgoCSWQYASABKAQSKgoESWRsZRgCIAEoCzIaLmdyYXBoLk5vZGVTdGF0ZS5JZGxlU3RhdGVIABI2CgpJblByb2dyZXNzGAMgASgLMiAuZ3JhcGguTm9kZVN0YXRlLkluUHJvZ3Jlc3NTdGF0ZUgAEioKBERvbmUYBCABKAsyGi5ncmFwaC5Ob2RlU3RhdGUuRG9uZVN0YXRlSAAagQEKCUlkbGVTdGF0ZRIPCgdJc1JlYWR5GAEgASgIEjEKBFBsYW4YAiABKA4yIy5ncmFwaC5Ob2RlU3RhdGUuSWRsZVN0YXRlLklkbGVQbGFuIjAKCElkbGVQbGFuEggKBE5vbmUQABINCglTY2hlZHVsZWQQARILCgdTa2lwcGVkEAIaoAEKD0luUHJvZ3Jlc3NTdGF0ZRJBCgZTdGF0dXMYASABKA4yMS5ncmFwaC5Ob2RlU3RhdGUuSW5Qcm9ncmVzc1N0YXRlLkluUHJvZ3Jlc3NTdGF0dXMiSgoQSW5Qcm9ncmVzc1N0YXR1cxINCglTY2hlZHVsZWQQABILCgdSdW5uaW5nEAESDAoIU3RvcHBpbmcQAhIMCghTa2lwcGluZxADGlIKCURvbmVTdGF0ZRINCgVFcnJvchgBIAEoCRIRCglJc1N0b3BwZWQYAyACKAgSEQoJSXNTa2lwcGVkGAQgAigIEhAKCEZyb21JZGxlGAUgASgIQgcKBVN0YXRlIkwKBkNvbmZpZxIgCgVOb2RlcxgBIAMoCzIRLmdyYXBoLk5vZGVDb25maWcSIAoFRWRnZXMYAiADKAsyES5ncmFwaC5FZGdlQ29uZmlnIiAKCFBvc2l0aW9uEgkKAVgYASABKAUSCQoBWRgCIAEoBSKNAQoKTm9kZUNvbmZpZxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEiEKA0pvYhgDIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSIQoIUG9zaXRpb24YBCABKAsyDy5ncmFwaC5Qb3NpdGlvbhIOCgZJbnB1dHMYBSADKAkSDwoHT3V0cHV0cxgGIAMoCSJUCgpFZGdlQ29uZmlnEhIKCkZyb21Ob2RlSWQYASABKAQSEAoIVG9Ob2RlSWQYAiABKAQSEAoIRnJvbVBvcnQYAyABKAQSDgoGVG9Qb3J0GAQgASgEIqABCgxTeW5jUmVzcG9uc2USHQoEVHlwZRgBIAEoDjIPLmdyYXBoLlN5bmNUeXBlEiUKCk5vZGVDb25maWcYAiABKAsyES5ncmFwaC5Ob2RlQ29uZmlnEiMKCU5vZGVTdGF0ZRgDIAEoCzIQLmdyYXBoLk5vZGVTdGF0ZRIlCgpFZGdlQ29uZmlnGAQgASgLMhEuZ3JhcGguRWRnZUNvbmZpZypQCghTeW5jVHlwZRIMCghJbml0Tm9kZRABEgwKCEluaXRFZGdlEAISDAoISW5pdERvbmUQAxIPCgtVcGRhdGVTdGF0ZRAEEgkKBVJlc2V0EAVCGloYcGlwZWdyYXBoL2ludGVybmFsL2dyYXBo", [file_google_protobuf_any]);
 
 /**
  * @generated from message graph.NodeState
@@ -251,6 +251,16 @@ export type NodeConfig = Message<"graph.NodeConfig"> & {
    * @generated from field: optional graph.Position Position = 4;
    */
   Position?: Position;
+
+  /**
+   * @generated from field: repeated string Inputs = 5;
+   */
+  Inputs: string[];
+
+  /**
+   * @generated from field: repeated string Outputs = 6;
+   */
+  Outputs: string[];
 };
 
 /**
@@ -273,6 +283,20 @@ export type EdgeConfig = Message<"graph.EdgeConfig"> & {
    * @generated from field: optional uint64 ToNodeId = 2;
    */
   ToNodeId: bigint;
+
+  /**
+   * 1-indexed
+   *
+   * @generated from field: optional uint64 FromPort = 3;
+   */
+  FromPort: bigint;
+
+  /**
+   * 1-indexed
+   *
+   * @generated from field: optional uint64 ToPort = 4;
+   */
+  ToPort: bigint;
 };
 
 /**

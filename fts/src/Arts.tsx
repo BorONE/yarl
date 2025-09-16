@@ -19,7 +19,7 @@ function timeout(ms: number) {
 const renderStream = (key: string, value: string) => {
     return <div className="grid w-full gap-3" style={{padding: 5}}>
         <Label htmlFor={key}>{key}</Label>
-        <Textarea id={key} readOnly={true} value={value} style={{fontFamily: "monospace"}}/>
+        <Textarea id={key} readOnly={true} value={value} style={{fontFamily: "monospace"}} wrap="off" />
     </div>
 }
 
@@ -39,7 +39,7 @@ const renderTime = (key: string, value: string) => {
     </div>
 }
 
-export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: (content: any[]) => void }) => {
+export default ({ selectedNode } : { selectedNode: Node }) => {
     const initArts : {[key: string]: string} = {}
     const [arts, setArts] = useState(initArts)
 
@@ -76,9 +76,5 @@ export default ({ selectedNode, onContent } : { selectedNode: Node, onContent?: 
         "stderr" in arts ? renderStream("stderr", arts.stderr) : undefined,
     ].filter((el) => typeof el != "undefined")
 
-    if (typeof onContent != 'undefined') {
-        onContent(content)
-    }
-
-    return <>{...content}</>
+    return <>{content.map((item, i) => <div key={i}>{item}</div>)}</>
 }

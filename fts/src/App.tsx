@@ -15,10 +15,13 @@ import {
   type DefaultEdgeOptions,
   Background,
   BackgroundVariant,
+  type Viewport,
+  useReactFlow,
+  type Connection,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import Sidebar from './Sidebar';
+import Sidebar, { defaultJobInfo } from './Sidebar';
 
 import JobNode, { type Node } from './JobNode';
 
@@ -27,28 +30,18 @@ import * as client from './client'
 import * as config from './gen/internal/graph/config_pb'
 import { create } from '@bufbuild/protobuf';
 import { NodeConfigSchema, NodeStateSchema } from './gen/internal/graph/config_pb';
-import { ShellCommandConfigSchema } from './gen/internal/job/register/shell_pb';
-import { AnySchema } from '@bufbuild/protobuf/wkt';
+import { anyPack } from '@bufbuild/protobuf/wkt';
 
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { createBinary } from './util';
-import { Input } from './components/ui/input';
-
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from "@/components/ui/menubar"
+import { canonizeConnection, convertConnectionToEdge } from './util';
 
 import { Syncer } from './syncer';
-import { buildNode, getBorderColor, isReady } from './misc';
+import { buildNode, getBorderColor } from './misc';
+import Menubar from './Menubar';
 
 import Cookies from 'universal-cookie';
 
@@ -58,8 +51,9 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 };
 
 var syncer = new Syncer()
+const nodeInitSize = {x: 100, y: 30}
 
-function Flow() {
+function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   
@@ -83,42 +77,54 @@ function Flow() {
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges],
   );
+
+  const connect = (connection: Connection) => {
+    const source = nodes.find(node => node.id == connection.source) as Node
+    const target = nodes.find(node => node.id == connection.target) as Node
+    client.graph.connect(convertConnectionToEdge(connection, source, target))
+    setEdges((eds) => {
+      const input = nodes.find(nd => nd.id == connection.source)
+      return addEdge(canonizeConnection(connection, input?.data.state), eds)
+    })
+  }
+
   const onConnect: OnConnect = useCallback(
     async (connection) => {
-      client.graph.connect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
-      setEdges((eds) => {
-        const node = nodes.find(nd => nd.id == connection.source) as Node
-        return addEdge({...connection, animated: !isReady(node.data.state)}, eds)
-      })
+      const isValidConnection = (connection.sourceHandle === null) == (connection.targetHandle === null)
+      if (!isValidConnection) {
+        return
+      }
+      connect(connection)
     },
     [nodes, setEdges],
   );
   const onDisconnect = useCallback(
     async (connection: Edge) => {
-      client.graph.disconnect({ FromNodeId: BigInt(connection.source), ToNodeId: BigInt(connection.target) })
+      const source = nodes.find(node => node.id == connection.source) as Node
+      const target = nodes.find(node => node.id == connection.target) as Node
+      client.graph.disconnect(convertConnectionToEdge(connection, source, target))
       setEdges((eds) => eds.filter((ed) => ed != connection))
     },
-    [setEdges],
+    [nodes, setEdges],
   );
- 
-  const newGraph = useCallback(() => {
-    if (graphPathRef.current != null) {
-      graphPathRef.current.value = ""
-    }
-    new Cookies().set('graph-path', "")
-    client.graph.new({})
-  }, [])
-  const saveGraph = useCallback(() => client.graph.save({Path: graphPathRef.current?.value}), [])
-  const loadGraph = useCallback(() => client.graph.load({Path: graphPathRef.current?.value}), [])
-  
-  const addNewNode = useCallback(async () => {
+
+  const refReactFlow = useRef<HTMLDivElement>(null)
+  const { screenToFlowPosition } = useReactFlow();
+
+  const addNewNodeByButton = useCallback(async (vieport: Viewport) => {
+    const rect = refReactFlow.current?.getBoundingClientRect() as DOMRect
+    return addNewNode({
+      x: (-vieport.x + rect.width / 2) / vieport.zoom - nodeInitSize.x / 2,
+      y: (-vieport.y + rect.height / 2) / vieport.zoom - nodeInitSize.y / 2
+    })
+  }, [setNodes]);
+
+  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
+    const snap = (value: number) => Math.round(value / 10) * 10
     var config = create(NodeConfigSchema, {
       Name: "",
-      Job: create(AnySchema, {
-        typeUrl: "type.googleapis.com/register.ShellCommandConfig",
-        value: createBinary(ShellCommandConfigSchema, { Command: 'echo "Hello, YaRL!"' }),
-      }),
-      Position: { X: 0, Y: 0 },
+      Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
+      Position: { X: snap(pos.x), Y: snap(pos.y) },
     })
     const response = await client.node.add(config);
     config.Id = response.Id
@@ -129,10 +135,8 @@ function Flow() {
     })
 
     setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
+    return response.Id
   }, [setNodes]);
-
-  // var graphPathRef = useRef(null)
-  var graphPathRef = useRef<HTMLInputElement>(null)
 
   const isLayout = (obj: any, expectedLenght?: number) => {
     return Array.isArray(obj)
@@ -140,6 +144,7 @@ function Flow() {
       && obj.map(el => typeof el == 'number' && el >= 0).reduce((r, x) => r && x)
       && obj.reduce((r, x) => r + x) == 100
   }
+
   const layout = (() => {
     const layout = new Cookies(null).get('layout')
     return isLayout(layout, 2) ? layout : [85, 15]
@@ -147,33 +152,9 @@ function Flow() {
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <div className="providerflow">
-        <ReactFlowProvider>
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
-              <Menubar style={{ padding: 0 }}>
-                <MenubarMenu>
-                  <MenubarTrigger>Graph</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem onSelect={newGraph}>New</MenubarItem>
-                    <MenubarItem onSelect={saveGraph}>Save</MenubarItem>
-                    <MenubarItem onSelect={loadGraph}>Load</MenubarItem>
-                    <MenubarSeparator/>
-                    <MenubarItem onSelect={() => client.graph.scheduleAll({})}>Schedule</MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu><MenubarMenu>
-                  <MenubarTrigger>Node</MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem onSelect={addNewNode}>New</MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <Input
-                    ref={graphPathRef}
-                    placeholder='yarl.proto.txt'
-                    defaultValue={new Cookies().get('graph-path')}
-                    onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-                />
-              </Menubar>
+              <Menubar addNewNode={addNewNodeByButton} />
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -182,16 +163,32 @@ function Flow() {
                 onConnect={onConnect}
                 onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
                 onNodesDelete={onNodesDelete}
-                onNodeDragStop={(_event: React.MouseEvent, node: Node, _nodes: Node[]) => {
-                  node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
-                  client.node.edit(node.data.config)
+                onNodeDragStop={(_event: React.MouseEvent, _node: Node, nodes: Node[]) => {
+                  nodes.forEach(node => {
+                    node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
+                    client.node.edit(node.data.config)
+                  })
                 }}
                 nodeTypes={{JobNode}}
                 fitView
                 fitViewOptions={fitViewOptions}
                 defaultEdgeOptions={defaultEdgeOptions}
                 snapToGrid
-                snapGrid={[20, 20]}
+                snapGrid={[10, 10]}
+                ref={refReactFlow}
+                onConnectEnd={async (event, connectionState) => {
+                  if (!connectionState.isValid) {
+                    const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
+                    const flowPos = screenToFlowPosition({ x: clientX, y: clientY })
+                    const spawnPos = connectionState.fromPosition == 'left'
+                      ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
+                      : {x: flowPos.x, y: flowPos.y - 10}
+                    const id = await addNewNode(spawnPos)
+                    const ends = [connectionState.fromNode?.id as string, id.toString()]
+                    const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
+                    connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
+                  }
+                }}
               >
                 <Background variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
@@ -202,10 +199,18 @@ function Flow() {
               <Sidebar nodes={nodes} setNodes={setNodes}/>
             </ResizablePanel>
           </ResizablePanelGroup>
-        </ReactFlowProvider>
-      </div>
     </div>
   );
+}
+
+function Flow() {
+  return (
+    <div className="providerflow">
+      <ReactFlowProvider>
+        <InternalFlow />
+      </ReactFlowProvider>
+    </div>
+  )
 }
 
 export default Flow;

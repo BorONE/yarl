@@ -3,8 +3,9 @@ import {
     type Edge,
 } from '@xyflow/react';
 import * as config from './gen/internal/graph/config_pb'
-import { buildNode, isReady } from './misc';
+import { buildNode } from './misc';
 import type { Node } from './JobNode';
+import { canonizeConnection, convertEdgeToConnection } from './util';
 
 enum SyncerState {
   init = 0,
@@ -21,7 +22,6 @@ export class Syncer {
 
   async sync() {
     for await (const update of this.stream) {
-      console.log(update)
       switch (this.state) {
       case SyncerState.init:
         this.handleInit(update)
@@ -44,18 +44,13 @@ export class Syncer {
       }
       case config.SyncType.InitEdge: {
         const edge = update.EdgeConfig as config.EdgeConfig
-        const state = this.initialGraph.nodes
-          .map(node => node.data.state)
-          .find((state) => state.Id == BigInt(edge.FromNodeId)) as config.NodeState
-        this.initialGraph.edges.push({
-          id: `${edge.FromNodeId}-${edge.ToNodeId}`,
-          source: `${edge.FromNodeId}`,
-          target: `${edge.ToNodeId}`,
-          animated: !isReady(state),
-        })
+        const source = this.initialGraph.nodes.find(node => node.data.id == edge.FromNodeId) as Node
+        const target = this.initialGraph.nodes.find(node => node.data.id == edge.ToNodeId) as Node
+        this.initialGraph.edges.push(convertEdgeToConnection(edge, source, target))
         break
       }
       case config.SyncType.InitDone: {
+        console.log('sync::init', this.initialGraph)
         this.state = SyncerState.sync
         this.setNodes((_) => this.initialGraph.nodes)
         this.setEdges((_) => this.initialGraph.edges)
@@ -65,10 +60,11 @@ export class Syncer {
   }
   
   handleSync(update: config.SyncResponse) {
+    console.log('sync::update', update)
     switch (update.Type) {
       case config.SyncType.UpdateState: {
         this.setNodes((nds: Node[]) => nds.map((nd) => update.NodeState?.Id == BigInt(nd.id) ? buildNode(nd.data.config, update.NodeState, nd.selected) : nd))
-        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? { ...ed, animated: !isReady(update.NodeState) } : ed))
+        this.setEdges((eds: Edge[]) => eds.map((ed) => update.NodeState?.Id == BigInt(ed.source) ? canonizeConnection(ed, update.NodeState) : ed))
         break
       }
       case config.SyncType.Reset: {

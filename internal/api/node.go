@@ -30,6 +30,12 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
+	err := node.Run()
+	if err != nil {
+		log.Printf("node{%v}.Run() failed: %v\n", prototext.MarshalOptions{}.Format(id), err)
+	}
+	return nil, err
+
 	return nil, node.Run()
 }
 
@@ -44,6 +50,8 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
+	isScheduled := map[graph.NodeId]bool{}
+
 	for nodesToSchedule := []*graph.Node{node}; len(nodesToSchedule) > 0; {
 		var nodeToSchedule *graph.Node
 		nodeToSchedule, nodesToSchedule = nodesToSchedule[0], nodesToSchedule[1:]
@@ -52,9 +60,16 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 			continue
 		}
 
+		id := graph.NodeId(*nodeToSchedule.Config.Id)
+		if isScheduled[id] {
+			continue
+		}
+		isScheduled[id] = true
+
 		if state.Idle.GetIsReady() {
 			err := nodeToSchedule.Run()
 			if err != nil {
+				log.Printf("node{Id: %v}.Run() failed: %v\n", nodeToSchedule.Config.GetId(), err)
 				return nil, err
 			}
 		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {
@@ -64,9 +79,7 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 			}
 		}
 
-		for _, nodeId := range nodeToSchedule.Input {
-			nodesToSchedule = append(nodesToSchedule, s.graph.Nodes[nodeId])
-		}
+		nodesToSchedule = append(nodesToSchedule, nodeToSchedule.CollectInput()...)
 	}
 
 	return nil, nil
@@ -168,6 +181,12 @@ func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig
 
 	nodeId := s.graph.AddNewNode(config)
 	id := uint64(nodeId)
+
+	err := s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &NodeIdentifier{Id: &id}, nil
 }
 
@@ -185,6 +204,11 @@ func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfi
 	node.Config.Reset()
 	proto.Merge(node.Config, config)
 
+	err := s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return nil, nil
 }
 
@@ -199,12 +223,17 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	if len(node.Input) > 0 || len(node.Output) > 0 {
+	if len(node.CollectInput()) > 0 || len(node.CollectOutput()) > 0 {
 		return nil, fmt.Errorf("node (id=%v) has edges", id.GetId())
 	}
 
 	delete(s.graph.Nodes, graph.NodeId(id.GetId()))
 	s.graph.Config.Nodes = slices.DeleteFunc(s.graph.Config.Nodes, func(nodeConfig *graph.NodeConfig) bool { return nodeConfig.GetId() == id.GetId() })
+
+	err := s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }

@@ -1,6 +1,6 @@
-import React, { useCallback, useState, type ReactElement } from 'react';
+import React, { useCallback, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
-import { create, fromBinary, type DescMessage, type Message } from '@bufbuild/protobuf';
+import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
 import { type NodeConfig } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
@@ -30,6 +30,8 @@ import type { Node } from './JobNode';
 import { buildNode } from './misc';
 import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
 import JobEditor from './JobEditor';
+import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
+import Io from './io';
 
 
 type JobInfo = {
@@ -46,8 +48,27 @@ type Context = {
     onJobChange: (schema: DescMessage, job: Message) => void
 }
 
-
 const jobInfos : JobInfo[] = [
+    {
+        type: 'Script',
+        typeUrl: "type.googleapis.com/register.ScriptConfig",
+        schema: ScriptConfigSchema,
+        init: create(ScriptConfigSchema, {
+            Source: [
+                "#!/bin/bash",
+                "echo 'hello yarl'",
+            ],
+        }),
+        editor: (job: ScriptConfig, ctx: Context) => {
+            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
+            return <JobEditor
+                job={job}
+                onChange={ctx.onJobChange}
+                schema={info.schema}
+                init={info.init}
+            />
+        }
+    },
     {
         type: 'ShellCommand',
         typeUrl: "type.googleapis.com/register.ShellCommandConfig",
@@ -74,32 +95,12 @@ const jobInfos : JobInfo[] = [
         editor: (_job: ShellCommandConfig, _ctx: Context) => <>Not implemented</>,
         disabled: true
     },
-    {
-        type: 'Script',
-        typeUrl: "type.googleapis.com/register.ScriptConfig",
-        schema: ScriptConfigSchema,
-        init: create(ScriptConfigSchema, {
-            Source: [
-                "#!/bin/bash",
-                "echo 'hello yarl'",
-            ],
-        }),
-        editor: (job: ScriptConfig, ctx: Context) => {
-            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
-            return <JobEditor
-                job={job}
-                onChange={ctx.onJobChange}
-                schema={info.schema}
-                init={info.init}
-            />
-        }
-    },
 ]
+
+export const defaultJobInfo = jobInfos[0]
 
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void }) => {
-    const [artsLength, setArtsLength] = useState(0)
-    
     const onJobTypeSelected = useCallback(
         (jobType: string) => setNodes(
             (nds) => {
@@ -154,17 +155,19 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         [setNodes],
     )
 
+    const patchConfigOfSelected = (configPatch: MessageInitShape<GenMessage<NodeConfig>>) => setNodes(
+        (nds: Node[]) => nds.map((nd) => {
+            if (!nd.selected) {
+                return nd
+            }
+            const editedConfig = { ...nd.data.config, ...configPatch } as NodeConfig
+            client.node.edit(editedConfig)
+            return buildNode(editedConfig, nd.data.state, true)
+        })
+    )
+
     const onJobChange = useCallback(
-        (schema: DescMessage, job: Message) => setNodes(
-            (nds: Node[]) => nds.map((nd) => {
-                if (!nd.selected) {
-                    return nd
-                }
-                const editedConfig = { ...nd.data.config, Job: anyPack(schema, job) }
-                client.node.edit(editedConfig)
-                return buildNode(editedConfig, nd.data.state, true)
-            })
-        ),
+        (schema: DescMessage, job: Message) => patchConfigOfSelected({ Job: anyPack(schema, job) }),
         [setNodes],
     )
 
@@ -209,7 +212,39 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         <Accordion
             type="multiple"
             defaultValue={new Cookies().get('sidebar-accordion')}
-            onValueChange={(values) => new Cookies().set('sidebar-accordion', values)}>
+            onValueChange={(values) => new Cookies().set('sidebar-accordion', values)}
+        >
+            <AccordionItem value="io">
+                <AccordionTrigger>IO</AccordionTrigger>
+                <AccordionContent>
+                    <Accordion
+                        type="multiple"
+                        defaultValue={new Cookies().get('io-accordion')}
+                        onValueChange={(values) => new Cookies().set('io-accordion', values)}
+                        style={{ paddingLeft: 10, paddingRight: 10 }}
+                    >
+                        <AccordionItem value="i">
+                            <AccordionTrigger>Input</AccordionTrigger>
+                            <AccordionContent>
+                                <Io
+                                    files={selectedNode.data.config.Inputs}
+                                    setFiles={fs => patchConfigOfSelected({ Inputs: fs })}
+                                    />
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="o">
+                            <AccordionTrigger>Output</AccordionTrigger>
+                            <AccordionContent>
+                                <Io
+                                    files={selectedNode.data.config.Outputs}
+                                    setFiles={fs => patchConfigOfSelected({ Outputs: fs })}
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="editor">
                 <AccordionTrigger>Editor</AccordionTrigger>
                 <AccordionContent>
@@ -224,13 +259,11 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                     {jobEditor}
                 </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="arts" disabled={artsLength == 0}>
+
+            <AccordionItem value="arts">
                 <AccordionTrigger>Artifacts</AccordionTrigger>
                 <AccordionContent>
-                    <Artifacts
-                        selectedNode={selectedNode}
-                        onContent={content => setArtsLength(content.length)}
-                    />
+                    <Artifacts selectedNode={selectedNode} />
                 </AccordionContent>
             </AccordionItem>
         </Accordion>
