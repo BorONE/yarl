@@ -225,6 +225,11 @@ export default memo(({ data } : { data: NodeData }) => {
                     top: 9 + 20 + ioOffset * i - 6,
                     left: -1 + 7,
                     color: "#888",
+                    width: 50 - (-1 + 7),
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "inline-block",
+                    textAlign: "left",
                 }}>
                     {file}
                 </div>
@@ -250,6 +255,11 @@ export default memo(({ data } : { data: NodeData }) => {
                     top: 9 + 20 + ioOffset * i - 6,
                     right: -1 + 7,
                     color: "#888",
+                    width: 50 - (-1 + 7),
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "inline-block",
+                    textAlign: "right",
                 }}>
                     {file}
                 </div>
