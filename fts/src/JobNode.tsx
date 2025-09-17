@@ -52,11 +52,14 @@ export default memo(({ data } : { data: NodeData }) => {
         case "Idle":
             if (state.State.value.IsReady) {
                 return genButton(() => client.node.run({Id: data.id}), runIcon, style)
-            } else if (state.State.value.Plan != config.NodeState_IdleState_IdlePlan.Scheduled) {
+            }
+            switch (state.State.value.Plan) {
+            case config.NodeState_IdleState_IdlePlan.None:
                 return genButton(() => client.node.schedule({Id: data.id}), scheduleIcon, style)
-            } else {
+            case config.NodeState_IdleState_IdlePlan.Scheduled:
                 return genButton(() => client.node.plan({Id: data.id, Plan: config.NodeState_IdleState_IdlePlan.None}), unscheduleIcon, style)
             }
+            break
         case "InProgress":
             return genButton(() => client.node.stop({Id: data.id}), stopIcon, style)
         case "Done":
