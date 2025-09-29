@@ -72,7 +72,6 @@ func (holder *GraphHolder) Save(ctx context.Context, path string) error {
 
 func (holder *GraphHolder) resetGraph(config *graph.Config) {
 	if holder.Graph != nil {
-		holder.Graph.ReportSync(&graph.SyncResponse{Type: graph.SyncType_Reset.Enum()})
 		holder.cancel()
 	}
 	holder.ctx, holder.cancel = context.WithCancel(context.Background())

@@ -3,6 +3,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"log"
+	"pipegraph/internal/util"
 	"slices"
 	"sync"
 
@@ -34,6 +36,13 @@ func NewGraph(config *Config, ctx context.Context) *Graph {
 	}
 	for _, nodeConfig := range config.Nodes {
 		g.Nodes[NodeId(*nodeConfig.Id)] = NewNode(g, nodeConfig)
+	}
+	util.OnGrpcError = func(err error) {
+		log.Println("Err: ", err.Error())
+		g.ReportSync(&SyncResponse{
+			Type:  SyncType_Error.Enum(),
+			Error: map[string]string{"error": err.Error()},
+		})
 	}
 	return g
 }

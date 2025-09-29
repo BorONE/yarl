@@ -30,6 +30,7 @@ const (
 	SyncType_InitDone    SyncType = 3
 	SyncType_UpdateState SyncType = 4
 	SyncType_Reset       SyncType = 5
+	SyncType_Error       SyncType = 6
 )
 
 // Enum value maps for SyncType.
@@ -40,6 +41,7 @@ var (
 		3: "InitDone",
 		4: "UpdateState",
 		5: "Reset",
+		6: "Error",
 	}
 	SyncType_value = map[string]int32{
 		"InitNode":    1,
@@ -47,6 +49,7 @@ var (
 		"InitDone":    3,
 		"UpdateState": 4,
 		"Reset":       5,
+		"Error":       6,
 	}
 )
 
@@ -576,6 +579,7 @@ type SyncResponse struct {
 	NodeConfig    *NodeConfig            `protobuf:"bytes,2,opt,name=NodeConfig" json:"NodeConfig,omitempty"`
 	NodeState     *NodeState             `protobuf:"bytes,3,opt,name=NodeState" json:"NodeState,omitempty"`
 	EdgeConfig    *EdgeConfig            `protobuf:"bytes,4,opt,name=EdgeConfig" json:"EdgeConfig,omitempty"`
+	Error         map[string]string      `protobuf:"bytes,5,rep,name=Error" json:"Error,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -634,6 +638,13 @@ func (x *SyncResponse) GetNodeState() *NodeState {
 func (x *SyncResponse) GetEdgeConfig() *EdgeConfig {
 	if x != nil {
 		return x.EdgeConfig
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetError() map[string]string {
+	if x != nil {
+		return x.Error
 	}
 	return nil
 }
@@ -855,7 +866,7 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"FromNodeId\x12\x1a\n" +
 	"\bToNodeId\x18\x02 \x01(\x04R\bToNodeId\x12\x1a\n" +
 	"\bFromPort\x18\x03 \x01(\x04R\bFromPort\x12\x16\n" +
-	"\x06ToPort\x18\x04 \x01(\x04R\x06ToPort\"\xc9\x01\n" +
+	"\x06ToPort\x18\x04 \x01(\x04R\x06ToPort\"\xb9\x02\n" +
 	"\fSyncResponse\x12#\n" +
 	"\x04Type\x18\x01 \x01(\x0e2\x0f.graph.SyncTypeR\x04Type\x121\n" +
 	"\n" +
@@ -864,13 +875,19 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"\tNodeState\x18\x03 \x01(\v2\x10.graph.NodeStateR\tNodeState\x121\n" +
 	"\n" +
 	"EdgeConfig\x18\x04 \x01(\v2\x11.graph.EdgeConfigR\n" +
-	"EdgeConfig*P\n" +
+	"EdgeConfig\x124\n" +
+	"\x05Error\x18\x05 \x03(\v2\x1e.graph.SyncResponse.ErrorEntryR\x05Error\x1a8\n" +
+	"\n" +
+	"ErrorEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*[\n" +
 	"\bSyncType\x12\f\n" +
 	"\bInitNode\x10\x01\x12\f\n" +
 	"\bInitEdge\x10\x02\x12\f\n" +
 	"\bInitDone\x10\x03\x12\x0f\n" +
 	"\vUpdateState\x10\x04\x12\t\n" +
-	"\x05Reset\x10\x05B\x1aZ\x18pipegraph/internal/graph"
+	"\x05Reset\x10\x05\x12\t\n" +
+	"\x05Error\x10\x06B\x1aZ\x18pipegraph/internal/graph"
 
 var (
 	file_internal_graph_config_proto_rawDescOnce sync.Once
@@ -885,7 +902,7 @@ func file_internal_graph_config_proto_rawDescGZIP() []byte {
 }
 
 var file_internal_graph_config_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_internal_graph_config_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_internal_graph_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_internal_graph_config_proto_goTypes = []any{
 	(SyncType)(0),                                   // 0: graph.SyncType
 	(NodeState_IdleState_IdlePlan)(0),               // 1: graph.NodeState.IdleState.IdlePlan
@@ -899,7 +916,8 @@ var file_internal_graph_config_proto_goTypes = []any{
 	(*NodeState_IdleState)(nil),                     // 9: graph.NodeState.IdleState
 	(*NodeState_InProgressState)(nil),               // 10: graph.NodeState.InProgressState
 	(*NodeState_DoneState)(nil),                     // 11: graph.NodeState.DoneState
-	(*any1.Any)(nil),                                // 12: google.protobuf.Any
+	nil,                                             // 12: graph.SyncResponse.ErrorEntry
+	(*any1.Any)(nil),                                // 13: google.protobuf.Any
 }
 var file_internal_graph_config_proto_depIdxs = []int32{
 	9,  // 0: graph.NodeState.Idle:type_name -> graph.NodeState.IdleState
@@ -907,19 +925,20 @@ var file_internal_graph_config_proto_depIdxs = []int32{
 	11, // 2: graph.NodeState.Done:type_name -> graph.NodeState.DoneState
 	6,  // 3: graph.Config.Nodes:type_name -> graph.NodeConfig
 	7,  // 4: graph.Config.Edges:type_name -> graph.EdgeConfig
-	12, // 5: graph.NodeConfig.Job:type_name -> google.protobuf.Any
+	13, // 5: graph.NodeConfig.Job:type_name -> google.protobuf.Any
 	5,  // 6: graph.NodeConfig.Position:type_name -> graph.Position
 	0,  // 7: graph.SyncResponse.Type:type_name -> graph.SyncType
 	6,  // 8: graph.SyncResponse.NodeConfig:type_name -> graph.NodeConfig
 	3,  // 9: graph.SyncResponse.NodeState:type_name -> graph.NodeState
 	7,  // 10: graph.SyncResponse.EdgeConfig:type_name -> graph.EdgeConfig
-	1,  // 11: graph.NodeState.IdleState.Plan:type_name -> graph.NodeState.IdleState.IdlePlan
-	2,  // 12: graph.NodeState.InProgressState.Status:type_name -> graph.NodeState.InProgressState.InProgressStatus
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	12, // 11: graph.SyncResponse.Error:type_name -> graph.SyncResponse.ErrorEntry
+	1,  // 12: graph.NodeState.IdleState.Plan:type_name -> graph.NodeState.IdleState.IdlePlan
+	2,  // 13: graph.NodeState.InProgressState.Status:type_name -> graph.NodeState.InProgressState.InProgressStatus
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_internal_graph_config_proto_init() }
@@ -938,7 +957,7 @@ func file_internal_graph_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_graph_config_proto_rawDesc), len(file_internal_graph_config_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

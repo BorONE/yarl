@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -39,27 +39,30 @@ import {
 } from "@/components/ui/resizable"
 import { canonizeConnection, convertConnectionToEdge } from './util';
 
-import { Syncer } from './syncer';
+import { StableSyncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
 import Menubar from './Menubar';
 
 import Cookies from 'universal-cookie';
+import { Toaster } from "@/components/ui/sonner"
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
 };
 
-var syncer = new Syncer()
+var syncer = new StableSyncer()
 const nodeInitSize = {x: 100, y: 30}
 
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   
-  syncer.setNodes = setNodes
-  syncer.setEdges = setEdges
-  syncer.sync()
+  useEffect(() => {
+    syncer.setNodes = setNodes
+    syncer.setEdges = setEdges
+    syncer.sync()
+  }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds) as Node[]),
@@ -209,6 +212,7 @@ function Flow() {
       <ReactFlowProvider>
         <InternalFlow />
       </ReactFlowProvider>
+      <Toaster style={{background: "#DD5274"}} visibleToasts={100} duration={1/0} closeButton />
     </div>
   )
 }

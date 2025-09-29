@@ -75,6 +75,7 @@ enum SyncType {
     InitDone = 3;
     UpdateState = 4;
     Reset = 5;
+    Error = 6;
 }
 
 message SyncResponse {
@@ -82,4 +83,5 @@ message SyncResponse {
     optional graph.NodeConfig NodeConfig = 2;
     optional graph.NodeState NodeState = 3;
     optional graph.EdgeConfig EdgeConfig = 4;
+    map<string, string> Error = 5;
 }

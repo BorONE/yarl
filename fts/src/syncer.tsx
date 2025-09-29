@@ -7,10 +7,45 @@ import { buildNode } from './misc';
 import type { Node } from './JobNode';
 import { canonizeConnection, convertEdgeToConnection } from './util';
 
+import { toast } from "sonner"
+
+
 enum SyncerState {
   init = 0,
   sync = 1,
 }
+
+function timeout(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function backoff(index: number) {
+  const msSecond = 1000
+  var msBackoffs = [1, 2, 5, 10, 15, 30].map(s => s * msSecond)
+  var msMaxBackoff = 60 * msSecond
+  return timeout(index < msBackoffs.length ? msBackoffs[index] : msMaxBackoff)
+}
+
+export class StableSyncer {
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
+
+  async sync() {
+    for (var tryNumber = 0; ; tryNumber += 1) {
+      try {
+        const syncer = new Syncer()
+        syncer.setNodes = this.setNodes
+        syncer.setEdges = this.setEdges
+        await syncer.sync()
+      } catch (err) {
+        const error = err as Error
+        console.error('sync::exception', err)
+        toast(`Sync exception #${tryNumber} "${error.name}"`, { description: error.message })
+        await backoff(tryNumber)
+      }
+    }
+  }
+};
 
 export class Syncer {
   state = SyncerState.init
@@ -74,6 +109,9 @@ export class Syncer {
         this.state = SyncerState.init
         this.stream = client.graph.sync({})
         break
+      }
+      case config.SyncType.Error: {
+        toast("Error", { description: update.Error["error"] })
       }
     }
   }

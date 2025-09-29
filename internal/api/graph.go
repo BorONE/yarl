@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"pipegraph/internal/graph"
+	"pipegraph/internal/util"
 	"sync"
 
 	grpc "google.golang.org/grpc"
@@ -22,7 +23,7 @@ func (s ImplementedGraphServer) New(ctx context.Context, _ *Nothing) (*Nothing, 
 	defer s.mutex.Unlock()
 
 	log.Printf("serving New()\n")
-	return nil, s.graph.New(ctx)
+	return nil, util.GrpcError(s.graph.New(ctx))
 }
 
 func (s ImplementedGraphServer) Load(ctx context.Context, path *Path) (*Nothing, error) {
@@ -30,7 +31,7 @@ func (s ImplementedGraphServer) Load(ctx context.Context, path *Path) (*Nothing,
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Load(%v)\n", prototext.MarshalOptions{}.Format(path))
-	return nil, s.graph.Load(ctx, path.GetPath())
+	return nil, util.GrpcError(s.graph.Load(ctx, path.GetPath()))
 }
 
 func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing, error) {
@@ -38,7 +39,7 @@ func (s ImplementedGraphServer) Save(ctx context.Context, path *Path) (*Nothing,
 	defer s.mutex.Unlock()
 
 	log.Printf("serving Save(%v)\n", prototext.MarshalOptions{}.Format(path))
-	return nil, s.graph.Save(ctx, path.GetPath())
+	return nil, util.GrpcError(s.graph.Save(ctx, path.GetPath()))
 }
 
 func generateInit(g *graph.Graph, gen func(*graph.SyncResponse)) {
@@ -81,7 +82,7 @@ func (s ImplementedGraphServer) Sync(_ *Nothing, stream grpc.ServerStreamingServ
 			stream.Send(sync)
 		case <-s.graph.ctx.Done():
 			log.Println("streaming Sync() graph context done:", s.graph.ctx.Err())
-			return s.graph.ctx.Err()
+			return util.GrpcError(s.graph.ctx.Err())
 		}
 	}
 }
@@ -96,10 +97,14 @@ func (s ImplementedGraphServer) ScheduleAll(ctx context.Context, _ *Nothing) (*N
 			continue
 		}
 
+		var err error
 		if state.Idle.GetIsReady() {
-			node.Run()
+			err = node.Run()
 		} else if state.Idle.GetPlan() == graph.NodeState_IdleState_None {
-			node.Plan(graph.NodeState_IdleState_Scheduled)
+			err = node.Plan(graph.NodeState_IdleState_Scheduled)
+		}
+		if err != nil {
+			util.GrpcError(err)
 		}
 	}
 
@@ -113,12 +118,12 @@ func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeCon
 	log.Printf("serving Connect(%v)\n", prototext.MarshalOptions{}.Format(edge))
 	err := s.graph.Connect(edge)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	err = s.graph.SaveCurrent(ctx)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	return nil, nil
@@ -131,12 +136,12 @@ func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.Edge
 	log.Printf("serving Disconnect(%v)\n", prototext.MarshalOptions{}.Format(edge))
 	err := s.graph.Disconnect(edge)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	err = s.graph.SaveCurrent(ctx)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	return nil, nil

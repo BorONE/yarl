@@ -251,13 +251,13 @@ func (node *Node) OnInputChange() {
 			err := node.Run()
 			if err != nil {
 				log.Printf("node{Id: %v}.Run() failed: %v\n", node.Config.GetId(), err)
-				// TODO
+				util.GrpcError(err)
 			}
 
 		case NodeState_IdleState_Skipped:
 			err := node.Done()
 			if err != nil {
-				// TODO
+				util.GrpcError(err)
 			}
 		}
 	}
