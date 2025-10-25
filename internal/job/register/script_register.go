@@ -43,7 +43,7 @@ func (j *ScriptJob) Run(ctx *job.RunContext) error {
 	j.cmd.Dir = ctx.Dir
 
 	j.arts.Set("started_at", time.Now().String())
-	defer j.arts.Set("finished_at", time.Now().String())
+	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
 
 	return j.cmd.Run()
 }
