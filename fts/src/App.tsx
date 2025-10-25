@@ -18,6 +18,7 @@ import {
   type Viewport,
   useReactFlow,
   type Connection,
+  Controls,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -195,6 +196,7 @@ function InternalFlow() {
               >
                 <Background variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
+                <Controls style={{ position: 'absolute', bottom: 30 }} />
               </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
