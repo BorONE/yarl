@@ -1,7 +1,7 @@
 import { create, toBinary,  type DescMessage, type MessageInitShape } from '@bufbuild/protobuf';
 import * as config from './gen/internal/graph/config_pb'
 import { type Connection, type Edge } from '@xyflow/react';
-import { getBorderColor } from './misc';
+import { getBorderColor, isScheduled } from './misc';
 import type { Node } from './JobNode';
 
 export const extractJobType = (typeUrl: string) => {
@@ -9,6 +9,10 @@ export const extractJobType = (typeUrl: string) => {
     const configType = splitted[splitted.length - 1];
     const configSuffixIndex = configType.indexOf("Config")
     return configType.slice(0, configSuffixIndex == -1 ? configType.length : configSuffixIndex);
+}
+
+export const extractJobTypeSafe = (typeUrl: string | undefined) => {
+    return typeUrl ? extractJobType(typeUrl) : "unknown job type"
 }
 
 export function createBinary<Desc extends DescMessage>(schema: Desc, init?: MessageInitShape<Desc>): Uint8Array {
@@ -49,5 +53,5 @@ export function canonizeConnection(connection: Edge | Connection, inputState?: c
     const id = isFile
         ? `${connection.source}-${connection.target}:${connection.sourceHandle}-${connection.targetHandle}`
         : `${connection.source}-${connection.target}`
-    return { ...connection, id, style, animated: isFile }
+    return { ...connection, id, style, animated: isFile || (inputState ? isScheduled(inputState) : false) }
 }

@@ -77,7 +77,7 @@
     stroke-width: 2px;
   }
   
-  .react-flow__handle {
+  /* .react-flow__handle {
     background-color: var(--xy-handle-background-color-default);
   }
   
@@ -91,7 +91,7 @@
   .react-flow__handle.connectingfrom,
   .react-flow__handle.connectingto {
     border-color: var(--xy-theme-edge-hover);
-  }
+  } */
   
   .react-flow__node-resizer {
     border-radius: 0;

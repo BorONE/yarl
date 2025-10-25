@@ -1,4 +1,5 @@
 @import url('./xy-theme.css');
+@import url('./job-node.css');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -81,10 +82,6 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
-
-.reset-button:hover {
-  animation: rotation 0.5s ease-in 0s 1 reverse
 }
 
 .extra-buttons {

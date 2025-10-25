@@ -1,0 +1,45 @@
+.job-node-name {
+    position: absolute;
+    left: 5px;
+    top: 1px;
+
+    width: 80px;
+    
+    font-size: 9px;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    text-align: left;
+}
+
+.job-node-type {
+    position: absolute;
+    left: 5px;
+    top: 10px;
+
+    font-size: 6px;
+
+    color: #747474;
+}
+
+.job-node-status {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+
+    height: 16px;
+    width: 16px;
+}
+
+
+.job-node-buttons {
+  visibility: hidden;
+}
+
+.job-node-buttons:hover,
+.react-flow__node:hover .job-node-buttons,
+.react-flow__node:focus .job-node-buttons {
+  visibility: visible;
+}
