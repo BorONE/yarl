@@ -55,6 +55,11 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 var syncer = new StableSyncer()
 const nodeInitSize = {x: 100, y: 30}
 
+type CopyBuffer = {
+  nodes: config.NodeConfig[],
+  edges: { edge: Edge, sourceIndex: number, targetIndex: number }[],
+}
+
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -123,13 +128,11 @@ function InternalFlow() {
     })
   }, [setNodes]);
 
-  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
-    const snap = (value: number) => Math.round(value / 10) * 10
-    var config = create(NodeConfigSchema, {
-      Name: "",
-      Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
-      Position: { X: snap(pos.x), Y: snap(pos.y) },
-    })
+  const deselectAllNodes = () => {
+    setNodes((nds) => nds.map(nd => ({...nd, selected: false})));
+  }
+
+  const addNodeFromConfig = async (config: config.NodeConfig) => {
     const response = await client.node.add(config);
     config.Id = response.Id
 
@@ -138,8 +141,19 @@ function InternalFlow() {
       State: { case: "Idle", value: { IsReady: true } },
     })
 
-    setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
+    setNodes((nds) => [...nds, buildNode(config, state, true)])
     return response.Id
+  }
+
+  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
+    const snap = (value: number) => Math.round(value / 10) * 10
+    var config = create(NodeConfigSchema, {
+      Name: "",
+      Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
+      Position: { X: snap(pos.x), Y: snap(pos.y) },
+    })
+    deselectAllNodes()
+    return await addNodeFromConfig(config)
   }, [setNodes]);
 
   const isLayout = (obj: any, expectedLenght?: number) => {
@@ -153,6 +167,63 @@ function InternalFlow() {
     const layout = new Cookies(null).get('layout')
     return isLayout(layout, 2) ? layout : [85, 15]
   })()
+
+  useEffect(() => {
+    const keyPress = async (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key == 'c') {
+        const selectedNodes = nodes.filter(node => node.selected).map(node => node.id)
+        const copyBuffer: CopyBuffer = {
+          nodes: nodes
+            .filter(node => node.selected)
+            .map(node => ({ ...node.data.config, Id: undefined })),
+          edges: edges
+            .map(edge => ({
+              edge,
+              sourceIndex: selectedNodes.indexOf(edge.source),
+              targetIndex: selectedNodes.indexOf(edge.target),
+            }))
+            .filter(edge => (edge.sourceIndex >= 0) || (edge.targetIndex >= 0))
+        }
+        new Cookies(null).set('copy-buffer', copyBuffer)
+      }
+      if (event.ctrlKey && event.key == 'v') {
+        const copied = new Cookies(null).get('copy-buffer') as CopyBuffer
+        deselectAllNodes()
+        const idsAsBigint = await Promise.all(
+          copied.nodes
+            .map(config => {
+              if (config.Position) {
+                config.Position.X += 10
+                config.Position.Y += 10
+              }
+              if (config.Job) {
+                config.Job.value = new Uint8Array(Object.entries(config.Job.value).map(x => x[1]))
+              }
+              return config
+            })
+            .map(config => addNodeFromConfig(config))
+        )
+        const ids = idsAsBigint.map(id => id.toString())
+        copied.edges.forEach(edge => {
+          let connection = edge.edge
+          if (edge.sourceIndex >= 0) {
+            connection.source = ids[edge.sourceIndex]
+          }
+          if (edge.targetIndex >= 0) {
+            connection.target = ids[edge.targetIndex]
+          }
+          connect({
+            source: edge.sourceIndex >= 0 ? ids[edge.sourceIndex] : edge.edge.source,
+            target: edge.targetIndex >= 0 ? ids[edge.targetIndex] : edge.edge.target,
+            sourceHandle: edge.edge.sourceHandle || null,
+            targetHandle: edge.edge.targetHandle || null,
+          })
+        })
+      }
+    }
+    document.addEventListener("keydown", keyPress)
+    return () => document.removeEventListener("keydown", keyPress)
+  })
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
