@@ -238,6 +238,8 @@ func (node *Node) Skip() error {
 	state.InProgress.Status = NodeState_InProgressState_Skipping.Enum()
 	node.ReportUpdate()
 
+	node.NotifyOutputOnInputChange()
+
 	return nil
 }
 
