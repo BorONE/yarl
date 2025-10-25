@@ -12,6 +12,7 @@ import statusIconSkipping from './assets/status/2/skipping.svg'
 import statusIconSkipped from './assets/status/2/skipped.svg'
 import statusIconToSkip from './assets/status/2/to_skip.svg'
 import statusIconDoneStopped from './assets/status/2/stopped.svg'
+import statusIconDoneStoppedSkipped from './assets/status/2/skipped stopped.svg'
 import statusIconDoneSuccess from './assets/status/2/success.svg'
 
 import runIcon from './assets/button/3/run.svg'
@@ -208,20 +209,14 @@ export default memo(({ data } : { data: NodeData }) => {
                 return {icon: statusIconInProgress}
             }
         case "Done":
-            if (state.State.value.IsStopped) {
-                return {icon: statusIconDoneStopped}
+            if (state.State.value.FromIdle) {
+                return {icon: statusIconSkipped}
+            } else if (state.State.value.IsStopped) {
+                return {icon: state.State.value.IsSkipped ? statusIconDoneStoppedSkipped : statusIconDoneStopped }
             } else if (state.State.value.Error) {
-                if (state.State.value.IsSkipped) {
-                    return {icon: statusIconDoneErrorSkipped}
-                } else {
-                    return {icon: statusIconDoneError}
-                }
+                return {icon: state.State.value.IsSkipped ? statusIconDoneErrorSkipped : statusIconDoneError }
             } else {
-                if (state.State.value.FromIdle) {
-                    return {icon: statusIconSkipped}
-                } else {
-                    return {icon: statusIconDoneSuccess}
-                }
+                return {icon: statusIconDoneSuccess}
             }
         }
         return {icon: statusIcon}
@@ -236,12 +231,9 @@ export default memo(({ data } : { data: NodeData }) => {
         }
     }
 
-    const name = data.config.Name == "" ? {
-        value: `Node`,
-        color: "#747474",
-    } : {
-        value: data.config.Name,
-        color: "#080808",
+    const name = {
+        value: data.config.Name == "" ? `Node` : data.config.Name,
+        color: data.config.Name == "" ? "#747474" : "#080808",
     }
 
     const handleOffset = -4
