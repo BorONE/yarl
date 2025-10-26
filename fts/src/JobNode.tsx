@@ -86,13 +86,11 @@ export default memo(({ data } : { data: NodeData }) => {
         return <div style={{
             position: 'absolute',
             left: pos * 20 + 9,
-            top: -14,
+            top: -1,
         }}>
             <Tooltip>
-                <TooltipTrigger>
-                    <button onClick={btn.onClick} style={style} className={className}>
-                        <img src={btn.icon}/>
-                    </button>
+                <TooltipTrigger onClick={btn.onClick} style={style} className={className}>
+                    <img src={btn.icon}/>
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>{btn.tooltip}</p>
