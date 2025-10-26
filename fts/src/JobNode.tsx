@@ -228,7 +228,7 @@ export default memo(({ data } : { data: NodeData }) => {
 
     const name = {
         value: data.config.Name == "" ? `Node` : data.config.Name,
-        color: data.config.Name == "" ? "#747474" : "#080808",
+        color: data.config.Name == "" ? "#747474" : undefined,
     }
 
     const handleOffset = -4
