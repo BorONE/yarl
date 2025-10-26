@@ -83,7 +83,7 @@ type Btn = {
 export default memo(({ data } : { data: NodeData }) => {
     const genButton = (btn: Btn, pos: number, style = {}, className: string | undefined = undefined) => {
         style = { ...buttonStyle, borderColor: 'transparent', ...style }
-        return <div style={{
+        return <div key={pos.toString()} style={{
             position: 'absolute',
             left: pos * 20 + 9,
             top: -1,
