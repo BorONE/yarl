@@ -48,6 +48,15 @@ type Context = {
     onJobChange: (schema: DescMessage, job: Message) => void
 }
 
+const buildJobEditor = (job: ScriptConfig, ctx: Context, info: JobInfo) => {
+    return <JobEditor
+        job={job}
+        onChange={ctx.onJobChange}
+        schema={info.schema}
+        init={info.init}
+    />
+}
+
 const jobInfos : JobInfo[] = [
     {
         type: 'Script',
@@ -59,41 +68,8 @@ const jobInfos : JobInfo[] = [
                 "echo 'hello yarl'",
             ],
         }),
-        editor: (job: ScriptConfig, ctx: Context) => {
-            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
-            return <JobEditor
-                job={job}
-                onChange={ctx.onJobChange}
-                schema={info.schema}
-                init={info.init}
-            />
-        }
-    },
-    {
-        type: 'ShellCommand',
-        typeUrl: "type.googleapis.com/register.ShellCommandConfig",
-        schema: ShellCommandConfigSchema,
-        init: create(ShellCommandConfigSchema, {Command: "echo \"Hello, YaRL!\""}),
-        editor: (job: ShellCommandConfig, ctx: Context) => {
-            return <div className="grid w-full items-center gap-3">
-                <Label htmlFor="ShellCommand.Command">Command</Label>
-                <Input
-                    id="ShellCommand.Command"
-                    onChange={ctx.onShellCommandChange}
-                    placeholder='echo "hello yarl"'
-                    value={job.Command}
-                    style={{ fontFamily: "monospace" }}
-                />
-            </div>
-        }
-    },
-    {
-        type: 'ShellScript',
-        typeUrl: "type.googleapis.com/register.ShellScriptConfig",
-        schema: ShellScriptConfigSchema,
-        init: create(ShellScriptConfigSchema, {Path: "/dev/null", Args: []}),
-        editor: (_job: ShellCommandConfig, _ctx: Context) => <>Not implemented</>,
-        disabled: true
+        editor: (job: ScriptConfig, ctx: Context) =>
+            buildJobEditor(job, ctx, jobInfos.find(info => info.type == 'Script') as JobInfo)
     },
 ]
 
