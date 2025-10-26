@@ -46,6 +46,7 @@ import Menubar from './Menubar';
 
 import Cookies from 'universal-cookie';
 import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider, useTheme } from './ThemeProvider';
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -225,12 +226,15 @@ function InternalFlow() {
     return () => document.removeEventListener("keydown", keyPress)
   })
 
+  const { theme } = useTheme()
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
               <Menubar addNewNode={addNewNodeByButton} />
               <ReactFlow
+                colorMode={theme}
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -265,7 +269,7 @@ function InternalFlow() {
                   }
                 }}
               >
-                <Background variant={BackgroundVariant.Dots} />
+                <Background style={{backgroundColor: 'var(--background)'}} variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
                 <Controls style={{ position: 'absolute', bottom: 30 }} />
               </ReactFlow>
@@ -283,7 +287,9 @@ function Flow() {
   return (
     <div className="providerflow">
       <ReactFlowProvider>
-        <InternalFlow />
+        <ThemeProvider defaultTheme='system'>
+          <InternalFlow />
+        </ThemeProvider>
       </ReactFlowProvider>
       <Toaster style={{background: "#DD5274"}} visibleToasts={100} duration={1/0} closeButton />
     </div>
