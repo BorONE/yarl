@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, type CSSProperties } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
 import statusIconDoneError from './assets/status/2/failed.svg'
@@ -83,11 +83,8 @@ type Btn = {
 export default memo(({ data } : { data: NodeData }) => {
     const genButton = (btn: Btn, pos: number, style = {}, className: string | undefined = undefined) => {
         style = { ...buttonStyle, borderColor: 'transparent', ...style }
-        return <div key={pos.toString()} style={{
-            position: 'absolute',
-            left: pos * 20 + 9,
-            top: -1,
-        }}>
+        const position : CSSProperties = { position: 'absolute', left: pos * 20 + 9, top: -1 }
+        return <div key={pos.toString()} style={position}>
             <Tooltip>
                 <TooltipTrigger onClick={btn.onClick} style={style} className={className}>
                     <img src={btn.icon}/>
