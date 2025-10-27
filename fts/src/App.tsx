@@ -171,7 +171,7 @@ function InternalFlow() {
 
   useEffect(() => {
     const keyPress = async (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key == 'c') {
+      if (event.ctrlKey && event.altKey && event.key == 'c') {
         const selectedNodes = nodes.filter(node => node.selected).map(node => node.id)
         const copyBuffer: CopyBuffer = {
           nodes: nodes
@@ -187,7 +187,7 @@ function InternalFlow() {
         }
         new Cookies(null).set('copy-buffer', copyBuffer)
       }
-      if (event.ctrlKey && event.key == 'v') {
+      if (event.ctrlKey && event.altKey && event.key == 'v') {
         const copied = new Cookies(null).get('copy-buffer') as CopyBuffer
         deselectAllNodes()
         const idsAsBigint = await Promise.all(
