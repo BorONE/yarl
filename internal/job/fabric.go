@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"log"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -30,9 +31,11 @@ var creators map[string]Creator = make(map[string]Creator)
 func Register(cfg proto.Message, creator Creator) error {
 	job, err := anypb.New(cfg)
 	if err != nil {
+		log.Panicln("failed to register job: ", err)
 		return err
 	}
 	creators[job.TypeUrl] = creator
+	log.Println(job.TypeUrl, " is registered")
 	return nil
 }
 

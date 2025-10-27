@@ -29,6 +29,7 @@ import Artifacts from './Arts';
 import type { Node } from './JobNode';
 import { buildNode } from './misc';
 import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
+import { DaemonConfigSchema, type DaemonConfig } from './gen/internal/job/register/daemon_pb';
 import JobEditor from './JobEditor';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';
@@ -70,6 +71,18 @@ const jobInfos : JobInfo[] = [
         }),
         editor: (job: ScriptConfig, ctx: Context) =>
             buildJobEditor(job, ctx, jobInfos.find(info => info.type == 'Script') as JobInfo)
+    },
+    {
+        type: 'Daemon',
+        typeUrl: "type.googleapis.com/register.DaemonConfig",
+        schema: DaemonConfigSchema,
+        init: create(DaemonConfigSchema, {
+            Run: "",
+            Status: "",
+            Shutdown: "",
+        }),
+        editor: (job: ScriptConfig, ctx: Context) =>
+            buildJobEditor(job, ctx, jobInfos.find(info => info.type == 'Daemon') as JobInfo)
     },
 ]
 
