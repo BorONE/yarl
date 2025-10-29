@@ -185,11 +185,14 @@ function InternalFlow() {
             }))
             .filter(edge => (edge.sourceIndex >= 0) || (edge.targetIndex >= 0))
         }
-        new Cookies(null).set('copy-buffer', copyBuffer)
+        navigator.clipboard.writeText(JSON.stringify(copyBuffer))
       }
       if (event.ctrlKey && event.altKey && event.key == 'v') {
-        const copied = new Cookies(null).get('copy-buffer') as CopyBuffer
+        const clipboard = await navigator.clipboard.readText()
+        const copied = JSON.parse(clipboard)
+        console.log(copied)
         deselectAllNodes()
+        console.log(copied)
         const idsAsBigint = await Promise.all(
           copied.nodes
             .map(config => {
