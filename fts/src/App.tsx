@@ -76,8 +76,8 @@ function InternalFlow() {
   );
   const onNodesDelete: OnNodesDelete = useCallback(
     (changes) => {
-      changes.forEach((node) => client.node.delete({Id: BigInt(node.id)}))
       setNodes((nds) => applyNodeChanges(changes.map((node) => ({ id: node.id, type: 'remove' })), nds))
+      changes.forEach((node) => client.node.delete({Id: BigInt(node.id)}))
     },
     [setNodes],
   );
@@ -111,7 +111,7 @@ function InternalFlow() {
     async (connection: Edge) => {
       const source = nodes.find(node => node.id == connection.source) as Node
       const target = nodes.find(node => node.id == connection.target) as Node
-      client.graph.disconnect(convertConnectionToEdge(connection, source, target))
+      await client.graph.disconnect(convertConnectionToEdge(connection, source, target))
       setEdges((eds) => eds.filter((ed) => ed != connection))
     },
     [nodes, setEdges],
@@ -185,9 +185,7 @@ function InternalFlow() {
       if (event.ctrlKey && event.altKey && event.key == 'v') {
         const clipboard = await navigator.clipboard.readText()
         const copied = JSON.parse(clipboard)
-        console.log(copied)
         deselectAllNodes()
-        console.log(copied)
         const idsAsBigint = await Promise.all(
           copied.nodes
             .map(config => {
