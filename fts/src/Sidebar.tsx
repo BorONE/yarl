@@ -32,6 +32,7 @@ import { DaemonConfigSchema, DaemonMonitorConfigSchema } from './gen/internal/jo
 import JobEditor from './JobEditor';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';
+import { FileConfigSchema } from './gen/internal/job/register/file/file_pb';
 
 
 type JobInfo = {
@@ -89,6 +90,15 @@ const jobInfos : JobInfo[] = [
             job: create(DaemonMonitorConfigSchema, {}),
             input: ['info'],
             output: [],
+        },
+    },
+    {
+        type: 'File',
+        schema: FileConfigSchema,
+        init: {
+            job: create(FileConfigSchema, {}),
+            input: [],
+            output: ['file'],
         },
     },
 ]
