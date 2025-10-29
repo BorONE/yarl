@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package register;
+option go_package = "pipegraph/register";
+
+message DaemonConfig {
+    required string Run = 1;
+    required string Status = 2;
+    required string Shutdown = 3;
+}
+
+message DaemonMonitorConfig {
+}

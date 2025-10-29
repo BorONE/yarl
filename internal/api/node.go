@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"pipegraph/internal/graph"
+	"pipegraph/internal/util"
 	"slices"
 	"sync"
 
@@ -30,13 +31,7 @@ func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*No
 		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
 	}
 
-	err := node.Run()
-	if err != nil {
-		log.Printf("node{%v}.Run() failed: %v\n", prototext.MarshalOptions{}.Format(id), err)
-	}
-	return nil, err
-
-	return nil, node.Run()
+	return nil, util.GrpcError(node.Run())
 }
 
 func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
@@ -47,7 +42,7 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
 	isScheduled := map[graph.NodeId]bool{}
@@ -70,12 +65,12 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 			err := nodeToSchedule.Run()
 			if err != nil {
 				log.Printf("node{Id: %v}.Run() failed: %v\n", nodeToSchedule.Config.GetId(), err)
-				return nil, err
+				return nil, util.GrpcError(err)
 			}
 		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {
 			err := nodeToSchedule.Plan(graph.NodeState_IdleState_Scheduled)
 			if err != nil {
-				return nil, err
+				return nil, util.GrpcError(err)
 			}
 		}
 
@@ -93,10 +88,10 @@ func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*N
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
-	return nil, node.Done()
+	return nil, util.GrpcError(node.Done())
 }
 
 func (s ImplementedNodeServer) Plan(ctx context.Context, nodePlan *NodePlan) (*Nothing, error) {
@@ -107,10 +102,10 @@ func (s ImplementedNodeServer) Plan(ctx context.Context, nodePlan *NodePlan) (*N
 
 	node := s.graph.Nodes[graph.NodeId(nodePlan.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", nodePlan.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", nodePlan.GetId()))
 	}
 
-	return nil, node.Plan(nodePlan.GetPlan())
+	return nil, util.GrpcError(node.Plan(nodePlan.GetPlan()))
 }
 
 func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
@@ -121,10 +116,10 @@ func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*N
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
-	return nil, node.Stop()
+	return nil, util.GrpcError(node.Stop())
 }
 
 func (s ImplementedNodeServer) Skip(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
@@ -135,10 +130,10 @@ func (s ImplementedNodeServer) Skip(ctx context.Context, id *NodeIdentifier) (*N
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
-	return nil, node.Skip()
+	return nil, util.GrpcError(node.Skip())
 }
 
 func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
@@ -149,10 +144,10 @@ func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
-	return nil, node.Reset()
+	return nil, util.GrpcError(node.Reset())
 }
 
 func (s ImplementedNodeServer) CollectArts(ctx context.Context, id *NodeIdentifier) (*Arts, error) {
@@ -163,7 +158,7 @@ func (s ImplementedNodeServer) CollectArts(ctx context.Context, id *NodeIdentifi
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
 	if node.Job == nil {
@@ -184,7 +179,7 @@ func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig
 
 	err := s.graph.SaveCurrent(ctx)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	return &NodeIdentifier{Id: &id}, nil
@@ -198,7 +193,7 @@ func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfi
 
 	node := s.graph.Nodes[graph.NodeId(*config.Id)]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", *config.Id)
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", *config.Id))
 	}
 
 	node.Config.Reset()
@@ -206,7 +201,7 @@ func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfi
 
 	err := s.graph.SaveCurrent(ctx)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	return nil, nil
@@ -220,11 +215,11 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 
 	node := s.graph.Nodes[graph.NodeId(id.GetId())]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
 	if len(node.CollectInput()) > 0 || len(node.CollectOutput()) > 0 {
-		return nil, fmt.Errorf("node (id=%v) has edges", id.GetId())
+		return nil, util.GrpcError(fmt.Errorf("node (id=%v) has edges", id.GetId()))
 	}
 
 	delete(s.graph.Nodes, graph.NodeId(id.GetId()))
@@ -232,7 +227,7 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 
 	err := s.graph.SaveCurrent(ctx)
 	if err != nil {
-		return nil, err
+		return nil, util.GrpcError(err)
 	}
 
 	return nil, nil

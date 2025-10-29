@@ -36,10 +36,20 @@ export function buildNode(config: config.NodeConfig, state: config.NodeState, se
   return node
 }
 
+export function isScheduled(nodeState: config.NodeState) {
+    const state = nodeState.State
+    return state.case == "Idle" && state.value.Plan == config.NodeState_IdleState_IdlePlan.Scheduled;
+}
+
 export function getBorderColor(nodeState: config.NodeState) {
   const state = nodeState.State
   switch (state.case) {
-  case "Idle":
+    case "Idle":
+    const idle = state.value
+    switch (idle.Plan) {
+      case config.NodeState_IdleState_IdlePlan.Scheduled:
+        return "#5773E4"
+    }
     return "#D9D9D9"
   case "InProgress":
     const inProgress = state.value

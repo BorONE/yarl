@@ -26,6 +26,8 @@ import Cookies from 'universal-cookie';
 import * as client from './client'
 import { useViewport, type Viewport } from '@xyflow/react';
 
+import { ModeToggle } from "./ModeToggle"
+
 export default ({ addNewNode } : { addNewNode: (vieport: Viewport) => void }) => {
 	const [selectedDialog, selectDialog] = useState("")
 
@@ -117,6 +119,8 @@ export default ({ addNewNode } : { addNewNode: (vieport: Viewport) => void }) =>
 						<MenubarItem onSelect={_ => addNewNode(viewport)}>New</MenubarItem>
 					</MenubarContent>
 				</MenubarMenu>
+
+				<ModeToggle />
 			</Menubar>
 			{getDialogContent()}
 		</Dialog>

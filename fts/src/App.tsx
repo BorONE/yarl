@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -18,10 +18,11 @@ import {
   type Viewport,
   useReactFlow,
   type Connection,
+  Controls,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import Sidebar, { defaultJobInfo } from './Sidebar';
+import Sidebar, { buildDefaultConfig } from './Sidebar';
 
 import JobNode, { type Node } from './JobNode';
 
@@ -29,8 +30,7 @@ import * as client from './client'
 
 import * as config from './gen/internal/graph/config_pb'
 import { create } from '@bufbuild/protobuf';
-import { NodeConfigSchema, NodeStateSchema } from './gen/internal/graph/config_pb';
-import { anyPack } from '@bufbuild/protobuf/wkt';
+import { NodeStateSchema } from './gen/internal/graph/config_pb';
 
 import {
   ResizableHandle,
@@ -39,27 +39,36 @@ import {
 } from "@/components/ui/resizable"
 import { canonizeConnection, convertConnectionToEdge } from './util';
 
-import { Syncer } from './syncer';
+import { StableSyncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
 import Menubar from './Menubar';
 
 import Cookies from 'universal-cookie';
+import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider, useTheme } from './ThemeProvider';
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
 };
 
-var syncer = new Syncer()
+var syncer = new StableSyncer()
 const nodeInitSize = {x: 100, y: 30}
+
+type CopyBuffer = {
+  nodes: config.NodeConfig[],
+  edges: { edge: Edge, sourceIndex: number, targetIndex: number }[],
+}
 
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   
-  syncer.setNodes = setNodes
-  syncer.setEdges = setEdges
-  syncer.sync()
+  useEffect(() => {
+    syncer.setNodes = setNodes
+    syncer.setEdges = setEdges
+    syncer.sync()
+  }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds) as Node[]),
@@ -67,8 +76,8 @@ function InternalFlow() {
   );
   const onNodesDelete: OnNodesDelete = useCallback(
     (changes) => {
-      changes.forEach((node) => client.node.delete({Id: BigInt(node.id)}))
       setNodes((nds) => applyNodeChanges(changes.map((node) => ({ id: node.id, type: 'remove' })), nds))
+      changes.forEach((node) => client.node.delete({Id: BigInt(node.id)}))
     },
     [setNodes],
   );
@@ -102,7 +111,7 @@ function InternalFlow() {
     async (connection: Edge) => {
       const source = nodes.find(node => node.id == connection.source) as Node
       const target = nodes.find(node => node.id == connection.target) as Node
-      client.graph.disconnect(convertConnectionToEdge(connection, source, target))
+      await client.graph.disconnect(convertConnectionToEdge(connection, source, target))
       setEdges((eds) => eds.filter((ed) => ed != connection))
     },
     [nodes, setEdges],
@@ -119,13 +128,11 @@ function InternalFlow() {
     })
   }, [setNodes]);
 
-  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
-    const snap = (value: number) => Math.round(value / 10) * 10
-    var config = create(NodeConfigSchema, {
-      Name: "",
-      Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
-      Position: { X: snap(pos.x), Y: snap(pos.y) },
-    })
+  const deselectAllNodes = () => {
+    setNodes((nds) => nds.map(nd => ({...nd, selected: false})));
+  }
+
+  const addNodeFromConfig = async (config: config.NodeConfig) => {
     const response = await client.node.add(config);
     config.Id = response.Id
 
@@ -134,8 +141,15 @@ function InternalFlow() {
       State: { case: "Idle", value: { IsReady: true } },
     })
 
-    setNodes((nds) => [...nds.map(nd => ({...nd, selected: false})), buildNode(config, state, true)]);
+    setNodes((nds) => [...nds, buildNode(config, state, true)])
     return response.Id
+  }
+
+  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
+    const snap = (value: number) => Math.round(value / 10) * 10
+    var config = buildDefaultConfig({ X: snap(pos.x), Y: snap(pos.y) } as config.Position)
+    deselectAllNodes()
+    return await addNodeFromConfig(config)
   }, [setNodes]);
 
   const isLayout = (obj: any, expectedLenght?: number) => {
@@ -150,12 +164,73 @@ function InternalFlow() {
     return isLayout(layout, 2) ? layout : [85, 15]
   })()
 
+  useEffect(() => {
+    const keyPress = async (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.altKey && event.key == 'c') {
+        const selectedNodes = nodes.filter(node => node.selected).map(node => node.id)
+        const copyBuffer: CopyBuffer = {
+          nodes: nodes
+            .filter(node => node.selected)
+            .map(node => ({ ...node.data.config, Id: undefined })),
+          edges: edges
+            .map(edge => ({
+              edge,
+              sourceIndex: selectedNodes.indexOf(edge.source),
+              targetIndex: selectedNodes.indexOf(edge.target),
+            }))
+            .filter(edge => (edge.sourceIndex >= 0) || (edge.targetIndex >= 0))
+        }
+        navigator.clipboard.writeText(JSON.stringify(copyBuffer))
+      }
+      if (event.ctrlKey && event.altKey && event.key == 'v') {
+        const clipboard = await navigator.clipboard.readText()
+        const copied = JSON.parse(clipboard)
+        deselectAllNodes()
+        const idsAsBigint = await Promise.all(
+          copied.nodes
+            .map(config => {
+              if (config.Position) {
+                config.Position.X += 10
+                config.Position.Y += 10
+              }
+              if (config.Job) {
+                config.Job.value = new Uint8Array(Object.entries(config.Job.value).map(x => x[1]))
+              }
+              return config
+            })
+            .map(config => addNodeFromConfig(config))
+        )
+        const ids = idsAsBigint.map(id => id.toString())
+        copied.edges.forEach(edge => {
+          let connection = edge.edge
+          if (edge.sourceIndex >= 0) {
+            connection.source = ids[edge.sourceIndex]
+          }
+          if (edge.targetIndex >= 0) {
+            connection.target = ids[edge.targetIndex]
+          }
+          connect({
+            source: edge.sourceIndex >= 0 ? ids[edge.sourceIndex] : edge.edge.source,
+            target: edge.targetIndex >= 0 ? ids[edge.targetIndex] : edge.edge.target,
+            sourceHandle: edge.edge.sourceHandle || null,
+            targetHandle: edge.edge.targetHandle || null,
+          })
+        })
+      }
+    }
+    document.addEventListener("keydown", keyPress)
+    return () => document.removeEventListener("keydown", keyPress)
+  })
+
+  const { theme } = useTheme()
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
           <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
             <ResizablePanel defaultSize={layout[0]}>
               <Menubar addNewNode={addNewNodeByButton} />
               <ReactFlow
+                colorMode={theme}
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
@@ -190,8 +265,9 @@ function InternalFlow() {
                   }
                 }}
               >
-                <Background variant={BackgroundVariant.Dots} />
+                <Background style={{backgroundColor: 'var(--background)'}} variant={BackgroundVariant.Dots} />
                 <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
+                <Controls style={{ position: 'absolute', bottom: 30 }} />
               </ReactFlow>
             </ResizablePanel>
             <ResizableHandle/>
@@ -207,8 +283,11 @@ function Flow() {
   return (
     <div className="providerflow">
       <ReactFlowProvider>
-        <InternalFlow />
+        <ThemeProvider defaultTheme='system'>
+          <InternalFlow />
+        </ThemeProvider>
       </ReactFlowProvider>
+      <Toaster style={{background: "#DD5274"}} visibleToasts={100} duration={1/0} closeButton />
     </div>
   )
 }

@@ -73,11 +73,10 @@
   
   .react-flow__edge.selectable:hover .react-flow__edge-path,
   .react-flow__edge.selectable.selected .react-flow__edge-path {
-    stroke: var(--xy-theme-edge-hover);
     stroke-width: 2px;
   }
   
-  .react-flow__handle {
+  /* .react-flow__handle {
     background-color: var(--xy-handle-background-color-default);
   }
   
@@ -91,7 +90,7 @@
   .react-flow__handle.connectingfrom,
   .react-flow__handle.connectingto {
     border-color: var(--xy-theme-edge-hover);
-  }
+  } */
   
   .react-flow__node-resizer {
     border-radius: 0;

@@ -1,4 +1,5 @@
 @import url('./xy-theme.css');
+@import url('./job-node.css');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -78,13 +79,8 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
-
-.reset-button:hover {
-  animation: rotation 0.5s ease-in 0s 1 reverse
 }
 
 .extra-buttons {
@@ -109,9 +105,6 @@ button {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 .providerflow {
@@ -122,10 +115,8 @@ button {
 }
 
 .providerflow aside {
-  border-left: 1px solid #eee;
   padding: 15px 10px;
   font-size: 12px;
-  background: #fff;
 }
 
 /* .providerflow aside .description {

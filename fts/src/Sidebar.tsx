@@ -1,7 +1,7 @@
 import React, { useCallback, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
-import { type NodeConfig } from './gen/internal/graph/config_pb';
+import { NodeConfigSchema, type NodeConfig, type Position } from './gen/internal/graph/config_pb';
 import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
@@ -22,83 +22,97 @@ import { anyPack, type Any } from '@bufbuild/protobuf/wkt';
 
 import * as client from './client'
 import { Input } from './components/ui/input';
-import { Label } from './components/ui/label';
 import { Separator } from './components/ui/separator';
 import Cookies from 'universal-cookie';
 import Artifacts from './Arts';
 import type { Node } from './JobNode';
 import { buildNode } from './misc';
-import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
+import { ScriptConfigSchema } from './gen/internal/job/register/script_pb';
+import { DaemonConfigSchema, DaemonMonitorConfigSchema } from './gen/internal/job/register/daemon_pb';
 import JobEditor from './JobEditor';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';
+import { FileConfigSchema } from './gen/internal/job/register/file/file_pb';
 
 
 type JobInfo = {
     type: string,
-    typeUrl: string,
     schema: any,
     init: any,
-    editor: (job: any, ctx: Context) => ReactElement,
     disabled?: boolean,
 }
 
 type Context = {
-    onShellCommandChange: React.ChangeEventHandler<HTMLInputElement>
     onJobChange: (schema: DescMessage, job: Message) => void
+}
+
+const buildJobEditor = (job: Message, info: JobInfo, ctx: Context) => {
+    return <JobEditor
+        job={job}
+        onChange={ctx.onJobChange}
+        schema={info.schema}
+        init={info.init.job}
+    />
 }
 
 const jobInfos : JobInfo[] = [
     {
         type: 'Script',
-        typeUrl: "type.googleapis.com/register.ScriptConfig",
         schema: ScriptConfigSchema,
-        init: create(ScriptConfigSchema, {
-            Source: [
-                "#!/bin/bash",
-                "echo 'hello yarl'",
-            ],
-        }),
-        editor: (job: ScriptConfig, ctx: Context) => {
-            const info = jobInfos.find(info => info.type == 'Script') as JobInfo
-            return <JobEditor
-                job={job}
-                onChange={ctx.onJobChange}
-                schema={info.schema}
-                init={info.init}
-            />
-        }
+        init: {
+            job: create(ScriptConfigSchema, {
+                Source: [
+                    "#!/bin/bash",
+                    "echo 'hello yarl'",
+                ],
+            }),
+            input: [],
+            output: [],
+        },
     },
     {
-        type: 'ShellCommand',
-        typeUrl: "type.googleapis.com/register.ShellCommandConfig",
-        schema: ShellCommandConfigSchema,
-        init: create(ShellCommandConfigSchema, {Command: "echo \"Hello, YaRL!\""}),
-        editor: (job: ShellCommandConfig, ctx: Context) => {
-            return <div className="grid w-full items-center gap-3">
-                <Label htmlFor="ShellCommand.Command">Command</Label>
-                <Input
-                    id="ShellCommand.Command"
-                    onChange={ctx.onShellCommandChange}
-                    placeholder='echo "hello yarl"'
-                    value={job.Command}
-                    style={{ fontFamily: "monospace" }}
-                />
-            </div>
-        }
+        type: 'Daemon',
+        schema: DaemonConfigSchema,
+        init: {
+            job: create(DaemonConfigSchema, {
+                Run: "",
+                Status: "",
+                Shutdown: "",
+            }),
+            input: ['prepare'],
+            output: ['info'],
+        },
     },
     {
-        type: 'ShellScript',
-        typeUrl: "type.googleapis.com/register.ShellScriptConfig",
-        schema: ShellScriptConfigSchema,
-        init: create(ShellScriptConfigSchema, {Path: "/dev/null", Args: []}),
-        editor: (_job: ShellCommandConfig, _ctx: Context) => <>Not implemented</>,
-        disabled: true
+        type: 'DaemonMonitor',
+        schema: DaemonMonitorConfigSchema,
+        init: {
+            job: create(DaemonMonitorConfigSchema, {}),
+            input: ['info'],
+            output: [],
+        },
+    },
+    {
+        type: 'File',
+        schema: FileConfigSchema,
+        init: {
+            job: create(FileConfigSchema, {}),
+            input: [],
+            output: ['file'],
+        },
     },
 ]
 
-export const defaultJobInfo = jobInfos[0]
-
+export function buildDefaultConfig(Position: Position) {
+    const info = jobInfos[0]
+    return create(NodeConfigSchema, {
+        Name: "",
+        Job: anyPack(info.schema, info.init.job),
+        Inputs: info.init.input,
+        Outputs: info.init.output,
+        Position,
+    })
+}
 
 export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.SetStateAction<Node[]>) => void }) => {
     const onJobTypeSelected = useCallback(
@@ -106,8 +120,12 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             (nds) => {
                 const info = jobInfos.find(info => info.type == jobType) as JobInfo
                 const selectedNode = nds.find((nd) => nd.selected) as Node
-                const job = anyPack(info.schema, info.init)
-                const editedConfig = {...selectedNode.data.config, Job: job}
+                const editedConfig = {
+                    ...selectedNode.data.config,
+                    Job: anyPack(info.schema, info.init.job),
+                    Inputs: info.init.input,
+                    Outputs: info.init.output,
+                }
                 const editedNode = buildNode(editedConfig, selectedNode.data.state, true)
                 client.node.edit(editedConfig)
                 return applyNodeChanges([{id: selectedNode.id, item: editedNode, type: 'replace'}], nds)
@@ -131,26 +149,6 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                     }
                 )
             )
-        ),
-        [setNodes],
-    )
-
-    const onShellCommandChange : React.ChangeEventHandler<HTMLInputElement> = useCallback(
-        (evt) => setNodes(
-            (nds: Node[]) => {
-                return nds.map((nd) => {
-                    if (!nd.selected) {
-                        return nd
-                    }
-                    const config : NodeConfig = nd.data.config
-                    const schema = ShellCommandConfigSchema
-                    var job : ShellCommandConfig = config.Job ? fromBinary(schema, config.Job.value) : create(schema, {})
-                    job.Command = evt.target.value
-                    const editedConfig = { ...config, Job: anyPack(schema, job) }
-                    client.node.edit(editedConfig)
-                    return buildNode(editedConfig, nd.data.state, true)
-                })
-            }
         ),
         [setNodes],
     )
@@ -192,10 +190,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
     const jobType = extractJobType(job.typeUrl)
     const jobInfo = jobInfos.find(info => info.type == jobType) as JobInfo
     const jobMsg = fromBinary(jobInfo.schema, job.value)
-    const jobEditor = jobInfo.editor(jobMsg, {
-        onShellCommandChange,
-        onJobChange,
-    })
+    const jobEditor = buildJobEditor(jobMsg, jobInfo, { onJobChange, })
 
     return <aside>
         <Input
