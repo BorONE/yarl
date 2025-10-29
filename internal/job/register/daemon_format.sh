@@ -23,10 +23,12 @@ run < stdin 1> stdout 2> stderr &
 PID=$!
 CWD=$(pwd)
 
-echo PID=$PID > info
-echo STDIN="$CWD/stdin" >> info
-echo STDOUT="$CWD/stdout" >> info
-echo STDERR="$CWD/stderr" >> info
+cat > info << EOL
+PID=$PID
+STDIN="$CWD/stdin"
+STDOUT="$CWD/stdout"
+STDERR="$CWD/stderr"
+EOL
 
 while ! status; do
   if ! ps -p $PID &> /dev/null; then
