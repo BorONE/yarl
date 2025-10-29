@@ -22,7 +22,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import Sidebar, { defaultJobInfo } from './Sidebar';
+import Sidebar, { buildDefaultConfig } from './Sidebar';
 
 import JobNode, { type Node } from './JobNode';
 
@@ -30,8 +30,7 @@ import * as client from './client'
 
 import * as config from './gen/internal/graph/config_pb'
 import { create } from '@bufbuild/protobuf';
-import { NodeConfigSchema, NodeStateSchema } from './gen/internal/graph/config_pb';
-import { anyPack } from '@bufbuild/protobuf/wkt';
+import { NodeStateSchema } from './gen/internal/graph/config_pb';
 
 import {
   ResizableHandle,
@@ -148,11 +147,7 @@ function InternalFlow() {
 
   const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
     const snap = (value: number) => Math.round(value / 10) * 10
-    var config = create(NodeConfigSchema, {
-      Name: "",
-      Job: anyPack(defaultJobInfo.schema, defaultJobInfo.init),
-      Position: { X: snap(pos.x), Y: snap(pos.y) },
-    })
+    var config = buildDefaultConfig({ X: snap(pos.x), Y: snap(pos.y) } as config.Position)
     deselectAllNodes()
     return await addNodeFromConfig(config)
   }, [setNodes]);
