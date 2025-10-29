@@ -81,6 +81,42 @@ func (x *DaemonConfig) GetShutdown() string {
 	return ""
 }
 
+type DaemonMonitorConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DaemonMonitorConfig) Reset() {
+	*x = DaemonMonitorConfig{}
+	mi := &file_internal_job_register_daemon_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DaemonMonitorConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DaemonMonitorConfig) ProtoMessage() {}
+
+func (x *DaemonMonitorConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_job_register_daemon_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DaemonMonitorConfig.ProtoReflect.Descriptor instead.
+func (*DaemonMonitorConfig) Descriptor() ([]byte, []int) {
+	return file_internal_job_register_daemon_proto_rawDescGZIP(), []int{1}
+}
+
 var File_internal_job_register_daemon_proto protoreflect.FileDescriptor
 
 const file_internal_job_register_daemon_proto_rawDesc = "" +
@@ -89,7 +125,8 @@ const file_internal_job_register_daemon_proto_rawDesc = "" +
 	"\fDaemonConfig\x12\x10\n" +
 	"\x03Run\x18\x01 \x02(\tR\x03Run\x12\x16\n" +
 	"\x06Status\x18\x02 \x02(\tR\x06Status\x12\x1a\n" +
-	"\bShutdown\x18\x03 \x02(\tR\bShutdownB\x14Z\x12pipegraph/register"
+	"\bShutdown\x18\x03 \x02(\tR\bShutdown\"\x15\n" +
+	"\x13DaemonMonitorConfigB\x14Z\x12pipegraph/register"
 
 var (
 	file_internal_job_register_daemon_proto_rawDescOnce sync.Once
@@ -103,9 +140,10 @@ func file_internal_job_register_daemon_proto_rawDescGZIP() []byte {
 	return file_internal_job_register_daemon_proto_rawDescData
 }
 
-var file_internal_job_register_daemon_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_internal_job_register_daemon_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_internal_job_register_daemon_proto_goTypes = []any{
-	(*DaemonConfig)(nil), // 0: register.DaemonConfig
+	(*DaemonConfig)(nil),        // 0: register.DaemonConfig
+	(*DaemonMonitorConfig)(nil), // 1: register.DaemonMonitorConfig
 }
 var file_internal_job_register_daemon_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -126,7 +164,7 @@ func file_internal_job_register_daemon_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_job_register_daemon_proto_rawDesc), len(file_internal_job_register_daemon_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

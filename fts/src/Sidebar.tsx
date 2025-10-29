@@ -22,14 +22,13 @@ import { anyPack, type Any } from '@bufbuild/protobuf/wkt';
 
 import * as client from './client'
 import { Input } from './components/ui/input';
-import { Label } from './components/ui/label';
 import { Separator } from './components/ui/separator';
 import Cookies from 'universal-cookie';
 import Artifacts from './Arts';
 import type { Node } from './JobNode';
 import { buildNode } from './misc';
 import { ScriptConfigSchema, type ScriptConfig } from './gen/internal/job/register/script_pb';
-import { DaemonConfigSchema, type DaemonConfig } from './gen/internal/job/register/daemon_pb';
+import { DaemonConfigSchema, DaemonMonitorConfigSchema, type DaemonConfig, type DaemonMonitorConfig } from './gen/internal/job/register/daemon_pb';
 import JobEditor from './JobEditor';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';
@@ -49,7 +48,7 @@ type Context = {
     onJobChange: (schema: DescMessage, job: Message) => void
 }
 
-const buildJobEditor = (job: ScriptConfig, ctx: Context, info: JobInfo) => {
+const buildJobEditor = (job: Message, ctx: Context, info: JobInfo) => {
     return <JobEditor
         job={job}
         onChange={ctx.onJobChange}
@@ -81,8 +80,16 @@ const jobInfos : JobInfo[] = [
             Status: "",
             Shutdown: "",
         }),
-        editor: (job: ScriptConfig, ctx: Context) =>
+        editor: (job: DaemonConfig, ctx: Context) =>
             buildJobEditor(job, ctx, jobInfos.find(info => info.type == 'Daemon') as JobInfo)
+    },
+    {
+        type: 'DaemonMonitor',
+        typeUrl: "type.googleapis.com/register.DaemonMonitorConfig",
+        schema: DaemonMonitorConfigSchema,
+        init: create(DaemonMonitorConfigSchema, {}),
+        editor: (job: DaemonMonitorConfig, ctx: Context) =>
+            buildJobEditor(job, ctx, jobInfos.find(info => info.type == 'DaemonMonitor') as JobInfo)
     },
 ]
 

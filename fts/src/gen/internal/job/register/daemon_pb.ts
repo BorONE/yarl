@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/job/register/daemon.proto.
  */
 export const file_internal_job_register_daemon: GenFile = /*@__PURE__*/
-  fileDesc("CiJpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZGFlbW9uLnByb3RvEghyZWdpc3RlciI9CgxEYWVtb25Db25maWcSCwoDUnVuGAEgAigJEg4KBlN0YXR1cxgCIAIoCRIQCghTaHV0ZG93bhgDIAIoCUIUWhJwaXBlZ3JhcGgvcmVnaXN0ZXI");
+  fileDesc("CiJpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZGFlbW9uLnByb3RvEghyZWdpc3RlciI9CgxEYWVtb25Db25maWcSCwoDUnVuGAEgAigJEg4KBlN0YXR1cxgCIAIoCRIQCghTaHV0ZG93bhgDIAIoCSIVChNEYWVtb25Nb25pdG9yQ29uZmlnQhRaEnBpcGVncmFwaC9yZWdpc3Rlcg");
 
 /**
  * @generated from message register.DaemonConfig
@@ -38,4 +38,17 @@ export type DaemonConfig = Message<"register.DaemonConfig"> & {
  */
 export const DaemonConfigSchema: GenMessage<DaemonConfig> = /*@__PURE__*/
   messageDesc(file_internal_job_register_daemon, 0);
+
+/**
+ * @generated from message register.DaemonMonitorConfig
+ */
+export type DaemonMonitorConfig = Message<"register.DaemonMonitorConfig"> & {
+};
+
+/**
+ * Describes the message register.DaemonMonitorConfig.
+ * Use `create(DaemonMonitorConfigSchema)` to create a new message.
+ */
+export const DaemonMonitorConfigSchema: GenMessage<DaemonMonitorConfig> = /*@__PURE__*/
+  messageDesc(file_internal_job_register_daemon, 1);
 

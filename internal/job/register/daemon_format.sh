@@ -1,6 +1,7 @@
 #!/bin/bash -e
-touch config
-source config
+
+touch init
+source init
 
 function run {
   %s
@@ -18,8 +19,14 @@ fi
 
 touch stdin
 run < stdin 1> stdout 2> stderr &
+
 PID=$!
-echo $PID > pid
+CWD=$(pwd)
+
+echo PID=$PID > info
+echo STDIN="$CWD/stdin" >> info
+echo STDOUT="$CWD/stdout" >> info
+echo STDERR="$CWD/stderr" >> info
 
 while ! status; do
   if ! ps -p $PID &> /dev/null; then

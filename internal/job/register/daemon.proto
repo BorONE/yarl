@@ -8,3 +8,6 @@ message DaemonConfig {
     required string Status = 2;
     required string Shutdown = 3;
 }
+
+message DaemonMonitorConfig {
+}
