@@ -79,7 +79,7 @@ const jobInfos : JobInfo[] = [
                 Status: "",
                 Shutdown: "",
             }),
-            input: ['init'],
+            input: ['prepare'],
             output: ['info'],
         },
     },

@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-touch init
-source init
+touch prepare
+source prepare
 
 function run {
   %s
