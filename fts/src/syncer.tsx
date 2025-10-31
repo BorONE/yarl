@@ -19,31 +19,35 @@ function timeout(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function backoff(index: number) {
-  const msSecond = 1000
-  var msBackoffs = [1, 2, 5, 10, 15, 30].map(s => s * msSecond)
-  var msMaxBackoff = 60 * msSecond
-  return timeout(index < msBackoffs.length ? msBackoffs[index] : msMaxBackoff)
-}
-
 export class StableSyncer {
   setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
+  
+  syncer : Syncer | null = null
 
   async sync() {
-    for (var tryNumber = 0; ; tryNumber += 1) {
+    const msSecond = 1000
+    const msBackoffs = [1, 2, 5, 10, 1].map(s => s * msSecond)
+    const rounds = msBackoffs.map((backoff, i) => ({number: i + 1, backoff}))
+    for (let i = 0; i < rounds.length; ++i) {
+      const round = rounds[i]
       try {
-        const syncer = new Syncer()
-        syncer.setNodes = this.setNodes
-        syncer.setEdges = this.setEdges
-        await syncer.sync()
+        this.syncer = new Syncer()
+        this.syncer.setNodes = this.setNodes
+        this.syncer.setEdges = this.setEdges
+        await this.syncer.sync()
+        this.syncer = null
       } catch (err) {
-        const error = err as Error
         console.error('sync::exception', err)
-        toast(`Sync exception #${tryNumber} "${error.name}"`, { description: error.message })
-        await backoff(tryNumber)
+        toast(`Sync exception #${round.number}`, { description: `${err}` })
+        await timeout(round.backoff)
       }
     }
+    toast("Sync restarts are exhausted", { description: "Restart page to sync with backend again" })
+  }
+
+  isInited() {
+    return this.syncer ? this.syncer.isInited() : false
   }
 };
 
@@ -51,6 +55,7 @@ export class Syncer {
   state = SyncerState.init
   initialGraph : { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] }
   stream = client.graph.sync({})
+  isInited_ : boolean = false
   
   setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
@@ -89,6 +94,7 @@ export class Syncer {
         this.state = SyncerState.sync
         this.setNodes((_) => this.initialGraph.nodes)
         this.setEdges((_) => this.initialGraph.edges)
+        this.isInited_ = true
         break
       }
     }
@@ -116,4 +122,7 @@ export class Syncer {
     }
   }
 
+  isInited() {
+    return this.isInited_
+  }
 };
