@@ -19,8 +19,20 @@ import {
   useReactFlow,
   type Connection,
   Controls,
+  type OnConnectEnd,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+
+import { IconPlugConnected, IconSchemaOff } from "@tabler/icons-react"
 
 import Sidebar, { buildDefaultConfig } from './Sidebar';
 
@@ -46,6 +58,18 @@ import Menubar from './Menubar';
 import Cookies from 'universal-cookie';
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider, useTheme } from './ThemeProvider';
+import { Button } from './components/ui/button';
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from './components/ui/input';
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -86,6 +110,28 @@ function InternalFlow() {
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges],
   );
+
+  const onNodeDragStop = (_event: React.MouseEvent, _node: Node, nodes: Node[]) => {
+    nodes.forEach(node => {
+      node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
+      client.node.edit(node.data.config)
+    })
+  }
+
+  const onConnectEnd : OnConnectEnd = async (event, connectionState) => {
+    if (!connectionState.isValid) {
+      const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
+      const flowPos = screenToFlowPosition({ x: clientX, y: clientY })
+      const spawnPos = connectionState.fromPosition == 'left'
+        ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
+        : {x: flowPos.x, y: flowPos.y - 10}
+      const id = await addNewNode(spawnPos)
+      const ends = [connectionState.fromNode?.id as string, id.toString()]
+      const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
+      connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
+    }
+  }
+
 
   const connect = (connection: Connection) => {
     const source = nodes.find(node => node.id == connection.source) as Node
@@ -224,57 +270,107 @@ function InternalFlow() {
 
   const { theme } = useTheme()
 
+  const flow = <ReactFlow
+    colorMode={theme}
+    nodes={nodes}
+    edges={edges}
+    onNodesChange={onNodesChange}
+    onEdgesChange={onEdgesChange}
+    onConnect={onConnect}
+    onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
+    onNodesDelete={onNodesDelete}
+    onNodeDragStop={onNodeDragStop}
+    onConnectEnd={onConnectEnd}
+    nodeTypes={{JobNode}}
+    fitView
+    fitViewOptions={fitViewOptions}
+    defaultEdgeOptions={defaultEdgeOptions}
+    snapToGrid
+    snapGrid={[10, 10]}
+    ref={refReactFlow}
+  >
+    <Background style={{backgroundColor: 'var(--background)'}} variant={BackgroundVariant.Dots} />
+    <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
+    <Controls style={{ position: 'absolute', bottom: 30 }} />
+  </ReactFlow>
+
+  var graphPathRef = useRef<HTMLInputElement>(null)
+  const loadGraph = () => client.graph.load({Path: graphPathRef.current?.value})
+  
+  const emptyFlow = <Empty>
+    <EmptyHeader>
+      <EmptyMedia variant="icon">
+        <IconSchemaOff />
+      </EmptyMedia>
+      <EmptyTitle>Empty graph</EmptyTitle>
+      <EmptyDescription>
+        You haven't created any nodes yet. Get started by creating node or openning existing graph.
+      </EmptyDescription>
+    </EmptyHeader>
+    <EmptyContent>
+		  <Dialog>
+        <div className="flex gap-2">
+          <Button onClick={() => addNewNode({ x: 0, y: 0 })}>Create Node</Button>
+          <DialogTrigger asChild>
+            <Button variant='secondary'>Open graph</Button>
+          </DialogTrigger>
+        </div>
+			
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Open graph</DialogTitle>
+						<DialogDescription></DialogDescription>
+					</DialogHeader>
+					<div style={{ display: "flex" }}>
+						<Input
+							ref={graphPathRef}
+							placeholder='yarl.proto.txt'
+							defaultValue={new Cookies().get('graph-path')}
+							onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
+						/>
+						<DialogClose asChild>
+							<Button type="button" variant="secondary" onClick={loadGraph}>
+								Open
+							</Button>
+						</DialogClose>
+					</div>
+				</DialogContent>
+		  </Dialog>
+    </EmptyContent>
+  </Empty>
+
+  const syncingFlow = <Empty>
+    <EmptyHeader>
+      <EmptyMedia variant="icon">
+        <IconPlugConnected />
+      </EmptyMedia>
+      <EmptyTitle>   Syncing...</EmptyTitle>
+      <EmptyDescription>
+        Connecting to backend and initializing graph.
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+
+  var currentFlow = flow
+  if (nodes.length == 0) {
+    currentFlow = emptyFlow
+  }
+  if (!syncer.isInited()) {
+    currentFlow = syncingFlow
+  }
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-          <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
-            <ResizablePanel defaultSize={layout[0]}>
-              <Menubar addNewNode={addNewNodeByButton} />
-              <ReactFlow
-                colorMode={theme}
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
-                onNodesDelete={onNodesDelete}
-                onNodeDragStop={(_event: React.MouseEvent, _node: Node, nodes: Node[]) => {
-                  nodes.forEach(node => {
-                    node.data.config.Position = create(config.PositionSchema, { X: node.position.x, Y: node.position.y })
-                    client.node.edit(node.data.config)
-                  })
-                }}
-                nodeTypes={{JobNode}}
-                fitView
-                fitViewOptions={fitViewOptions}
-                defaultEdgeOptions={defaultEdgeOptions}
-                snapToGrid
-                snapGrid={[10, 10]}
-                ref={refReactFlow}
-                onConnectEnd={async (event, connectionState) => {
-                  if (!connectionState.isValid) {
-                    const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
-                    const flowPos = screenToFlowPosition({ x: clientX, y: clientY })
-                    const spawnPos = connectionState.fromPosition == 'left'
-                      ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
-                      : {x: flowPos.x, y: flowPos.y - 10}
-                    const id = await addNewNode(spawnPos)
-                    const ends = [connectionState.fromNode?.id as string, id.toString()]
-                    const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
-                    connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
-                  }
-                }}
-              >
-                <Background style={{backgroundColor: 'var(--background)'}} variant={BackgroundVariant.Dots} />
-                <MiniMap nodeColor={(node: Node) => getBorderColor(node.data.state)} zoomable pannable />
-                <Controls style={{ position: 'absolute', bottom: 30 }} />
-              </ReactFlow>
-            </ResizablePanel>
-            <ResizableHandle/>
-            <ResizablePanel defaultSize={layout[1]}>
-              <Sidebar nodes={nodes} setNodes={setNodes}/>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+      <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
+        <ResizablePanel defaultSize={layout[0]}>
+          <Menubar addNewNode={addNewNodeByButton} />
+            {currentFlow}
+          </ResizablePanel>
+          <ResizableHandle/>
+          <ResizablePanel defaultSize={layout[1]}>
+            <Sidebar nodes={nodes} setNodes={setNodes}/>
+          </ResizablePanel>
+        </ResizablePanelGroup>
     </div>
   );
 }

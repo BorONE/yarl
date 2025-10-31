@@ -23,6 +23,8 @@ export class StableSyncer {
   setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
   
+  syncer : Syncer | null = null
+
   async sync() {
     const msSecond = 1000
     const msBackoffs = [1, 2, 5, 10, 1].map(s => s * msSecond)
@@ -30,10 +32,11 @@ export class StableSyncer {
     for (let i = 0; i < rounds.length; ++i) {
       const round = rounds[i]
       try {
-        const syncer = new Syncer()
-        syncer.setNodes = this.setNodes
-        syncer.setEdges = this.setEdges
-        await syncer.sync()
+        this.syncer = new Syncer()
+        this.syncer.setNodes = this.setNodes
+        this.syncer.setEdges = this.setEdges
+        await this.syncer.sync()
+        this.syncer = null
       } catch (err) {
         console.error('sync::exception', err)
         toast(`Sync exception #${round.number}`, { description: `${err}` })
@@ -42,12 +45,17 @@ export class StableSyncer {
     }
     toast("Sync restarts are exhausted", { description: "Restart page to sync with backend again" })
   }
+
+  isInited() {
+    return this.syncer ? this.syncer.isInited() : false
+  }
 };
 
 export class Syncer {
   state = SyncerState.init
   initialGraph : { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] }
   stream = client.graph.sync({})
+  isInited_ : boolean = false
   
   setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
@@ -86,6 +94,7 @@ export class Syncer {
         this.state = SyncerState.sync
         this.setNodes((_) => this.initialGraph.nodes)
         this.setEdges((_) => this.initialGraph.edges)
+        this.isInited_ = true
         break
       }
     }
@@ -113,4 +122,7 @@ export class Syncer {
     }
   }
 
+  isInited() {
+    return this.isInited_
+  }
 };
