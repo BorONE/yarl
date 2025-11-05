@@ -24,6 +24,7 @@ export class StableSyncer {
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
   
   syncer : Syncer | null = null
+  isInited_ : boolean = false
 
   async sync() {
     const msSecond = 1000
@@ -36,6 +37,7 @@ export class StableSyncer {
         this.syncer.setNodes = this.setNodes
         this.syncer.setEdges = this.setEdges
         await this.syncer.sync()
+        this.isInited_ = true
         this.syncer = null
       } catch (err) {
         console.error('sync::exception', err)
@@ -47,6 +49,10 @@ export class StableSyncer {
   }
 
   isInited() {
+    return this.isInited_ || (this.syncer ? this.syncer.isInited() : false)
+  }
+
+  isSynced() {
     return this.syncer ? this.syncer.isInited() : false
   }
 };

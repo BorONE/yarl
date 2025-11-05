@@ -339,6 +339,7 @@ function InternalFlow() {
     </EmptyContent>
   </Empty>
 
+  const [showLastState, setShowLastState] = useState(false);
   const syncingFlow = <Empty>
     <EmptyHeader>
       <EmptyMedia variant="icon">
@@ -349,14 +350,21 @@ function InternalFlow() {
         Connecting to backend and initializing graph.
       </EmptyDescription>
     </EmptyHeader>
+    <EmptyContent>
+        {syncer.isInited() && <Button variant='secondary' onClick={() => setShowLastState(true)}>Show last state</Button>}
+    </EmptyContent>
   </Empty>
 
   var currentFlow = flow
   if (nodes.length == 0) {
     currentFlow = emptyFlow
   }
-  if (!syncer.isInited()) {
-    currentFlow = syncingFlow
+  if (syncer.isSynced()) {
+    if (showLastState) {
+      setShowLastState(false)
+    }
+  } else {
+    currentFlow = showLastState ? currentFlow : syncingFlow
   }
 
   return (
