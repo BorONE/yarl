@@ -340,6 +340,11 @@ function InternalFlow() {
   </Empty>
 
   const [showLastState, setShowLastState] = useState(false);
+  const resetShowLastState = () => {
+    if (showLastState) {
+      setShowLastState(false)
+    }
+  }
   const syncingFlow = <Empty>
     <EmptyHeader>
       <EmptyMedia variant="icon">
@@ -359,12 +364,10 @@ function InternalFlow() {
   if (nodes.length == 0) {
     currentFlow = emptyFlow
   }
-  if (syncer.isSynced()) {
-    if (showLastState) {
-      setShowLastState(false)
-    }
-  } else {
+  if (!syncer.isSynced()) {
     currentFlow = showLastState ? currentFlow : syncingFlow
+  } else {
+    resetShowLastState()
   }
 
   return (
