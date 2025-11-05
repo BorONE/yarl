@@ -121,9 +121,56 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 	return ctx, nil
 }
 
+type IOType int
+
+const (
+	Input IOType = iota
+	Output
+)
+
+func (ioType IOType) String() string {
+	switch ioType {
+	case Input:
+		return "Input"
+	case Output:
+		return "Output"
+	default:
+		return fmt.Sprintf("IOType(%v)", int(ioType))
+	}
+}
+
+func (node *Node) GetIO(ioType IOType) []string {
+	switch ioType {
+	case Input:
+		return node.Config.Inputs
+	case Output:
+		return node.Config.Outputs
+	default:
+		panic(fmt.Sprint("invalid io type: ", ioType))
+	}
+}
+
+func getIOPath(nodes map[NodeId]*Node, nodeId NodeId, port uint64, ioType IOType) (string, error) {
+	node, ok := nodes[nodeId]
+	if !ok {
+		return "", fmt.Errorf("node(id=%v) does not exist", nodeId)
+	}
+	io := node.GetIO(ioType)
+	if port-1 >= uint64(len(io)) {
+		return "", fmt.Errorf("invalid port=%v (1-indexed) for %v=%v with len=%v", port, ioType.String(), io, len(io))
+	}
+	return path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId()), io[port-1]), nil
+}
+
 func copyEdge(edge *EdgeConfig, nodes map[NodeId]*Node) error {
-	src := path.Join(YARL_ROOT, fmt.Sprint(edge.GetFromNodeId()), nodes[NodeId(*edge.FromNodeId)].Config.Outputs[*edge.FromPort-1])
-	dst := path.Join(YARL_ROOT, fmt.Sprint(edge.GetToNodeId()), nodes[NodeId(*edge.ToNodeId)].Config.Inputs[*edge.ToPort-1])
+	src, err := getIOPath(nodes, NodeId(edge.GetFromNodeId()), edge.GetFromPort(), Output)
+	if err != nil {
+		return fmt.Errorf("invalid source of edge {%v}: %v", prototext.MarshalOptions{}.Format(edge), err)
+	}
+	dst, err := getIOPath(nodes, NodeId(edge.GetToNodeId()), edge.GetToPort(), Input)
+	if err != nil {
+		return fmt.Errorf("invalid destination of edge {%v}: %v", prototext.MarshalOptions{}.Format(edge), err)
+	}
 	// TODO use more go-like solution
 	cp := exec.Command("cp", "--recursive", src, dst)
 	output, err := cp.CombinedOutput()

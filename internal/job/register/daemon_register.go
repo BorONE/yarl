@@ -72,17 +72,23 @@ type DaemonMonitorJob struct {
 	arts     job.Artifacts
 }
 
-func (j *DaemonMonitorJob) Run(ctx *job.RunContext) error {
-	var pid *int
-	var stdout *string
-	var stderr *string
+type DaemonInfo struct {
+	pid    *int
+	stdout *string
+	stderr *string
+}
 
-	data, err := os.ReadFile(path.Join(ctx.Dir, "info"))
-	if err != nil {
-		return fmt.Errorf("failed to read info file: %s", err)
+func unquote(s string) string {
+	q := "\""
+	if strings.HasPrefix(s, q) && strings.HasSuffix(s, q) {
+		return s[1 : len(s)-1]
 	}
+	return s
+}
 
-	for _, line := range strings.Split(string(data), "\n") {
+func (j *DaemonMonitorJob) parseInfo(lines []string) DaemonInfo {
+	var info DaemonInfo
+	for _, line := range lines {
 		kv := strings.SplitN(line, "=", 2)
 		if len(kv) != 2 {
 			continue
@@ -93,27 +99,39 @@ func (j *DaemonMonitorJob) Run(ctx *job.RunContext) error {
 			if err != nil {
 				continue
 			}
-			pid = &parsed
+			info.pid = &parsed
 		} else if key == "STDOUT" {
-			stdout = &value
+			value = unquote(value)
+			info.stdout = &value
 		} else if key == "STDERR" {
-			stderr = &value
+			value = unquote(value)
+			info.stderr = &value
 		}
 	}
+	return info
+}
+
+func (j *DaemonMonitorJob) Run(ctx *job.RunContext) error {
+	data, err := os.ReadFile(path.Join(ctx.Dir, "info"))
+	if err != nil {
+		return fmt.Errorf("failed to read info file: %s", err)
+	}
+
+	info := j.parseInfo(strings.Split(string(data), "\n"))
 
 	j.arts.Set("started_at", time.Now().String())
 	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
 
 	for !j.isKilled.Load() {
-		if pid != nil {
-			process, err := os.FindProcess(*pid)
+		if info.pid != nil {
+			process, err := os.FindProcess(*info.pid)
 			if err != nil {
 				return fmt.Errorf("failed to find process: %s", err)
 			}
 
 			err = process.Signal(syscall.Signal(0))
 			if err != nil {
-				return fmt.Errorf("process.Signal on pid %d returned: %v", *pid, err)
+				return fmt.Errorf("process.Signal on pid %d returned: %v", *info.pid, err)
 			}
 		}
 
@@ -121,13 +139,13 @@ func (j *DaemonMonitorJob) Run(ctx *job.RunContext) error {
 			arts, done := j.arts.Access()
 			defer done()
 
-			if stdout != nil {
-				data, _ = os.ReadFile(*stdout)
+			if info.stdout != nil {
+				data, _ = os.ReadFile(*info.stdout)
 				arts["stdout"] = string(data)
 			}
 
-			if stderr != nil {
-				data, _ = os.ReadFile(*stderr)
+			if info.stderr != nil {
+				data, _ = os.ReadFile(*info.stderr)
 				arts["stderr"] = string(data)
 			}
 		}()
