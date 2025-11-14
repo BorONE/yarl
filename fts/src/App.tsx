@@ -88,10 +88,12 @@ function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   
+  const [syncExhausted, setSyncExhausted] = useState(false);
+
   useEffect(() => {
     syncer.setNodes = setNodes
     syncer.setEdges = setEdges
-    syncer.sync()
+    syncer.sync().finally(() => setSyncExhausted(true))
   }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
@@ -345,20 +347,34 @@ function InternalFlow() {
       setShowLastState(false)
     }
   }
-  const syncingFlow = <Empty>
-    <EmptyHeader>
-      <EmptyMedia variant="icon">
-        <IconPlugConnected />
-      </EmptyMedia>
-      <EmptyTitle>   Syncing...</EmptyTitle>
-      <EmptyDescription>
-        Connecting to backend and initializing graph.
-      </EmptyDescription>
-    </EmptyHeader>
-    <EmptyContent>
-        {syncer.isInited() && <Button variant='secondary' onClick={() => setShowLastState(true)}>Show last state</Button>}
-    </EmptyContent>
-  </Empty>
+
+  const syncingFlowData = !syncExhausted ? {
+    title: "   Syncing...",
+    description: "Connecting to backend and initializing graph.",
+  } : {
+    title: "Sync restarts are exhausted",
+    description: "Reload page to sync with backend again",
+  }
+
+  const syncingFlow = (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <IconPlugConnected />
+        </EmptyMedia>
+        <EmptyTitle>{syncingFlowData.title}</EmptyTitle>
+        <EmptyDescription>
+          {syncingFlowData.description}
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <div className="flex gap-2">
+          <Button onClick={() => window.location.reload()}>Reload page</Button>
+          <Button variant='secondary' onClick={() => setShowLastState(true)} disabled={!syncer.isInited()}>Show last state</Button>
+        </div>
+      </EmptyContent>
+    </Empty>
+  )
 
   var currentFlow = flow
   if (nodes.length == 0) {

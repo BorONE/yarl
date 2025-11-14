@@ -45,7 +45,7 @@ export class StableSyncer {
         await timeout(round.backoff)
       }
     }
-    toast("Sync restarts are exhausted", { description: "Restart page to sync with backend again" })
+    toast("Sync restarts are exhausted", { description: "Reload page to sync with backend again" })
   }
 
   isInited() {
