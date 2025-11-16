@@ -70,6 +70,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from './components/ui/input';
+import * as cp from './CopyPaste';
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -78,11 +79,6 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 
 var syncer = new StableSyncer()
 const nodeInitSize = {x: 100, y: 30}
-
-type CopyBuffer = {
-  nodes: config.NodeConfig[],
-  edges: { edge: Edge, sourceIndex: number, targetIndex: number }[],
-}
 
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -180,10 +176,9 @@ function InternalFlow() {
     setNodes((nds) => nds.map(nd => ({...nd, selected: false})));
   }
 
-  const addNodeFromConfig = async (config: config.NodeConfig) => {
-    const response = await client.node.add(config);
-    config.Id = response.Id
-
+  const addNodeFromConfig = async (configToAdd: Omit<config.NodeConfig, 'Id'>) => {
+    const response = await client.node.add({...configToAdd, Id: BigInt(0)});
+    const config = {...configToAdd, Id: response.Id}
     const state = create(NodeStateSchema, {
       Id: response.Id,
       State: { case: "Idle", value: { IsReady: true } },
@@ -215,55 +210,14 @@ function InternalFlow() {
   useEffect(() => {
     const keyPress = async (event: KeyboardEvent) => {
       if (event.ctrlKey && event.altKey && event.key == 'c') {
-        const selectedNodes = nodes.filter(node => node.selected).map(node => node.id)
-        const copyBuffer: CopyBuffer = {
-          nodes: nodes
-            .filter(node => node.selected)
-            .map(node => ({ ...node.data.config, Id: undefined })),
-          edges: edges
-            .map(edge => ({
-              edge,
-              sourceIndex: selectedNodes.indexOf(edge.source),
-              targetIndex: selectedNodes.indexOf(edge.target),
-            }))
-            .filter(edge => (edge.sourceIndex >= 0) || (edge.targetIndex >= 0))
-        }
-        navigator.clipboard.writeText(JSON.stringify(copyBuffer))
+        cp.IntoBuffer(nodes, edges)
       }
       if (event.ctrlKey && event.altKey && event.key == 'v') {
-        const clipboard = await navigator.clipboard.readText()
-        const copied = JSON.parse(clipboard)
+        const {nodes, edges} = await cp.FromBuffer()
         deselectAllNodes()
-        const idsAsBigint = await Promise.all(
-          copied.nodes
-            .map(config => {
-              if (config.Position) {
-                config.Position.X += 10
-                config.Position.Y += 10
-              }
-              if (config.Job) {
-                config.Job.value = new Uint8Array(Object.entries(config.Job.value).map(x => x[1]))
-              }
-              return config
-            })
-            .map(config => addNodeFromConfig(config))
-        )
-        const ids = idsAsBigint.map(id => id.toString())
-        copied.edges.forEach(edge => {
-          let connection = edge.edge
-          if (edge.sourceIndex >= 0) {
-            connection.source = ids[edge.sourceIndex]
-          }
-          if (edge.targetIndex >= 0) {
-            connection.target = ids[edge.targetIndex]
-          }
-          connect({
-            source: edge.sourceIndex >= 0 ? ids[edge.sourceIndex] : edge.edge.source,
-            target: edge.targetIndex >= 0 ? ids[edge.targetIndex] : edge.edge.target,
-            sourceHandle: edge.edge.sourceHandle || null,
-            targetHandle: edge.edge.targetHandle || null,
-          })
-        })
+        const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
+        cp.RenderEdges(edges, ids.map(id => id.toString()))
+          .forEach(conn => connect(conn))
       }
     }
     document.addEventListener("keydown", keyPress)
