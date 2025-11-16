@@ -207,17 +207,22 @@ function InternalFlow() {
     return isLayout(layout, 2) ? layout : [85, 15]
   })()
 
+  const copyNodes = () => cp.IntoBuffer(nodes, edges)
+  const pasteNodes = async () => {
+    const {nodes, edges} = await cp.FromBuffer()
+    deselectAllNodes()
+    const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
+    cp.RenderEdges(edges, ids.map(id => id.toString()))
+      .forEach(conn => connect(conn))
+  }
+
   useEffect(() => {
-    const keyPress = async (event: KeyboardEvent) => {
+    const keyPress = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.altKey && event.key == 'c') {
-        cp.IntoBuffer(nodes, edges)
+        copyNodes()
       }
       if (event.ctrlKey && event.altKey && event.key == 'v') {
-        const {nodes, edges} = await cp.FromBuffer()
-        deselectAllNodes()
-        const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
-        cp.RenderEdges(edges, ids.map(id => id.toString()))
-          .forEach(conn => connect(conn))
+        pasteNodes()
       }
     }
     document.addEventListener("keydown", keyPress)
@@ -344,7 +349,7 @@ function InternalFlow() {
     <div style={{ width: '100vw', height: '100vh' }}>
       <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
         <ResizablePanel defaultSize={layout[0]}>
-          <Menubar addNewNode={addNewNodeByButton} />
+          <Menubar addNewNode={addNewNodeByButton} copyNodes={copyNodes} pasteNodes={pasteNodes} />
             {currentFlow}
           </ResizablePanel>
           <ResizableHandle/>

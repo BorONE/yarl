@@ -28,7 +28,7 @@ import { useViewport, type Viewport } from '@xyflow/react';
 
 import { ModeToggle } from "./ModeToggle"
 
-export default ({ addNewNode } : { addNewNode: (vieport: Viewport) => void }) => {
+export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: (vieport: Viewport) => void, copyNodes: () => void, pasteNodes: () => void }) => {
 	const [selectedDialog, selectDialog] = useState("")
 
 	const getDialogContent = () => {
@@ -117,6 +117,9 @@ export default ({ addNewNode } : { addNewNode: (vieport: Viewport) => void }) =>
 					<MenubarTrigger>Node</MenubarTrigger>
 					<MenubarContent>
 						<MenubarItem onSelect={_ => addNewNode(viewport)}>New</MenubarItem>
+						<MenubarSeparator/>
+						<MenubarItem onSelect={copyNodes}>Copy</MenubarItem>
+						<MenubarItem onSelect={pasteNodes}>Paste</MenubarItem>
 					</MenubarContent>
 				</MenubarMenu>
 
