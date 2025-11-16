@@ -40,8 +40,11 @@ export class StableSyncer {
         this.wasSynced = true
         this.syncer = null
       } catch (err) {
+        this.wasSynced = this.wasSynced || (this.syncer as Syncer).isInited
+        this.syncer = null
         console.error('sync::exception', err)
         toast(`Sync exception #${round.number}`, { description: `${err}` })
+        this.triggerUpdate()
         await timeout(round.backoff)
       }
     }
@@ -53,7 +56,11 @@ export class StableSyncer {
   }
 
   isSynced() {
-    return this.syncer ? this.syncer.isInited() : false
+    return this.syncer ? this.syncer.isInited : false
+  }
+
+  triggerUpdate() {
+    this.setNodes(nds => [...nds])
   }
 };
 
@@ -61,7 +68,7 @@ export class Syncer {
   state = SyncerState.init
   initialGraph : { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] }
   stream = client.graph.sync({})
-  isInited_ : boolean = false
+  isInited : boolean = false
   
   setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
@@ -97,10 +104,10 @@ export class Syncer {
       }
       case config.SyncType.InitDone: {
         console.log('sync::init', this.initialGraph)
+        this.isInited = true
         this.state = SyncerState.sync
         this.setNodes((_) => this.initialGraph.nodes)
         this.setEdges((_) => this.initialGraph.edges)
-        this.isInited_ = true
         break
       }
     }
@@ -126,9 +133,5 @@ export class Syncer {
         toast("Error", { description: update.Error["error"] })
       }
     }
-  }
-
-  isInited() {
-    return this.isInited_
   }
 };
