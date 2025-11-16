@@ -15,11 +15,11 @@ import {
   type DefaultEdgeOptions,
   Background,
   BackgroundVariant,
-  type Viewport,
   useReactFlow,
   type Connection,
   Controls,
   type OnConnectEnd,
+  useViewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -164,13 +164,15 @@ function InternalFlow() {
   const refReactFlow = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition } = useReactFlow();
 
-  const addNewNodeByButton = useCallback(async (vieport: Viewport) => {
+  const viewport = useViewport()
+
+  const addNewNodeInCenter = useCallback(() => {
     const rect = refReactFlow.current?.getBoundingClientRect() as DOMRect
     return addNewNode({
-      x: (-vieport.x + rect.width / 2) / vieport.zoom - nodeInitSize.x / 2,
-      y: (-vieport.y + rect.height / 2) / vieport.zoom - nodeInitSize.y / 2
+      x: (-viewport.x + rect.width / 2) / viewport.zoom - nodeInitSize.x / 2,
+      y: (-viewport.y + rect.height / 2) / viewport.zoom - nodeInitSize.y / 2
     })
-  }, [setNodes]);
+  }, [setNodes, viewport]);
 
   const deselectAllNodes = () => {
     setNodes((nds) => nds.map(nd => ({...nd, selected: false})));
@@ -188,7 +190,7 @@ function InternalFlow() {
     return response.Id
   }
 
-  const addNewNode = useCallback(async (pos: { x: number, y: number }) => {
+  const addNewNode = useCallback(async (pos: { x: number, y: number } = { x: 0, y: 0 }) => {
     const snap = (value: number) => Math.round(value / 10) * 10
     var config = buildDefaultConfig({ X: snap(pos.x), Y: snap(pos.y) } as config.Position)
     deselectAllNodes()
@@ -218,11 +220,18 @@ function InternalFlow() {
 
   useEffect(() => {
     const keyPress = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.altKey && event.key == 'c') {
-        copyNodes()
-      }
-      if (event.ctrlKey && event.altKey && event.key == 'v') {
-        pasteNodes()
+      if (event.ctrlKey && event.altKey) {
+        switch (event.key) {
+          case 'n':
+            addNewNodeInCenter();
+            break
+          case 'c':
+            copyNodes();
+            break
+          case 'v':
+            pasteNodes()
+            break
+        }
       }
     }
     document.addEventListener("keydown", keyPress)
@@ -271,7 +280,7 @@ function InternalFlow() {
     <EmptyContent>
 		  <Dialog>
         <div className="flex gap-2">
-          <Button onClick={() => addNewNode({ x: 0, y: 0 })}>Create Node</Button>
+          <Button onClick={() => addNewNode()}>Create Node</Button>
           <DialogTrigger asChild>
             <Button variant='secondary'>Open graph</Button>
           </DialogTrigger>
@@ -349,7 +358,7 @@ function InternalFlow() {
     <div style={{ width: '100vw', height: '100vh' }}>
       <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
         <ResizablePanel defaultSize={layout[0]}>
-          <Menubar addNewNode={addNewNodeByButton} copyNodes={copyNodes} pasteNodes={pasteNodes} />
+          <Menubar addNewNode={addNewNodeInCenter} copyNodes={copyNodes} pasteNodes={pasteNodes} />
             {currentFlow}
           </ResizablePanel>
           <ResizableHandle/>

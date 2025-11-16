@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Kbd } from "@/components/ui/kbd"
 import { Button } from './components/ui/button';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { useRef, useState } from 'react';
@@ -24,11 +25,10 @@ import { useRef, useState } from 'react';
 import Cookies from 'universal-cookie';
 
 import * as client from './client'
-import { useViewport, type Viewport } from '@xyflow/react';
 
 import { ModeToggle } from "./ModeToggle"
 
-export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: (vieport: Viewport) => void, copyNodes: () => void, pasteNodes: () => void }) => {
+export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void, copyNodes: () => void, pasteNodes: () => void }) => {
 	const [selectedDialog, selectDialog] = useState("")
 
 	const getDialogContent = () => {
@@ -91,7 +91,9 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: (vieport: 
 	const saveGraph = () => client.graph.save({Path: graphPathRef.current?.value})
 	const loadGraph = () => client.graph.load({Path: graphPathRef.current?.value})
 
-  const viewport = useViewport()
+	const nodeKbd = (char: string) => (
+		<Kbd style={{marginLeft: 'auto', marginRight: 0}}>Ctrl+Alt+{char}</Kbd>
+	)
 
 	return (
 		<Dialog>
@@ -116,10 +118,10 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: (vieport: 
 				<MenubarMenu>
 					<MenubarTrigger>Node</MenubarTrigger>
 					<MenubarContent>
-						<MenubarItem onSelect={_ => addNewNode(viewport)}>New</MenubarItem>
+						<MenubarItem onSelect={addNewNode}>New {nodeKbd('N')}</MenubarItem>
 						<MenubarSeparator/>
-						<MenubarItem onSelect={copyNodes}>Copy</MenubarItem>
-						<MenubarItem onSelect={pasteNodes}>Paste</MenubarItem>
+						<MenubarItem onSelect={copyNodes}>Copy {nodeKbd('C')}</MenubarItem>
+						<MenubarItem onSelect={pasteNodes}>Paste {nodeKbd('V')}</MenubarItem>
 					</MenubarContent>
 				</MenubarMenu>
 
