@@ -20,120 +20,78 @@ type ImplementedNodeServer struct {
 	mutex *sync.Mutex
 }
 
-func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+func (s ImplementedNodeServer) onNode(id uint64, call func(node *graph.Node) error) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	log.Printf("running node{%v}.Run()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
+	node := s.graph.Nodes[graph.NodeId(id)]
 	if node == nil {
-		return nil, fmt.Errorf("node (id=%v) not found", id.GetId())
+		err := fmt.Errorf("node (id=%v) not found", id)
+		return util.GrpcError(err)
 	}
 
-	return nil, util.GrpcError(node.Run())
+	err := call(node)
+	return util.GrpcError(err)
+}
+
+func (s ImplementedNodeServer) Run(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.Run()\n", prototext.MarshalOptions{}.Format(id))
+		return node.Run()
+	})
 }
 
 func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{%v}.Schedule()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
-
-	return nil, util.GrpcError(node.Schedule())
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.Schedule()\n", prototext.MarshalOptions{}.Format(id))
+		return node.Schedule()
+	})
 }
 
 func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{Id: %v}.Done()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
-
-	return nil, util.GrpcError(node.Done())
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.Done()\n", prototext.MarshalOptions{}.Format(id))
+		return node.Done()
+	})
 }
 
 func (s ImplementedNodeServer) Plan(ctx context.Context, nodePlan *NodePlan) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{Id: %v}.Plan(%v)\n", nodePlan.GetId(), nodePlan.GetPlan().String())
-
-	node := s.graph.Nodes[graph.NodeId(nodePlan.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", nodePlan.GetId()))
-	}
-
-	return nil, util.GrpcError(node.Plan(nodePlan.GetPlan()))
+	return nil, s.onNode(nodePlan.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{Id: %v}.Plan(%v)\n", nodePlan.GetId(), nodePlan.GetPlan().String())
+		return node.Plan(nodePlan.GetPlan())
+	})
 }
 
 func (s ImplementedNodeServer) Stop(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{%v}.Stop()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
-
-	return nil, util.GrpcError(node.Stop())
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.Stop()\n", prototext.MarshalOptions{}.Format(id))
+		return node.Stop()
+	})
 }
 
 func (s ImplementedNodeServer) Skip(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{%v}.Skip()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
-
-	return nil, util.GrpcError(node.Skip())
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.Skip()\n", prototext.MarshalOptions{}.Format(id))
+		return node.Skip()
+	})
 }
 
 func (s ImplementedNodeServer) Reset(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{%v}.Reset()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
-
-	return nil, util.GrpcError(node.Reset())
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.Reset()\n", prototext.MarshalOptions{}.Format(id))
+		return node.Reset()
+	})
 }
 
 func (s ImplementedNodeServer) CollectArts(ctx context.Context, id *NodeIdentifier) (*Arts, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("running node{%v}.CollectArts()\n", prototext.MarshalOptions{}.Format(id))
-
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
-
-	if node.Job == nil {
-		return nil, nil
-	} else {
-		return &Arts{Arts: node.Job.CollectArtifacts()}, nil
-	}
+	var arts *Arts
+	return arts, s.onNode(id.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{%v}.CollectArts()\n", prototext.MarshalOptions{}.Format(id))
+		if node.Job != nil {
+			arts = &Arts{Arts: node.Job.CollectArtifacts()}
+		}
+		return nil
+	})
 }
 
 func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig) (*NodeIdentifier, error) {
@@ -154,49 +112,35 @@ func (s ImplementedNodeServer) Add(ctx context.Context, config *graph.NodeConfig
 }
 
 func (s ImplementedNodeServer) Edit(ctx context.Context, config *graph.NodeConfig) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	return nil, s.onNode(config.GetId(), func(node *graph.Node) error {
+		log.Printf("running node{Id:%v}.Edit(%v)\n", *config.Id, prototext.MarshalOptions{}.Format(config))
 
-	log.Printf("running node{Id:%v}.Edit(%v)\n", *config.Id, prototext.MarshalOptions{}.Format(config))
+		node.Config.Reset()
+		proto.Merge(node.Config, config)
 
-	node := s.graph.Nodes[graph.NodeId(*config.Id)]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", *config.Id))
-	}
+		err := s.graph.SaveCurrent(ctx)
+		if err != nil {
+			return err
+		}
 
-	node.Config.Reset()
-	proto.Merge(node.Config, config)
-
-	err := s.graph.SaveCurrent(ctx)
-	if err != nil {
-		return nil, util.GrpcError(err)
-	}
-
-	return nil, nil
+		return nil
+	})
 }
 
 func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+	return nil, s.onNode(id.GetId(), func(node *graph.Node) error {
+		if len(node.CollectInput()) > 0 || len(node.CollectOutput()) > 0 {
+			return fmt.Errorf("node (id=%v) has edges", id.GetId())
+		}
 
-	log.Printf("deleting node{%v}\n", prototext.MarshalOptions{}.Format(id))
+		delete(s.graph.Nodes, graph.NodeId(id.GetId()))
+		s.graph.Config.Nodes = slices.DeleteFunc(s.graph.Config.Nodes, func(nodeConfig *graph.NodeConfig) bool { return nodeConfig.GetId() == id.GetId() })
 
-	node := s.graph.Nodes[graph.NodeId(id.GetId())]
-	if node == nil {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
-	}
+		err := s.graph.SaveCurrent(ctx)
+		if err != nil {
+			return err
+		}
 
-	if len(node.CollectInput()) > 0 || len(node.CollectOutput()) > 0 {
-		return nil, util.GrpcError(fmt.Errorf("node (id=%v) has edges", id.GetId()))
-	}
-
-	delete(s.graph.Nodes, graph.NodeId(id.GetId()))
-	s.graph.Config.Nodes = slices.DeleteFunc(s.graph.Config.Nodes, func(nodeConfig *graph.NodeConfig) bool { return nodeConfig.GetId() == id.GetId() })
-
-	err := s.graph.SaveCurrent(ctx)
-	if err != nil {
-		return nil, util.GrpcError(err)
-	}
-
-	return nil, nil
+		return nil
+	})
 }
