@@ -45,39 +45,7 @@ func (s ImplementedNodeServer) Schedule(ctx context.Context, id *NodeIdentifier)
 		return nil, util.GrpcError(fmt.Errorf("node (id=%v) not found", id.GetId()))
 	}
 
-	isScheduled := map[graph.NodeId]bool{}
-
-	for nodesToSchedule := []*graph.Node{node}; len(nodesToSchedule) > 0; {
-		var nodeToSchedule *graph.Node
-		nodeToSchedule, nodesToSchedule = nodesToSchedule[0], nodesToSchedule[1:]
-		state, isIdle := nodeToSchedule.GetState().State.(*graph.NodeState_Idle)
-		if !isIdle {
-			continue
-		}
-
-		id := graph.NodeId(*nodeToSchedule.Config.Id)
-		if isScheduled[id] {
-			continue
-		}
-		isScheduled[id] = true
-
-		if state.Idle.GetIsReady() {
-			err := nodeToSchedule.Run()
-			if err != nil {
-				log.Printf("node{Id: %v}.Run() failed: %v\n", nodeToSchedule.Config.GetId(), err)
-				return nil, util.GrpcError(err)
-			}
-		} else if nodeToSchedule.GetState().GetIdle().GetPlan() == graph.NodeState_IdleState_None {
-			err := nodeToSchedule.Plan(graph.NodeState_IdleState_Scheduled)
-			if err != nil {
-				return nil, util.GrpcError(err)
-			}
-		}
-
-		nodesToSchedule = append(nodesToSchedule, nodeToSchedule.CollectInput()...)
-	}
-
-	return nil, nil
+	return nil, util.GrpcError(node.Schedule())
 }
 
 func (s ImplementedNodeServer) Done(ctx context.Context, id *NodeIdentifier) (*Nothing, error) {

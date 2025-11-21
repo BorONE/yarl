@@ -184,6 +184,36 @@ func (node *Node) resetRunContext() error {
 	return os.RemoveAll(path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())))
 }
 
+func (node *Node) Schedule() error {
+	for nodesToSchedule := []*Node{node}; len(nodesToSchedule) > 0; {
+		var nodeToSchedule *Node
+		nodeToSchedule, nodesToSchedule = nodesToSchedule[0], nodesToSchedule[1:]
+		state, isIdle := nodeToSchedule.GetState().State.(*NodeState_Idle)
+		if !isIdle {
+			continue
+		}
+
+		if state.Idle.GetPlan() == NodeState_IdleState_Scheduled {
+			continue
+		}
+
+		if state.Idle.GetIsReady() {
+			err := nodeToSchedule.Run()
+			if err != nil {
+				return err
+			}
+		} else {
+			err := nodeToSchedule.Plan(NodeState_IdleState_Scheduled)
+			if err != nil {
+				return err
+			}
+		}
+
+		nodesToSchedule = append(nodesToSchedule, nodeToSchedule.CollectInput()...)
+	}
+	return nil
+}
+
 func (node *Node) Plan(plan NodeState_IdleState_IdlePlan) error {
 	state, isIdle := node.state.(*NodeState_Idle)
 	if !isIdle || state.Idle.GetIsReady() {
