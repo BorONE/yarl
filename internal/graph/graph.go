@@ -62,15 +62,21 @@ func isEdgeEqualsFunc(edge *EdgeConfig) func(e *EdgeConfig) bool {
 	}
 }
 
-func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (from *Node, to *Node, isFileConnection bool, err error) {
+type edgeNodes struct {
+	from   *Node
+	to     *Node
+	isFile bool
+}
+
+func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (*edgeNodes, error) {
 	from, ok := graph.Nodes[NodeId(*edge.FromNodeId)]
 	if !ok {
-		return nil, nil, false, fmt.Errorf("from node (id=%v) does not exist", *edge.FromNodeId)
+		return nil, fmt.Errorf("from node (id=%v) does not exist", *edge.FromNodeId)
 	}
 
-	to, ok = graph.Nodes[NodeId(*edge.ToNodeId)]
+	to, ok := graph.Nodes[NodeId(*edge.ToNodeId)]
 	if !ok {
-		return nil, nil, false, fmt.Errorf("to node (id=%v) does not exist", *edge.ToNodeId)
+		return nil, fmt.Errorf("to node (id=%v) does not exist", *edge.ToNodeId)
 	}
 
 	if slices.ContainsFunc(graph.Config.Edges, isEdgeEqualsFunc(edge)) != existing {
@@ -80,35 +86,35 @@ func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (from *Node, t
 		} else {
 			errorFormat = "edge {%v} already exists"
 		}
-		return nil, nil, false, fmt.Errorf(errorFormat, prototext.MarshalOptions{}.Format(edge))
+		return nil, fmt.Errorf(errorFormat, prototext.MarshalOptions{}.Format(edge))
 	}
 
 	if (edge.FromPort == nil) != (edge.ToPort == nil) {
-		return nil, nil, false, fmt.Errorf("invalid edge: source target type mismatch (file-node connection)")
+		return nil, fmt.Errorf("invalid edge: source target type mismatch (file-node connection)")
 	}
 
-	return from, to, edge.FromPort != nil, nil
+	return &edgeNodes{from, to, edge.FromPort != nil}, nil
 }
 
 func (graph *Graph) Connect(edge *EdgeConfig) error {
-	_, to, _, err := graph.getEdgeNodes(edge, false)
+	edgeNodes, err := graph.getEdgeNodes(edge, false)
 	if err != nil {
 		return err
 	}
 
 	graph.Config.Edges = append(graph.Config.Edges, edge)
-	to.OnInputChange()
+	edgeNodes.to.OnInputChange()
 	return nil
 }
 
 func (graph *Graph) Disconnect(edge *EdgeConfig) error {
-	_, to, _, err := graph.getEdgeNodes(edge, true)
+	edgeNodes, err := graph.getEdgeNodes(edge, true)
 	if err != nil {
 		return err
 	}
 
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
-	to.OnInputChange()
+	edgeNodes.to.OnInputChange()
 	return nil
 }
 
