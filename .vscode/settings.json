@@ -8,7 +8,7 @@
             },
             {
                 "match": ".*\\.proto",
-                "cmd": "cd ${workspaceFolder}; npx buf generate",
+                "cmd": "cd ${workspaceFolder}/frontend; npx buf generate",
             },
         ]
     },

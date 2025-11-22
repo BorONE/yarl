@@ -1,7 +1,7 @@
 version: v2
 inputs:
-  - directory: .
+  - directory: ..
 plugins:
   - local: protoc-gen-es
     opt: target=ts
-    out: fts/src/gen
+    out: src/gen
