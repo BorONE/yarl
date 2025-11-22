@@ -6,7 +6,7 @@ import { Textarea } from "./components/ui/textarea"
 
 import Editor from 'react-simple-code-editor';
 
-
+type ArbitraryMap = { [key: string]: any }
 
 export default ({
     job,
@@ -20,7 +20,7 @@ export default ({
     onChange: (schema: DescMessage, job: Message) => void,
 }) => {
     const onFieldChange = (field: DescField, value: any) => {
-        const update = job
+        const update = job as ArbitraryMap
         update[field.name] = value
         onChange(schema, job)
     }
@@ -28,8 +28,8 @@ export default ({
     const getInput = (field: DescField) => {
         const props : any = {
             id: `${schema.name}.${field.name}`,
-            placeholder: init[field.name],
-            value: job[field.name],
+            placeholder: (init as ArbitraryMap)[field.name],
+            value: (job as ArbitraryMap)[field.name],
             style: { fontFamily: "monospace" },
             className: "no-shadow",
         }

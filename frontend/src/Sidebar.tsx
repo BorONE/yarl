@@ -1,4 +1,4 @@
-import React, { useCallback, type ReactElement } from 'react';
+import React, { useCallback } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
 import { NodeConfigSchema, type NodeConfig, type Position } from './gen/internal/graph/config_pb';
