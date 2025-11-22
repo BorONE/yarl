@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.12.4
-// source: internal/job/register/daemon.proto
+// source: internal/job/register/daemon/daemon.proto
 
-package register
+package daemon
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -32,7 +32,7 @@ type DaemonConfig struct {
 
 func (x *DaemonConfig) Reset() {
 	*x = DaemonConfig{}
-	mi := &file_internal_job_register_daemon_proto_msgTypes[0]
+	mi := &file_internal_job_register_daemon_daemon_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +44,7 @@ func (x *DaemonConfig) String() string {
 func (*DaemonConfig) ProtoMessage() {}
 
 func (x *DaemonConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_job_register_daemon_proto_msgTypes[0]
+	mi := &file_internal_job_register_daemon_daemon_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +57,7 @@ func (x *DaemonConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DaemonConfig.ProtoReflect.Descriptor instead.
 func (*DaemonConfig) Descriptor() ([]byte, []int) {
-	return file_internal_job_register_daemon_proto_rawDescGZIP(), []int{0}
+	return file_internal_job_register_daemon_daemon_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *DaemonConfig) GetRun() string {
@@ -89,7 +89,7 @@ type DaemonMonitorConfig struct {
 
 func (x *DaemonMonitorConfig) Reset() {
 	*x = DaemonMonitorConfig{}
-	mi := &file_internal_job_register_daemon_proto_msgTypes[1]
+	mi := &file_internal_job_register_daemon_daemon_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -101,7 +101,7 @@ func (x *DaemonMonitorConfig) String() string {
 func (*DaemonMonitorConfig) ProtoMessage() {}
 
 func (x *DaemonMonitorConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_job_register_daemon_proto_msgTypes[1]
+	mi := &file_internal_job_register_daemon_daemon_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -114,38 +114,38 @@ func (x *DaemonMonitorConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DaemonMonitorConfig.ProtoReflect.Descriptor instead.
 func (*DaemonMonitorConfig) Descriptor() ([]byte, []int) {
-	return file_internal_job_register_daemon_proto_rawDescGZIP(), []int{1}
+	return file_internal_job_register_daemon_daemon_proto_rawDescGZIP(), []int{1}
 }
 
-var File_internal_job_register_daemon_proto protoreflect.FileDescriptor
+var File_internal_job_register_daemon_daemon_proto protoreflect.FileDescriptor
 
-const file_internal_job_register_daemon_proto_rawDesc = "" +
+const file_internal_job_register_daemon_daemon_proto_rawDesc = "" +
 	"\n" +
-	"\"internal/job/register/daemon.proto\x12\bregister\"T\n" +
+	")internal/job/register/daemon/daemon.proto\x12\x06daemon\"T\n" +
 	"\fDaemonConfig\x12\x10\n" +
 	"\x03Run\x18\x01 \x02(\tR\x03Run\x12\x16\n" +
 	"\x06Status\x18\x02 \x02(\tR\x06Status\x12\x1a\n" +
 	"\bShutdown\x18\x03 \x02(\tR\bShutdown\"\x15\n" +
-	"\x13DaemonMonitorConfigB\x14Z\x12pipegraph/register"
+	"\x13DaemonMonitorConfigB\x12Z\x10pipegraph/daemon"
 
 var (
-	file_internal_job_register_daemon_proto_rawDescOnce sync.Once
-	file_internal_job_register_daemon_proto_rawDescData []byte
+	file_internal_job_register_daemon_daemon_proto_rawDescOnce sync.Once
+	file_internal_job_register_daemon_daemon_proto_rawDescData []byte
 )
 
-func file_internal_job_register_daemon_proto_rawDescGZIP() []byte {
-	file_internal_job_register_daemon_proto_rawDescOnce.Do(func() {
-		file_internal_job_register_daemon_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_job_register_daemon_proto_rawDesc), len(file_internal_job_register_daemon_proto_rawDesc)))
+func file_internal_job_register_daemon_daemon_proto_rawDescGZIP() []byte {
+	file_internal_job_register_daemon_daemon_proto_rawDescOnce.Do(func() {
+		file_internal_job_register_daemon_daemon_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_job_register_daemon_daemon_proto_rawDesc), len(file_internal_job_register_daemon_daemon_proto_rawDesc)))
 	})
-	return file_internal_job_register_daemon_proto_rawDescData
+	return file_internal_job_register_daemon_daemon_proto_rawDescData
 }
 
-var file_internal_job_register_daemon_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_internal_job_register_daemon_proto_goTypes = []any{
-	(*DaemonConfig)(nil),        // 0: register.DaemonConfig
-	(*DaemonMonitorConfig)(nil), // 1: register.DaemonMonitorConfig
+var file_internal_job_register_daemon_daemon_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_internal_job_register_daemon_daemon_proto_goTypes = []any{
+	(*DaemonConfig)(nil),        // 0: daemon.DaemonConfig
+	(*DaemonMonitorConfig)(nil), // 1: daemon.DaemonMonitorConfig
 }
-var file_internal_job_register_daemon_proto_depIdxs = []int32{
+var file_internal_job_register_daemon_daemon_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -153,26 +153,26 @@ var file_internal_job_register_daemon_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_internal_job_register_daemon_proto_init() }
-func file_internal_job_register_daemon_proto_init() {
-	if File_internal_job_register_daemon_proto != nil {
+func init() { file_internal_job_register_daemon_daemon_proto_init() }
+func file_internal_job_register_daemon_daemon_proto_init() {
+	if File_internal_job_register_daemon_daemon_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_job_register_daemon_proto_rawDesc), len(file_internal_job_register_daemon_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_job_register_daemon_daemon_proto_rawDesc), len(file_internal_job_register_daemon_daemon_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_internal_job_register_daemon_proto_goTypes,
-		DependencyIndexes: file_internal_job_register_daemon_proto_depIdxs,
-		MessageInfos:      file_internal_job_register_daemon_proto_msgTypes,
+		GoTypes:           file_internal_job_register_daemon_daemon_proto_goTypes,
+		DependencyIndexes: file_internal_job_register_daemon_daemon_proto_depIdxs,
+		MessageInfos:      file_internal_job_register_daemon_daemon_proto_msgTypes,
 	}.Build()
-	File_internal_job_register_daemon_proto = out.File
-	file_internal_job_register_daemon_proto_goTypes = nil
-	file_internal_job_register_daemon_proto_depIdxs = nil
+	File_internal_job_register_daemon_daemon_proto = out.File
+	file_internal_job_register_daemon_daemon_proto_goTypes = nil
+	file_internal_job_register_daemon_daemon_proto_depIdxs = nil
 }
