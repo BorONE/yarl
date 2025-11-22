@@ -69,7 +69,7 @@ var File_internal_job_register_script_script_proto protoreflect.FileDescriptor
 
 const file_internal_job_register_script_script_proto_rawDesc = "" +
 	"\n" +
-	")internal/job/register/script/script.proto\x12\x06script\"&\n" +
+	")internal/job/register/script/script.proto\x12\bregister\"&\n" +
 	"\fScriptConfig\x12\x16\n" +
 	"\x06Source\x18\x01 \x03(\tR\x06SourceB\x12Z\x10pipegraph/script"
 
@@ -87,7 +87,7 @@ func file_internal_job_register_script_script_proto_rawDescGZIP() []byte {
 
 var file_internal_job_register_script_script_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_internal_job_register_script_script_proto_goTypes = []any{
-	(*ScriptConfig)(nil), // 0: script.ScriptConfig
+	(*ScriptConfig)(nil), // 0: register.ScriptConfig
 }
 var file_internal_job_register_script_script_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package daemon;
+package register;
 option go_package = "pipegraph/daemon";
 
 message DaemonConfig {

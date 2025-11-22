@@ -2,7 +2,6 @@ import React, { useCallback, type ReactElement } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
 import { NodeConfigSchema, type NodeConfig, type Position } from './gen/internal/graph/config_pb';
-import { ShellCommandConfigSchema, ShellScriptConfigSchema, type ShellCommandConfig } from './gen/internal/job/register/shell_pb';
 import { extractJobType } from './util';
 import {
     Accordion,
@@ -27,8 +26,8 @@ import Cookies from 'universal-cookie';
 import Artifacts from './Arts';
 import type { Node } from './JobNode';
 import { buildNode } from './misc';
-import { ScriptConfigSchema } from './gen/internal/job/register/script_pb';
-import { DaemonConfigSchema, DaemonMonitorConfigSchema } from './gen/internal/job/register/daemon_pb';
+import { ScriptConfigSchema } from './gen/internal/job/register/script/script_pb';
+import { DaemonConfigSchema, DaemonMonitorConfigSchema } from './gen/internal/job/register/daemon/daemon_pb';
 import JobEditor from './JobEditor';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';

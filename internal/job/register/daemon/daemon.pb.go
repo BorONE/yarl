@@ -121,7 +121,7 @@ var File_internal_job_register_daemon_daemon_proto protoreflect.FileDescriptor
 
 const file_internal_job_register_daemon_daemon_proto_rawDesc = "" +
 	"\n" +
-	")internal/job/register/daemon/daemon.proto\x12\x06daemon\"T\n" +
+	")internal/job/register/daemon/daemon.proto\x12\bregister\"T\n" +
 	"\fDaemonConfig\x12\x10\n" +
 	"\x03Run\x18\x01 \x02(\tR\x03Run\x12\x16\n" +
 	"\x06Status\x18\x02 \x02(\tR\x06Status\x12\x1a\n" +
@@ -142,8 +142,8 @@ func file_internal_job_register_daemon_daemon_proto_rawDescGZIP() []byte {
 
 var file_internal_job_register_daemon_daemon_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_internal_job_register_daemon_daemon_proto_goTypes = []any{
-	(*DaemonConfig)(nil),        // 0: daemon.DaemonConfig
-	(*DaemonMonitorConfig)(nil), // 1: daemon.DaemonMonitorConfig
+	(*DaemonConfig)(nil),        // 0: register.DaemonConfig
+	(*DaemonMonitorConfig)(nil), // 1: register.DaemonMonitorConfig
 }
 var file_internal_job_register_daemon_daemon_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
