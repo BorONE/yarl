@@ -1,6 +1,6 @@
 version: v2
 inputs:
-  - directory: ..
+  - directory: ../backend
 plugins:
   - local: protoc-gen-es
     opt: target=ts

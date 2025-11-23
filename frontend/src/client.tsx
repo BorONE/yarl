@@ -5,7 +5,8 @@ import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import * as api from './gen/internal/api/api_pb'
 
 const transport = createGrpcWebTransport({
-  baseUrl: "http://localhost:8080",
+  // baseUrl: "http://envoy:8081",
+  baseUrl: "http://localhost:8081",
 });
 
 console.log('client init')
