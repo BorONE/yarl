@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"log"
-	"pipegraph/internal/graph"
-	"pipegraph/internal/util"
 	"sync"
+	"yarl/internal/graph"
+	"yarl/internal/util"
 
 	grpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/prototext"

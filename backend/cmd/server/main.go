@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 
-	"pipegraph/internal/api"
-	_ "pipegraph/internal/job/register"
+	"yarl/internal/api"
+	_ "yarl/internal/job/register"
 )
 
 func main() {

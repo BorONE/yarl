@@ -9,10 +9,10 @@ package api
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	graph "pipegraph/internal/graph"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+	graph "yarl/internal/graph"
 )
 
 const (
@@ -280,7 +280,7 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\vCollectArts\x12\x13.api.NodeIdentifier\x1a\t.api.Arts\x12-\n" +
 	"\x03Add\x12\x11.graph.NodeConfig\x1a\x13.api.NodeIdentifier\x12'\n" +
 	"\x04Edit\x12\x11.graph.NodeConfig\x1a\f.api.Nothing\x12+\n" +
-	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.NothingB\x18Z\x16pipegraph/internal/api"
+	"\x06Delete\x12\x13.api.NodeIdentifier\x1a\f.api.NothingB\x13Z\x11yarl/internal/api"
 
 var (
 	file_internal_api_api_proto_rawDescOnce sync.Once

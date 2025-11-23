@@ -72,7 +72,7 @@ const file_internal_job_register_file_file_proto_rawDesc = "" +
 	"%internal/job/register/file/file.proto\x12\bregister\" \n" +
 	"\n" +
 	"FileConfig\x12\x12\n" +
-	"\x04Data\x18\x01 \x03(\tR\x04DataB\x10Z\x0epipegraph/file"
+	"\x04Data\x18\x01 \x03(\tR\x04DataB\vZ\tyarl/file"
 
 var (
 	file_internal_job_register_file_file_proto_rawDescOnce sync.Once

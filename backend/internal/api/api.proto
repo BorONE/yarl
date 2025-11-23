@@ -3,7 +3,7 @@ syntax = "proto2";
 import "internal/graph/config.proto";
 
 package api;
-option go_package = "pipegraph/internal/api";
+option go_package = "yarl/internal/api";
 
 message Nothing {
 }

@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
-	"pipegraph/internal/graph"
 	"sync"
+	"yarl/internal/graph"
 
 	grpc "google.golang.org/grpc"
 )

@@ -1,7 +1,7 @@
 syntax = "proto2";
 
 package register;
-option go_package = "pipegraph/script";
+option go_package = "yarl/script";
 
 message ScriptConfig {
     repeated string Source = 1;

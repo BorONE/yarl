@@ -1,7 +1,7 @@
 syntax = "proto2";
 
 package register;
-option go_package = "pipegraph/file";
+option go_package = "yarl/file";
 
 message FileConfig {
     repeated string Data = 1;

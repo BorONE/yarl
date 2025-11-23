@@ -1,7 +1,7 @@
 package register
 
 import (
-	_ "pipegraph/internal/job/register/daemon"
-	_ "pipegraph/internal/job/register/file"
-	_ "pipegraph/internal/job/register/script"
+	_ "yarl/internal/job/register/daemon"
+	_ "yarl/internal/job/register/file"
+	_ "yarl/internal/job/register/script"
 )

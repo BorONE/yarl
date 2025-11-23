@@ -1,4 +1,4 @@
-module pipegraph
+module yarl
 
 go 1.23.0
 

@@ -3,7 +3,7 @@ syntax = "proto2";
 import "google/protobuf/any.proto";
 
 package graph;
-option go_package = "pipegraph/internal/graph";
+option go_package = "yarl/internal/graph";
 
 message NodeState {
     message IdleState {

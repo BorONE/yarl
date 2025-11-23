@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"pipegraph/internal/graph"
-	"pipegraph/internal/util"
 	"slices"
 	"sync"
+	"yarl/internal/graph"
+	"yarl/internal/util"
 
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"

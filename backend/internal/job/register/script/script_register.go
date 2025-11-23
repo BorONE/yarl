@@ -5,10 +5,10 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"pipegraph/internal/job"
-	"pipegraph/internal/util"
 	"strings"
 	"time"
+	"yarl/internal/job"
+	"yarl/internal/util"
 
 	"google.golang.org/protobuf/types/known/anypb"
 )

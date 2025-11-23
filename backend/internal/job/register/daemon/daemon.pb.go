@@ -126,7 +126,7 @@ const file_internal_job_register_daemon_daemon_proto_rawDesc = "" +
 	"\x03Run\x18\x01 \x02(\tR\x03Run\x12\x16\n" +
 	"\x06Status\x18\x02 \x02(\tR\x06Status\x12\x1a\n" +
 	"\bShutdown\x18\x03 \x02(\tR\bShutdown\"\x15\n" +
-	"\x13DaemonMonitorConfigB\x12Z\x10pipegraph/daemon"
+	"\x13DaemonMonitorConfigB\rZ\vyarl/daemon"
 
 var (
 	file_internal_job_register_daemon_daemon_proto_rawDescOnce sync.Once

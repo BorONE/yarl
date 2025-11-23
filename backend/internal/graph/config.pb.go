@@ -887,7 +887,7 @@ const file_internal_graph_config_proto_rawDesc = "" +
 	"\bInitDone\x10\x03\x12\x0f\n" +
 	"\vUpdateState\x10\x04\x12\t\n" +
 	"\x05Reset\x10\x05\x12\t\n" +
-	"\x05Error\x10\x06B\x1aZ\x18pipegraph/internal/graph"
+	"\x05Error\x10\x06B\x15Z\x13yarl/internal/graph"
 
 var (
 	file_internal_graph_config_proto_rawDescOnce sync.Once

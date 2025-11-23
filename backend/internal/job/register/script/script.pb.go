@@ -71,7 +71,7 @@ const file_internal_job_register_script_script_proto_rawDesc = "" +
 	"\n" +
 	")internal/job/register/script/script.proto\x12\bregister\"&\n" +
 	"\fScriptConfig\x12\x16\n" +
-	"\x06Source\x18\x01 \x03(\tR\x06SourceB\x12Z\x10pipegraph/script"
+	"\x06Source\x18\x01 \x03(\tR\x06SourceB\rZ\vyarl/script"
 
 var (
 	file_internal_job_register_script_script_proto_rawDescOnce sync.Once

@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/job/register/file/file.proto.
  */
 export const file_internal_job_register_file_file: GenFile = /*@__PURE__*/
-  fileDesc("CiVpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZmlsZS9maWxlLnByb3RvEghyZWdpc3RlciIaCgpGaWxlQ29uZmlnEgwKBERhdGEYASADKAlCEFoOcGlwZWdyYXBoL2ZpbGU");
+  fileDesc("CiVpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZmlsZS9maWxlLnByb3RvEghyZWdpc3RlciIaCgpGaWxlQ29uZmlnEgwKBERhdGEYASADKAlCC1oJeWFybC9maWxl");
 
 /**
  * @generated from message register.FileConfig
