@@ -16,7 +16,8 @@ docker compose up
 #### Backend
 Install [go](https://go.dev/doc/install), then you can install dependencies, build and run via:
 ```shell
-go run backend/cmd/server/main.go
+cd backend
+go run cmd/server/main.go
 ```
 
 #### Frontend
