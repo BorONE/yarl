@@ -26,7 +26,9 @@ import Cookies from 'universal-cookie';
 
 import * as client from './client'
 
-import { ModeToggle } from "./ModeToggle"
+import { Moon, Sun } from "lucide-react"
+
+import { useTheme } from "./ThemeProvider"
 
 export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void, copyNodes: () => void, pasteNodes: () => void }) => {
 	const [selectedDialog, selectDialog] = useState("")
@@ -95,6 +97,8 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void
 		<Kbd style={{marginLeft: 'auto', marginRight: 0}}>Ctrl+Alt+{char}</Kbd>
 	)
 
+	const { setTheme } = useTheme()
+
 	return (
 		<Dialog>
 			<Menubar style={{ padding: 0 }}>
@@ -125,8 +129,26 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void
 					</MenubarContent>
 				</MenubarMenu>
 
-				<ModeToggle />
+				<MenubarMenu>
+					<MenubarTrigger>
+						<Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+						<Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+						<span className="sr-only">Toggle theme</span>
+					</MenubarTrigger>
+					<MenubarContent>
+						<MenubarItem onSelect={() => setTheme("light")}>
+							Light
+						</MenubarItem>
+						<MenubarItem onSelect={() => setTheme("dark")}>
+							Dark
+						</MenubarItem>
+						<MenubarItem onSelect={() => setTheme("system")}>
+							System
+						</MenubarItem>
+					</MenubarContent>
+				</MenubarMenu>
 			</Menubar>
+
 			{getDialogContent()}
 		</Dialog>
 	)
