@@ -25,6 +25,7 @@ Install [nvm](https://github.com/nvm-sh/nvm), then install dependencies and run:
 ```shell
 cd frontend
 npm install # dependencies
+npm run build
 npm run preview
 ```
 
