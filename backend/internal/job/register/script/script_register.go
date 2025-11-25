@@ -26,7 +26,7 @@ type ScriptJob struct {
 
 const SCRIPT_FILENAME = ".script"
 
-func (j *ScriptJob) reset() {
+func (j *ScriptJob) init() {
 	j.cmd, j.kill = job.NewCommandWithKill("./" + SCRIPT_FILENAME)
 	j.cmd.Stdout = &j.stdout
 	j.cmd.Stderr = &j.stderr
@@ -50,7 +50,7 @@ func (j *ScriptJob) Run(ctx *job.RunContext) error {
 
 func (j *ScriptJob) Kill() error {
 	j.kill()
-	j.reset()
+	j.init()
 	return nil
 }
 
@@ -74,7 +74,7 @@ func init() {
 		job := &ScriptJob{
 			source: strings.Join(cfg.GetSource(), "\n"),
 		}
-		job.reset()
+		job.init()
 
 		return job, nil
 	})
