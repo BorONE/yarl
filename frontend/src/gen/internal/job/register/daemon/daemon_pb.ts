@@ -10,24 +10,24 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file internal/job/register/daemon/daemon.proto.
  */
 export const file_internal_job_register_daemon_daemon: GenFile = /*@__PURE__*/
-  fileDesc("CilpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZGFlbW9uL2RhZW1vbi5wcm90bxIIcmVnaXN0ZXIiPQoMRGFlbW9uQ29uZmlnEgsKA1J1bhgBIAIoCRIOCgZTdGF0dXMYAiACKAkSEAoIU2h1dGRvd24YAyACKAkiFQoTRGFlbW9uTW9uaXRvckNvbmZpZ0INWgt5YXJsL2RhZW1vbg");
+  fileDesc("CilpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZGFlbW9uL2RhZW1vbi5wcm90bxIIcmVnaXN0ZXIiPQoMRGFlbW9uQ29uZmlnEgsKA1J1bhgBIAEoCRIOCgZTdGF0dXMYAiABKAkSEAoIU2h1dGRvd24YAyABKAkiFQoTRGFlbW9uTW9uaXRvckNvbmZpZ0INWgt5YXJsL2RhZW1vbg");
 
 /**
  * @generated from message register.DaemonConfig
  */
 export type DaemonConfig = Message<"register.DaemonConfig"> & {
   /**
-   * @generated from field: required string Run = 1;
+   * @generated from field: optional string Run = 1;
    */
   Run: string;
 
   /**
-   * @generated from field: required string Status = 2;
+   * @generated from field: optional string Status = 2;
    */
   Status: string;
 
   /**
-   * @generated from field: required string Shutdown = 3;
+   * @generated from field: optional string Shutdown = 3;
    */
   Shutdown: string;
 };

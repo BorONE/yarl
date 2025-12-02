@@ -4,9 +4,9 @@ package register;
 option go_package = "yarl/daemon";
 
 message DaemonConfig {
-    required string Run = 1;
-    required string Status = 2;
-    required string Shutdown = 3;
+    optional string Run = 1;
+    optional string Status = 2;
+    optional string Shutdown = 3;
 }
 
 message DaemonMonitorConfig {

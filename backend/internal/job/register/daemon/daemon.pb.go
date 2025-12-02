@@ -23,9 +23,9 @@ const (
 
 type DaemonConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Run           *string                `protobuf:"bytes,1,req,name=Run" json:"Run,omitempty"`
-	Status        *string                `protobuf:"bytes,2,req,name=Status" json:"Status,omitempty"`
-	Shutdown      *string                `protobuf:"bytes,3,req,name=Shutdown" json:"Shutdown,omitempty"`
+	Run           *string                `protobuf:"bytes,1,opt,name=Run" json:"Run,omitempty"`
+	Status        *string                `protobuf:"bytes,2,opt,name=Status" json:"Status,omitempty"`
+	Shutdown      *string                `protobuf:"bytes,3,opt,name=Shutdown" json:"Shutdown,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,9 +123,9 @@ const file_internal_job_register_daemon_daemon_proto_rawDesc = "" +
 	"\n" +
 	")internal/job/register/daemon/daemon.proto\x12\bregister\"T\n" +
 	"\fDaemonConfig\x12\x10\n" +
-	"\x03Run\x18\x01 \x02(\tR\x03Run\x12\x16\n" +
-	"\x06Status\x18\x02 \x02(\tR\x06Status\x12\x1a\n" +
-	"\bShutdown\x18\x03 \x02(\tR\bShutdown\"\x15\n" +
+	"\x03Run\x18\x01 \x01(\tR\x03Run\x12\x16\n" +
+	"\x06Status\x18\x02 \x01(\tR\x06Status\x12\x1a\n" +
+	"\bShutdown\x18\x03 \x01(\tR\bShutdown\"\x15\n" +
 	"\x13DaemonMonitorConfigB\rZ\vyarl/daemon"
 
 var (

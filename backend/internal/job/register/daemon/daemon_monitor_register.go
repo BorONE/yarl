@@ -12,6 +12,8 @@ import (
 	"yarl/internal/job"
 
 	_ "embed"
+
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type DaemonMonitorJob struct {
@@ -25,8 +27,7 @@ type DaemonInfo struct {
 	stderr *string
 }
 
-func unquote(s string) string {
-	q := "\""
+func unquote(s string, q string) string {
 	if strings.HasPrefix(s, q) && strings.HasSuffix(s, q) {
 		return s[1 : len(s)-1]
 	}
@@ -48,10 +49,10 @@ func (j *DaemonMonitorJob) parseInfo(lines []string) DaemonInfo {
 			}
 			info.pid = &parsed
 		} else if key == "STDOUT" {
-			value = unquote(value)
+			value = unquote(value, "\"")
 			info.stdout = &value
 		} else if key == "STDERR" {
-			value = unquote(value)
+			value = unquote(value, "\"")
 			info.stderr = &value
 		}
 	}
@@ -64,12 +65,10 @@ func (j *DaemonMonitorJob) Run(ctx *job.RunContext) error {
 		return fmt.Errorf("failed to read info file: %s", err)
 	}
 
-	info := j.parseInfo(strings.Split(string(data), "\n"))
-
-	j.arts.Set("started_at", time.Now().String())
+	j.arts.Reset(map[string]string{"started_at": time.Now().String()})
 	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
 
-	for !j.isKilled.Load() {
+	for info := j.parseInfo(strings.Split(string(data), "\n")); !j.isKilled.Load(); {
 		if info.pid != nil {
 			process, err := os.FindProcess(*info.pid)
 			if err != nil {
@@ -97,7 +96,6 @@ func (j *DaemonMonitorJob) Run(ctx *job.RunContext) error {
 			}
 		}()
 	}
-
 	return nil
 }
 
@@ -111,3 +109,9 @@ func (j *DaemonMonitorJob) CollectArtifacts() map[string]string {
 }
 
 var _ job.Job = &DaemonMonitorJob{}
+
+func init() {
+	job.Register(&DaemonMonitorConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
+		return &DaemonMonitorJob{}, nil
+	})
+}
