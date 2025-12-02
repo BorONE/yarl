@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 touch prepare
 source prepare
@@ -32,6 +32,15 @@ EOL
 
 while ! status; do
   if ! ps -p $PID &> /dev/null; then
+    set +x
+
+    printf "\n\ndaemon stdout:\n"
+    cat $CWD/stdout
+
+    printf "\n\ndaemon stderr:\n" 1>&2
+    cat $CWD/stderr 1>&2
+
     exit 1
   fi
+  sleep 1
 done

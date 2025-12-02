@@ -72,6 +72,7 @@ export default ({ selectedNode } : { selectedNode: Node }) => {
     const content = [
         "started_at" in arts ? renderTime("started", arts.started_at) : undefined,
         "finished_at" in arts ? renderTime("finished", arts.finished_at) : undefined,
+        "script" in arts ? renderStream("script", arts.script) : undefined,
         "stdout" in arts ? renderStream("stdout", arts.stdout) : undefined,
         "stderr" in arts ? renderStream("stderr", arts.stderr) : undefined,
     ].filter((el) => typeof el != "undefined")

@@ -3,7 +3,6 @@ package script
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 	"time"
@@ -16,48 +15,35 @@ import (
 type ScriptJob struct {
 	source string
 
-	cmd  *exec.Cmd
-	kill func()
-
-	arts   job.Artifacts
-	stdout util.ThreadSafeStringBuilder
-	stderr util.ThreadSafeStringBuilder
+	cmd  *util.Cmd
+	arts job.Artifacts
 }
 
 const SCRIPT_FILENAME = ".script"
 
-func (j *ScriptJob) init() {
-	j.cmd, j.kill = job.NewCommandWithKill("./" + SCRIPT_FILENAME)
-	j.cmd.Stdout = &j.stdout
-	j.cmd.Stderr = &j.stderr
-	j.arts.Reset(map[string]string{})
-}
-
 func (j *ScriptJob) Run(ctx *job.RunContext) error {
 	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(j.source), 0777)
 	if err != nil {
-		j.arts.Reset(map[string]string{})
 		return fmt.Errorf("failed to create script: %v", err)
 	}
 
-	j.cmd.Dir = ctx.Dir
-
-	j.arts.Set("started_at", time.Now().String())
+	j.arts.Reset(map[string]string{"started_at": time.Now().String()})
 	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
 
+	j.cmd = util.NewCmd("./" + SCRIPT_FILENAME)
+	j.cmd.Dir = ctx.Dir
 	return j.cmd.Run()
 }
 
 func (j *ScriptJob) Kill() error {
-	j.kill()
-	j.init()
+	j.cmd.Kill()
 	return nil
 }
 
 func (j *ScriptJob) CollectArtifacts() map[string]string {
 	arts := j.arts.Dump()
-	arts["stdout"] = j.stdout.String()
-	arts["stderr"] = j.stderr.String()
+	arts["stdout"] = j.cmd.Stdout.String()
+	arts["stderr"] = j.cmd.Stderr.String()
 	return arts
 }
 
@@ -70,12 +56,6 @@ func init() {
 		if err != nil {
 			return nil, err
 		}
-
-		job := &ScriptJob{
-			source: strings.Join(cfg.GetSource(), "\n"),
-		}
-		job.init()
-
-		return job, nil
+		return &ScriptJob{source: strings.Join(cfg.GetSource(), "\n")}, nil
 	})
 }
