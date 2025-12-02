@@ -1,8 +1,0 @@
-syntax = "proto2";
-
-package register;
-option go_package = "pipegraph/util";
-
-message FileConfig {
-    repeated string Data = 1;
-}

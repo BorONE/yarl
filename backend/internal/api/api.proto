@@ -1,0 +1,58 @@
+syntax = "proto2";
+
+import "internal/graph/config.proto";
+
+package api;
+option go_package = "yarl/internal/api";
+
+message Nothing {
+}
+
+message NodeIdentifier {
+    optional uint64 Id = 1;
+    // optional string Name = 2;
+}
+
+message NodePlan {
+    optional uint64 Id = 1;
+    optional graph.NodeState.IdleState.IdlePlan Plan = 2;
+}
+
+message Arts {
+    map<string, string> Arts = 1;
+}
+
+message Path {
+    optional string Path = 1;
+}
+
+service Graph {
+    rpc Sync(Nothing) returns (stream graph.SyncResponse);
+
+    rpc New(Nothing) returns (Nothing);
+    rpc Load(Path) returns (Nothing);
+    rpc Save(Path) returns (Nothing);
+
+    rpc ScheduleAll(Nothing) returns (Nothing);
+
+    rpc Connect(graph.EdgeConfig) returns (Nothing);
+    rpc Disconnect(graph.EdgeConfig) returns (Nothing);
+}
+
+service Node {
+    rpc Run(NodeIdentifier) returns (Nothing);
+    rpc Schedule(NodeIdentifier) returns (Nothing);
+    rpc Done(NodeIdentifier) returns (Nothing);
+    rpc Plan(NodePlan) returns (Nothing);
+
+    rpc Stop(NodeIdentifier) returns (Nothing);
+    rpc Skip(NodeIdentifier) returns (Nothing);
+    
+    rpc Reset(NodeIdentifier) returns (Nothing);
+
+    rpc CollectArts(NodeIdentifier) returns (Arts);
+
+    rpc Add(graph.NodeConfig) returns (NodeIdentifier);
+    rpc Edit(graph.NodeConfig) returns (Nothing);
+    rpc Delete(NodeIdentifier) returns (Nothing);
+}

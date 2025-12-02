@@ -1,9 +1,0 @@
-server listening at [::]:9000
-serving New()
-adding node{Job:{[type.googleapis.com/register.ShellCommandConfig]:{Command:"echo hello world"}}}
-serving RunReadyNode()
-job(id=0) is starting...
-job(id=0) finished
-serving node{Id:0}.WaitDone()
-serving RunReadyNode()
-signal: terminated

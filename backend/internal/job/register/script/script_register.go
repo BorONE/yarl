@@ -1,0 +1,81 @@
+package script
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path"
+	"strings"
+	"time"
+	"yarl/internal/job"
+	"yarl/internal/util"
+
+	"google.golang.org/protobuf/types/known/anypb"
+)
+
+type ScriptJob struct {
+	source string
+
+	cmd  *exec.Cmd
+	kill func()
+
+	arts   job.Artifacts
+	stdout util.ThreadSafeStringBuilder
+	stderr util.ThreadSafeStringBuilder
+}
+
+const SCRIPT_FILENAME = ".script"
+
+func (j *ScriptJob) init() {
+	j.cmd, j.kill = job.NewCommandWithKill("./" + SCRIPT_FILENAME)
+	j.cmd.Stdout = &j.stdout
+	j.cmd.Stderr = &j.stderr
+	j.arts.Reset(map[string]string{})
+}
+
+func (j *ScriptJob) Run(ctx *job.RunContext) error {
+	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(j.source), 0777)
+	if err != nil {
+		j.arts.Reset(map[string]string{})
+		return fmt.Errorf("failed to create script: %v", err)
+	}
+
+	j.cmd.Dir = ctx.Dir
+
+	j.arts.Set("started_at", time.Now().String())
+	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
+
+	return j.cmd.Run()
+}
+
+func (j *ScriptJob) Kill() error {
+	j.kill()
+	j.init()
+	return nil
+}
+
+func (j *ScriptJob) CollectArtifacts() map[string]string {
+	arts := j.arts.Dump()
+	arts["stdout"] = j.stdout.String()
+	arts["stderr"] = j.stderr.String()
+	return arts
+}
+
+var _ job.Job = &ScriptJob{}
+
+func init() {
+	job.Register(&ScriptConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
+		cfg := &ScriptConfig{}
+		err := anyConfig.UnmarshalTo(cfg)
+		if err != nil {
+			return nil, err
+		}
+
+		job := &ScriptJob{
+			source: strings.Join(cfg.GetSource(), "\n"),
+		}
+		job.init()
+
+		return job, nil
+	})
+}
