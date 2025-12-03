@@ -30,5 +30,8 @@ func (a *Artifacts) Set(key, value string) {
 func (a *Artifacts) Dump() map[string]string {
 	data, done := a.Access()
 	defer done()
+	if data == nil {
+		return map[string]string{}
+	}
 	return maps.Clone(data)
 }
