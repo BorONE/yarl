@@ -10,7 +10,7 @@ import (
 
 	_ "embed"
 
-	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/proto"
 )
 
 //go:embed daemon_format.sh
@@ -58,12 +58,7 @@ func (j *DaemonJob) CollectArtifacts() map[string]string {
 var _ job.Job = &DaemonJob{}
 
 func init() {
-	job.Register(&DaemonConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
-		cfg := &DaemonConfig{}
-		err := anyConfig.UnmarshalTo(cfg)
-		if err != nil {
-			return nil, err
-		}
-		return &DaemonJob{config: cfg}, nil
+	job.Register(&DaemonConfig{}, func(msg proto.Message) (job.Job, error) {
+		return &DaemonJob{config: msg.(*DaemonConfig)}, nil
 	})
 }

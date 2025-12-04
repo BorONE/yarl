@@ -7,15 +7,16 @@ import (
 	"strings"
 	"yarl/internal/job"
 
-	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/proto"
 )
 
 type FileJob struct {
-	data string
+	config *FileConfig
 }
 
 func (j *FileJob) Run(ctx *job.RunContext) error {
-	err := os.WriteFile(path.Join(ctx.Dir, "file"), []byte(j.data), 0666)
+	data := strings.Join(j.config.Data, "\n") + "\n"
+	err := os.WriteFile(path.Join(ctx.Dir, "file"), []byte(data), 0666)
 	if err != nil {
 		return fmt.Errorf("failed to write file: %v", err)
 	}
@@ -33,15 +34,7 @@ func (j *FileJob) CollectArtifacts() map[string]string {
 var _ job.Job = &FileJob{}
 
 func init() {
-	job.Register(&FileConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
-		cfg := &FileConfig{}
-		err := anyConfig.UnmarshalTo(cfg)
-		if err != nil {
-			return nil, err
-		}
-
-		return &FileJob{
-			data: strings.Join(cfg.Data, "\n") + "\n",
-		}, nil
+	job.Register(&FileConfig{}, func(msg proto.Message) (job.Job, error) {
+		return &FileJob{config: msg.(*FileConfig)}, nil
 	})
 }
