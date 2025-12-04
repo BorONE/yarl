@@ -71,6 +71,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from './components/ui/input';
 import * as cp from './CopyPaste';
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 const fitViewOptions: FitViewOptions = {};
 const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -359,13 +360,15 @@ function InternalFlow() {
       <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
         <ResizablePanel defaultSize={layout[0]}>
           <Menubar addNewNode={addNewNodeInCenter} copyNodes={copyNodes} pasteNodes={pasteNodes} />
-            {currentFlow}
-          </ResizablePanel>
-          <ResizableHandle/>
-          <ResizablePanel defaultSize={layout[1]}>
+          {currentFlow}
+        </ResizablePanel>
+        <ResizableHandle/>
+        <ResizablePanel defaultSize={layout[1]}>
+          <ScrollArea className="h-full">
             <Sidebar nodes={nodes} setNodes={setNodes}/>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          </ScrollArea>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
