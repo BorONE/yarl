@@ -11,27 +11,34 @@ type CopyBuffer = {
   edges: CopyBufferEdge[],
 }
 
-export function IntoBuffer(nodes: Node[], edges: Edge[]) {
-    const selectedNodes = nodes.filter(node => node.selected).map(node => node.id)
-    const copyBuffer: CopyBuffer = {
-        nodes: nodes
-            .filter(node => node.selected)
-            .map(node => ({ ...node.data.config, Id: undefined })),
+export function BuildCopyBuffer(nodes: Node[], edges: Edge[], isLocal: boolean): CopyBuffer {
+    const nodeIds = nodes.map(node => node.id)
+    return {
+        nodes: nodes.map(node => ({ ...node.data.config, Id: undefined })),
         edges: edges
             .map(edge => ({
                 edge,
-                sourceIndex: selectedNodes.indexOf(edge.source),
-                targetIndex: selectedNodes.indexOf(edge.target),
+                sourceIndex: nodeIds.indexOf(edge.source),
+                targetIndex: nodeIds.indexOf(edge.target),
             }))
-            .filter(edge => (edge.sourceIndex >= 0) || (edge.targetIndex >= 0))
+            .filter(edge => {
+                if (isLocal) {
+                    return (edge.sourceIndex >= 0) || (edge.targetIndex >= 0)
+                } else {
+                    return (edge.sourceIndex >= 0) && (edge.targetIndex >= 0)
+                }
+            })
     }
+}
+
+export function IntoClipboard(nodes: Node[], edges: Edge[]) {
+    const copyBuffer = BuildCopyBuffer(nodes, edges, true)
     navigator.clipboard.writeText(JSON.stringify(copyBuffer))
 }
 
-export async function FromBuffer() {
-    const clipboard = await navigator.clipboard.readText()
-    const copied : CopyBuffer = JSON.parse(clipboard)
-    copied.nodes
+export function FromBuffer(serialized: string): CopyBuffer {
+    const buffer : CopyBuffer = JSON.parse(serialized)
+    buffer.nodes
         .forEach(config => {
             if (config.Position) {
                 config.Position.X += 10
@@ -41,7 +48,12 @@ export async function FromBuffer() {
                 config.Job.value = new Uint8Array(Object.entries(config.Job.value).map(x => x[1]))
             }
         })
-    return copied
+    return buffer
+}
+
+export async function FromClipboard() {
+    const clipboard = await navigator.clipboard.readText()
+    return FromBuffer(clipboard);
 }
 
 export function RenderEdges(edges: CopyBufferEdge[], ids: string[]) {

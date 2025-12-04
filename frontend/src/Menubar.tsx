@@ -29,20 +29,46 @@ import * as client from './client'
 import { Moon, Sun } from "lucide-react"
 
 import { useTheme } from "./ThemeProvider"
+import { Textarea } from './components/ui/textarea';
 
-export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void, copyNodes: () => void, pasteNodes: () => void }) => {
+enum DialogType {
+	OpenGraph = "open",
+	SaveGraph = "save",
+	ExportNodes = "export",
+	ImportNodes = "import",
+}
+
+export default ({
+	anySelected,
+	addNewNode,
+	copyNodes,
+	pasteNodes,
+	exportAllNodes,
+	exportSelectedNodes,
+	importNodes,
+} : {
+	anySelected: () => boolean,
+	addNewNode: () => void,
+	copyNodes: () => void,
+	pasteNodes: () => void,
+	exportAllNodes: () => string,
+	exportSelectedNodes: () => string,
+	importNodes: (data: string) => void,
+}) => {
 	const [selectedDialog, selectDialog] = useState("")
+
+	const importRef = useRef<HTMLTextAreaElement>(null)
 
 	const getDialogContent = () => {
 		switch (selectedDialog) {
-		case "open":
+		case DialogType.OpenGraph:
 			return (
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Open graph</DialogTitle>
 						<DialogDescription></DialogDescription>
 					</DialogHeader>
-					<div style={{ display: "flex" }}>
+					<div className="flex gap-2">
 						<Input
 							ref={graphPathRef}
 							placeholder='yarl.proto.txt'
@@ -50,21 +76,21 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void
 							onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
 						/>
 						<DialogClose asChild>
-							<Button type="button" variant="secondary" onClick={loadGraph}>
+							<Button type="button" variant="default" onClick={loadGraph}>
 								Open
 							</Button>
 						</DialogClose>
 					</div>
 				</DialogContent>
 			)
-		case "save":
+		case DialogType.SaveGraph:
 			return (
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Save graph as</DialogTitle>
 						<DialogDescription></DialogDescription>
 					</DialogHeader>
-					<div style={{ display: "flex" }}>
+					<div className="flex gap-2">
 						<Input
 							ref={graphPathRef}
 							placeholder='yarl.proto.txt'
@@ -72,9 +98,44 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void
 							onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
 						/>
 						<DialogClose asChild>
-							<Button type="button" variant="secondary" onClick={saveGraph}>
+							<Button type="button" variant="default" onClick={saveGraph}>
 								Save
 							</Button>
+						</DialogClose>
+					</div>
+				</DialogContent>
+			)
+		case DialogType.ExportNodes:
+			const title = anySelected() ? "Export selected nodes" : "Export full graph"
+			const value = anySelected() ? exportSelectedNodes() : exportAllNodes()
+			return (
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{title}</DialogTitle>
+						<DialogDescription>Copy this string</DialogDescription>
+					</DialogHeader>
+					<Textarea readOnly value={value} />
+					<div className="flex gap-2">
+						<Button type="button" variant="default" onClick={() => {
+							navigator.clipboard.writeText(value)
+						}}>Copy</Button>
+						<DialogClose asChild>
+							<Button type="button" variant="secondary">Close</Button>
+						</DialogClose>
+					</div>
+				</DialogContent>
+			)
+		case DialogType.ImportNodes:
+			return (
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Import</DialogTitle>
+						<DialogDescription>Paste string</DialogDescription>
+					</DialogHeader>
+					<Textarea placeholder='Paste your string here...' ref={importRef} />
+					<div className="flex gap-2">
+						<DialogClose asChild>
+							<Button type="button" variant="default" onClick={() => importNodes(importRef.current ? importRef.current.value : "")}>Import</Button>
 						</DialogClose>
 					</div>
 				</DialogContent>
@@ -107,10 +168,10 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void
 					<MenubarContent>
 						<MenubarItem onSelect={newGraph}> New </MenubarItem>
 						<DialogTrigger asChild>
-							<MenubarItem onSelect={() => selectDialog("open")}> Open </MenubarItem>
+							<MenubarItem onSelect={() => selectDialog(DialogType.OpenGraph)}> Open </MenubarItem>
 						</DialogTrigger>
 						<DialogTrigger asChild>
-							<MenubarItem onSelect={() => selectDialog("save")}> Save as </MenubarItem>
+							<MenubarItem onSelect={() => selectDialog(DialogType.SaveGraph)}> Save as </MenubarItem>
 						</DialogTrigger>
 
 						<MenubarSeparator/>
@@ -122,10 +183,39 @@ export default ({ addNewNode, copyNodes, pasteNodes } : { addNewNode: () => void
 				<MenubarMenu>
 					<MenubarTrigger>Node</MenubarTrigger>
 					<MenubarContent>
-						<MenubarItem onSelect={addNewNode}>New {nodeKbd('N')}</MenubarItem>
+						<MenubarItem onSelect={addNewNode}>
+							New {nodeKbd('N')}
+						</MenubarItem>
+
 						<MenubarSeparator/>
-						<MenubarItem onSelect={copyNodes}>Copy {nodeKbd('C')}</MenubarItem>
-						<MenubarItem onSelect={pasteNodes}>Paste {nodeKbd('V')}</MenubarItem>
+
+						<MenubarItem onSelect={copyNodes} disabled={!anySelected()}>
+							Copy {nodeKbd('C')}
+						</MenubarItem>
+						<MenubarItem onSelect={pasteNodes}>
+							Paste {nodeKbd('V')}
+						</MenubarItem>
+
+						<MenubarSeparator/>
+
+						{
+							anySelected()
+								? <DialogTrigger asChild>
+									<MenubarItem onSelect={() => selectDialog(DialogType.ExportNodes)}>
+										Export Selected
+									</MenubarItem>
+								</DialogTrigger>
+								: <DialogTrigger asChild>
+									<MenubarItem onSelect={() => selectDialog(DialogType.ExportNodes)}>
+										Export All
+									</MenubarItem>
+								</DialogTrigger>
+						}
+						<DialogTrigger asChild>
+							<MenubarItem onSelect={() => selectDialog(DialogType.ImportNodes)}>
+								Import
+							</MenubarItem>
+						</DialogTrigger>
 					</MenubarContent>
 				</MenubarMenu>
 
