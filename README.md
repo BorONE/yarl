@@ -2,6 +2,8 @@
 
 > Yet another Local Runner
 
+https://github.com/user-attachments/assets/7d87052f-6e47-434f-ac76-b0786f05db83
+
 ## How to run
 
 You can run full app in docker or run locally each component separetly.
