@@ -210,9 +210,30 @@ function InternalFlow() {
     return isLayout(layout, 2) ? layout : [85, 15]
   })()
 
-  const copyNodes = () => cp.IntoBuffer(nodes, edges)
+  const copyNodes = () => {
+    const selectedNodes = nodes.filter(node => node.selected)
+    if (selectedNodes.length > 0) {
+      cp.IntoClipboard(selectedNodes, edges)
+    }
+  }
   const pasteNodes = async () => {
-    const {nodes, edges} = await cp.FromBuffer()
+    const {nodes, edges} = await cp.FromClipboard()
+    deselectAllNodes()
+    const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
+    cp.RenderEdges(edges, ids.map(id => id.toString()))
+      .forEach(conn => connect(conn))
+  }
+
+  const exportAllNodes = () => {
+    const buf = cp.BuildCopyBuffer(nodes, edges, false)
+    return btoa(JSON.stringify(buf))
+  }
+  const exportSelectedNodes = () => {
+    const buf = cp.BuildCopyBuffer(nodes.filter(node => node.selected), edges, false)
+    return btoa(JSON.stringify(buf))
+  }
+  const importNodes = async (data: string) => {
+    const {nodes, edges} = cp.FromBuffer(atob(data))
     deselectAllNodes()
     const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
     cp.RenderEdges(edges, ids.map(id => id.toString()))
@@ -359,7 +380,15 @@ function InternalFlow() {
     <div style={{ width: '100vw', height: '100vh' }}>
       <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
         <ResizablePanel defaultSize={layout[0]}>
-          <Menubar addNewNode={addNewNodeInCenter} copyNodes={copyNodes} pasteNodes={pasteNodes} />
+          <Menubar
+            anySelected={() => nodes.some(node => node.selected)}
+            addNewNode={addNewNodeInCenter}
+            copyNodes={copyNodes}
+            pasteNodes={pasteNodes}
+            exportAllNodes={exportAllNodes}
+            exportSelectedNodes={exportSelectedNodes}
+            importNodes={importNodes}
+          />
           {currentFlow}
         </ResizablePanel>
         <ResizableHandle/>
