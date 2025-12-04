@@ -18,9 +18,10 @@ type Job interface {
 	CollectArtifacts() map[string]string
 }
 
-type Creator func(*anypb.Any) (Job, error)
+type internalCreator func(*anypb.Any) (Job, error)
+type Creator func(proto.Message) (Job, error)
 
-var creators map[string]Creator = make(map[string]Creator)
+var creators map[string]internalCreator = make(map[string]internalCreator)
 
 // Make sure that .pb.go-files' init-s executed before Register call. Otherwise
 // you will get nil dereference since config type is not in proto-registry and
@@ -34,7 +35,14 @@ func Register(cfg proto.Message, creator Creator) error {
 		log.Panicln("failed to register job: ", err)
 		return err
 	}
-	creators[job.TypeUrl] = creator
+	creators[job.TypeUrl] = func(anyConfig *anypb.Any) (Job, error) {
+		msg := proto.Clone(cfg)
+		err := anyConfig.UnmarshalTo(msg)
+		if err != nil {
+			return nil, err
+		}
+		return creator(msg)
+	}
 	log.Println(job.TypeUrl, " is registered")
 	return nil
 }

@@ -13,7 +13,7 @@ import (
 
 	_ "embed"
 
-	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/proto"
 )
 
 type DaemonMonitorJob struct {
@@ -111,7 +111,7 @@ func (j *DaemonMonitorJob) CollectArtifacts() map[string]string {
 var _ job.Job = &DaemonMonitorJob{}
 
 func init() {
-	job.Register(&DaemonMonitorConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
+	job.Register(&DaemonMonitorConfig{}, func(proto.Message) (job.Job, error) {
 		return &DaemonMonitorJob{}, nil
 	})
 }

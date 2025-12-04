@@ -9,11 +9,11 @@ import (
 	"yarl/internal/job"
 	"yarl/internal/util"
 
-	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/proto"
 )
 
 type ScriptJob struct {
-	source string
+	config *ScriptConfig
 
 	cmd  *util.Cmd
 	arts job.Artifacts
@@ -22,7 +22,8 @@ type ScriptJob struct {
 const SCRIPT_FILENAME = ".script"
 
 func (j *ScriptJob) Run(ctx *job.RunContext) error {
-	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(j.source), 0777)
+	source := strings.Join(j.config.GetSource(), "\n")
+	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(source), 0777)
 	if err != nil {
 		return fmt.Errorf("failed to create script: %v", err)
 	}
@@ -50,12 +51,7 @@ func (j *ScriptJob) CollectArtifacts() map[string]string {
 var _ job.Job = &ScriptJob{}
 
 func init() {
-	job.Register(&ScriptConfig{}, func(anyConfig *anypb.Any) (job.Job, error) {
-		cfg := &ScriptConfig{}
-		err := anyConfig.UnmarshalTo(cfg)
-		if err != nil {
-			return nil, err
-		}
-		return &ScriptJob{source: strings.Join(cfg.GetSource(), "\n")}, nil
+	job.Register(&ScriptConfig{}, func(msg proto.Message) (job.Job, error) {
+		return &ScriptJob{config: msg.(*ScriptConfig)}, nil
 	})
 }
