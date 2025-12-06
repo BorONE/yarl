@@ -297,7 +297,7 @@ function InternalFlow() {
       </EmptyMedia>
       <EmptyTitle>Empty graph</EmptyTitle>
       <EmptyDescription>
-        You haven't created any nodes yet. Get started by creating node, importing or openning graph.
+        You haven't created any nodes yet. Get started by creating node, importing or opening graph.
       </EmptyDescription>
     </EmptyHeader>
     <EmptyContent>
