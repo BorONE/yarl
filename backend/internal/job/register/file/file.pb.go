@@ -12,6 +12,7 @@ import (
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+	_ "yarl/internal/job"
 )
 
 const (
@@ -23,7 +24,7 @@ const (
 
 type FileConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          []string               `protobuf:"bytes,1,rep,name=Data" json:"Data,omitempty"`
+	Data          *string                `protobuf:"bytes,1,opt,name=Data" json:"Data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -58,21 +59,21 @@ func (*FileConfig) Descriptor() ([]byte, []int) {
 	return file_internal_job_register_file_file_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *FileConfig) GetData() []string {
-	if x != nil {
-		return x.Data
+func (x *FileConfig) GetData() string {
+	if x != nil && x.Data != nil {
+		return *x.Data
 	}
-	return nil
+	return ""
 }
 
 var File_internal_job_register_file_file_proto protoreflect.FileDescriptor
 
 const file_internal_job_register_file_file_proto_rawDesc = "" +
 	"\n" +
-	"%internal/job/register/file/file.proto\x12\bregister\" \n" +
+	"%internal/job/register/file/file.proto\x12\bregister\x1a\x16internal/job/job.proto\"&\n" +
 	"\n" +
-	"FileConfig\x12\x12\n" +
-	"\x04Data\x18\x01 \x03(\tR\x04DataB\vZ\tyarl/file"
+	"FileConfig\x12\x18\n" +
+	"\x04Data\x18\x01 \x01(\tB\x04\x80\xb5\x18\x02R\x04DataB\vZ\tyarl/file"
 
 var (
 	file_internal_job_register_file_file_proto_rawDescOnce sync.Once

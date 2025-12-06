@@ -12,6 +12,7 @@ import (
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+	_ "yarl/internal/job"
 )
 
 const (
@@ -23,7 +24,7 @@ const (
 
 type ScriptConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Source        []string               `protobuf:"bytes,1,rep,name=Source" json:"Source,omitempty"`
+	Source        *string                `protobuf:"bytes,1,opt,name=Source" json:"Source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -58,20 +59,20 @@ func (*ScriptConfig) Descriptor() ([]byte, []int) {
 	return file_internal_job_register_script_script_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ScriptConfig) GetSource() []string {
-	if x != nil {
-		return x.Source
+func (x *ScriptConfig) GetSource() string {
+	if x != nil && x.Source != nil {
+		return *x.Source
 	}
-	return nil
+	return ""
 }
 
 var File_internal_job_register_script_script_proto protoreflect.FileDescriptor
 
 const file_internal_job_register_script_script_proto_rawDesc = "" +
 	"\n" +
-	")internal/job/register/script/script.proto\x12\bregister\"&\n" +
-	"\fScriptConfig\x12\x16\n" +
-	"\x06Source\x18\x01 \x03(\tR\x06SourceB\rZ\vyarl/script"
+	")internal/job/register/script/script.proto\x12\bregister\x1a\x16internal/job/job.proto\",\n" +
+	"\fScriptConfig\x12\x1c\n" +
+	"\x06Source\x18\x01 \x01(\tB\x04\x80\xb5\x18\x03R\x06SourceB\rZ\vyarl/script"
 
 var (
 	file_internal_job_register_script_script_proto_rawDescOnce sync.Once

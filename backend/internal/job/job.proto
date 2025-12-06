@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+import "google/protobuf/descriptor.proto";
+
+package job;
+option go_package = "yarl/internal/job";
+
+enum FieldInputType {
+    Auto = 0;
+    Input = 1;
+    TextArea = 2;
+    CodeEditor = 3;
+}
+
+extend google.protobuf.FieldOptions {
+  optional FieldInputType InputType = 50000;
+}

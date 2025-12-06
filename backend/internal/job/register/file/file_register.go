@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strings"
 	"yarl/internal/job"
 
 	"google.golang.org/protobuf/proto"
@@ -15,8 +14,7 @@ type FileJob struct {
 }
 
 func (j *FileJob) Run(ctx *job.RunContext) error {
-	data := strings.Join(j.config.Data, "\n") + "\n"
-	err := os.WriteFile(path.Join(ctx.Dir, "file"), []byte(data), 0666)
+	err := os.WriteFile(path.Join(ctx.Dir, "file"), []byte(j.config.GetData()), 0666)
 	if err != nil {
 		return fmt.Errorf("failed to write file: %v", err)
 	}

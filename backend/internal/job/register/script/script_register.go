@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strings"
 	"time"
 	"yarl/internal/job"
 	"yarl/internal/util"
@@ -22,8 +21,7 @@ type ScriptJob struct {
 const SCRIPT_FILENAME = ".script"
 
 func (j *ScriptJob) Run(ctx *job.RunContext) error {
-	source := strings.Join(j.config.GetSource(), "\n")
-	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(source), 0777)
+	err := os.WriteFile(path.Join(ctx.Dir, SCRIPT_FILENAME), []byte(j.config.GetSource()), 0777)
 	if err != nil {
 		return fmt.Errorf("failed to create script: %v", err)
 	}

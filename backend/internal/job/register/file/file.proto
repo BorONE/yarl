@@ -1,8 +1,10 @@
 syntax = "proto2";
 
+import "internal/job/job.proto";
+
 package register;
 option go_package = "yarl/file";
 
 message FileConfig {
-    repeated string Data = 1;
+    optional string Data = 1 [(job.InputType) = TextArea];
 }

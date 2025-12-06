@@ -4,22 +4,23 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_internal_job_job } from "../../job_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file internal/job/register/script/script.proto.
  */
 export const file_internal_job_register_script_script: GenFile = /*@__PURE__*/
-  fileDesc("CilpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvc2NyaXB0L3NjcmlwdC5wcm90bxIIcmVnaXN0ZXIiHgoMU2NyaXB0Q29uZmlnEg4KBlNvdXJjZRgBIAMoCUINWgt5YXJsL3NjcmlwdA");
+  fileDesc("CilpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvc2NyaXB0L3NjcmlwdC5wcm90bxIIcmVnaXN0ZXIiJAoMU2NyaXB0Q29uZmlnEhQKBlNvdXJjZRgBIAEoCUIEgLUYA0INWgt5YXJsL3NjcmlwdA", [file_internal_job_job]);
 
 /**
  * @generated from message register.ScriptConfig
  */
 export type ScriptConfig = Message<"register.ScriptConfig"> & {
   /**
-   * @generated from field: repeated string Source = 1;
+   * @generated from field: optional string Source = 1;
    */
-  Source: string[];
+  Source: string;
 };
 
 /**

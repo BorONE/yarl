@@ -4,22 +4,23 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_internal_job_job } from "../../job_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file internal/job/register/file/file.proto.
  */
 export const file_internal_job_register_file_file: GenFile = /*@__PURE__*/
-  fileDesc("CiVpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZmlsZS9maWxlLnByb3RvEghyZWdpc3RlciIaCgpGaWxlQ29uZmlnEgwKBERhdGEYASADKAlCC1oJeWFybC9maWxl");
+  fileDesc("CiVpbnRlcm5hbC9qb2IvcmVnaXN0ZXIvZmlsZS9maWxlLnByb3RvEghyZWdpc3RlciIgCgpGaWxlQ29uZmlnEhIKBERhdGEYASABKAlCBIC1GAJCC1oJeWFybC9maWxl", [file_internal_job_job]);
 
 /**
  * @generated from message register.FileConfig
  */
 export type FileConfig = Message<"register.FileConfig"> & {
   /**
-   * @generated from field: repeated string Data = 1;
+   * @generated from field: optional string Data = 1;
    */
-  Data: string[];
+  Data: string;
 };
 
 /**
