@@ -122,19 +122,21 @@ function InternalFlow() {
       const spawnPos = connectionState.fromPosition == 'left'
         ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
         : {x: flowPos.x, y: flowPos.y - 10}
-      const id = await addNodeAt(spawnPos)
-      const ends = [connectionState.fromNode?.id as string, id.toString()]
+      const node = await addNodeAt(spawnPos)
+      const ends = [connectionState.fromNode?.id as string, node.data.config.Id.toString()]
       const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
-      connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
+      // added node won't be deduced automatically, since it will be added to nodes next render frame
+      const input = connectionState.fromPosition == 'left' ? node : undefined 
+      connect({ source: source, target: target, sourceHandle: null, targetHandle: null }, input)
     }
   }
 
-  const connect = (connection: Connection) => {
+  const connect = (connection: Connection, input?: Node) => {
     const source = nodes.find(node => node.id == connection.source) as Node
     const target = nodes.find(node => node.id == connection.target) as Node
     client.graph.connect(convertConnectionToEdge(connection, source, target))
     setEdges((eds) => {
-      const input = nodes.find(nd => nd.id == connection.source)
+      input = input || nodes.find(nd => nd.id == connection.source)
       return addEdge(canonizeConnection(connection, input?.data.state), eds)
     })
   }
