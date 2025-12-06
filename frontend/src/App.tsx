@@ -121,6 +121,10 @@ function InternalFlow() {
     if (!connectionState.isValid) {
       const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
       const flowPos = screenToFlowPosition({ x: clientX, y: clientY })
+      const isFileConnection = connectionState.fromHandle?.id
+      if (isFileConnection) {
+        return
+      }
       const spawnPos = connectionState.fromPosition == 'left'
         ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
         : {x: flowPos.x, y: flowPos.y - 10}
@@ -130,7 +134,6 @@ function InternalFlow() {
       connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
     }
   }
-
 
   const connect = (connection: Connection) => {
     const source = nodes.find(node => node.id == connection.source) as Node
