@@ -122,7 +122,7 @@ function InternalFlow() {
       const spawnPos = connectionState.fromPosition == 'left'
         ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
         : {x: flowPos.x, y: flowPos.y - 10}
-      const id = await addNewNode(spawnPos)
+      const id = await addNodeAt(spawnPos)
       const ends = [connectionState.fromNode?.id as string, id.toString()]
       const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
       connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
@@ -166,7 +166,7 @@ function InternalFlow() {
 
   const addNewNodeInCenter = useCallback(() => {
     const rect = refReactFlow.current?.getBoundingClientRect() as DOMRect
-    return addNewNode({
+    return addNodeAt({
       x: (-viewport.x + rect.width / 2) / viewport.zoom - nodeInitSize.x / 2,
       y: (-viewport.y + rect.height / 2) / viewport.zoom - nodeInitSize.y / 2
     })
@@ -176,23 +176,22 @@ function InternalFlow() {
     setNodes((nds) => nds.map(nd => ({...nd, selected: false})));
   }
 
-  const addNodeFromConfig = async (configToAdd: Omit<config.NodeConfig, 'Id'>) => {
-    const response = await client.node.add({...configToAdd, Id: BigInt(0)});
-    const config = {...configToAdd, Id: response.Id}
+  const addNode = async (config: Omit<config.NodeConfig, 'Id'>) => {
+    const response = await client.node.add({ ...config, Id: BigInt(0) });
     const state = create(NodeStateSchema, {
       Id: response.Id,
       State: { case: "Idle", value: { IsReady: true } },
     })
-
-    setNodes((nds) => [...nds, buildNode(config, state, true)])
-    return response.Id
+    const node = buildNode({ ...config, Id: response.Id }, state, true)
+    setNodes((nds) => [...nds, node])
+    return node
   }
 
-  const addNewNode = useCallback(async (pos: { x: number, y: number } = { x: 0, y: 0 }) => {
-    const snap = (value: number) => Math.round(value / 10) * 10
-    var config = buildDefaultConfig({ X: snap(pos.x), Y: snap(pos.y) } as config.Position)
+  const addNodeAt = useCallback(async (pos: { x: number, y: number }) => {
     deselectAllNodes()
-    return await addNodeFromConfig(config)
+    const snap = (value: number) => Math.round(value / 10) * 10
+    var config = buildDefaultConfig({ Position: { X: snap(pos.x), Y: snap(pos.y) } })
+    return await addNode(config)
   }, [setNodes]);
 
   const isLayout = (obj: any, expectedLenght?: number) => {
@@ -207,23 +206,23 @@ function InternalFlow() {
     return isLayout(layout, 2) ? layout : [80, 20]
   })()
 
+  const addCopyBuffer = async (buf: cp.CopyBuffer) => {
+    deselectAllNodes()
+    const nodes = await Promise.all(buf.nodes.map(config => addNode(config)))
+    cp.RenderEdges(buf.edges, nodes.map(node => node.data.config.Id.toString()))
+      .forEach(conn => connect(conn))
+  }
+  const anySelected = () => nodes.some(node => node.selected)
   const copyNodes = () => {
     const selectedNodes = nodes.filter(node => node.selected)
     if (selectedNodes.length > 0) {
       cp.IntoClipboard(selectedNodes, edges)
     }
   }
-  const pasteNodes = async () => {
-    const {nodes, edges} = await cp.FromClipboard()
-    deselectAllNodes()
-    const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
-    cp.RenderEdges(edges, ids.map(id => id.toString()))
-      .forEach(conn => connect(conn))
-  }
-
-  const anySelected = () => nodes.some(node => node.selected)
+  const pasteNodes = () => cp.FromClipboard().then(buf => addCopyBuffer(buf)) 
   const exportNodes = () => {
-    const buf = cp.BuildCopyBuffer(anySelected() ? nodes.filter(node => node.selected) : nodes, edges, false)
+    const nodesToExport = anySelected() ? nodes.filter(node => node.selected) : nodes
+    const buf = cp.BuildCopyBuffer(nodesToExport, edges, false)
     return btoa(JSON.stringify(buf))
   }
   const verifyImport = (data: string) => {
@@ -234,13 +233,7 @@ function InternalFlow() {
       return false;
     }
   }
-  const importNodes = async (data: string) => {
-    const {nodes, edges} = cp.FromBuffer(atob(data))
-    deselectAllNodes()
-    const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
-    cp.RenderEdges(edges, ids.map(id => id.toString()))
-      .forEach(conn => connect(conn))
-  }
+  const importNodes = (data: string) => addCopyBuffer(cp.FromBuffer(atob(data)))
 
   useEffect(() => {
     const keyPress = (event: KeyboardEvent) => {
@@ -308,7 +301,7 @@ function InternalFlow() {
     <EmptyContent>
 		  <Dialog>
         <div className="flex gap-2">
-          <Button onClick={() => addNewNode()}>Create Node</Button>
+          <Button onClick={() => addNodeAt({ x: 0, y: 0 })}>Create Node</Button>
           <DialogTrigger asChild>
             <Button variant='secondary' onClick={() => selectDialog(DialogType.OpenGraph)}>
               Open

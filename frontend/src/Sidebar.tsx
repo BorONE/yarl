@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
-import { NodeConfigSchema, type NodeConfig, type Position } from './gen/internal/graph/config_pb';
+import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
 import { extractJobType } from './util';
 import {
     Accordion,
@@ -99,14 +99,16 @@ const jobInfos : JobInfo[] = [
     },
 ]
 
-export function buildDefaultConfig(Position: Position) {
+export type MessageInit<T> = MessageInitShape<GenMessage<Message & T>>
+
+export function buildDefaultConfig(config: MessageInit<NodeConfig> = {}) {
     const info = jobInfos[0]
     return create(NodeConfigSchema, {
+        ...config,
         Name: "",
         Job: anyPack(info.schema, info.init.job),
         Inputs: info.init.input,
         Outputs: info.init.output,
-        Position,
     })
 }
 

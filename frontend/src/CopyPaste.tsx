@@ -6,7 +6,7 @@ type Overwrite<A, B> = Omit<A, keyof B> & B
 type CopyBufferNode = Overwrite<config.NodeConfig, {Id: undefined}>
 type CopyBufferEdge = { edge: Edge, sourceIndex: number, targetIndex: number }
 
-type CopyBuffer = {
+export type CopyBuffer = {
   nodes: CopyBufferNode[],
   edges: CopyBufferEdge[],
 }
