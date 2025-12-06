@@ -32,7 +32,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
-import { IconPlugConnected, IconSchemaOff } from "@tabler/icons-react"
+import { IconNewSection, IconPlugConnected } from "@tabler/icons-react"
 
 import Sidebar, { buildDefaultConfig } from './Sidebar';
 
@@ -53,7 +53,7 @@ import { canonizeConnection, convertConnectionToEdge } from './util';
 
 import { StableSyncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
-import Menubar from './Menubar';
+import Menubar, { DialogType, SharedDialogContent } from './Menubar';
 
 import Cookies from 'universal-cookie';
 import { Toaster } from "@/components/ui/sonner"
@@ -62,14 +62,8 @@ import { Button } from './components/ui/button';
 
 import {
   Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from './components/ui/input';
 import * as cp from './CopyPaste';
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -204,13 +198,13 @@ function InternalFlow() {
   const isLayout = (obj: any, expectedLenght?: number) => {
     return Array.isArray(obj)
       && (typeof expectedLenght == 'undefined' || obj.length == expectedLenght)
-      && obj.map(el => typeof el == 'number' && el >= 0).reduce((r, x) => r && x)
+      && obj.every(el => typeof el == 'number' && el >= 0)
       && obj.reduce((r, x) => r + x) == 100
   }
 
   const layout = (() => {
     const layout = new Cookies(null).get('layout')
-    return isLayout(layout, 2) ? layout : [85, 15]
+    return isLayout(layout, 2) ? layout : [80, 20]
   })()
 
   const copyNodes = () => {
@@ -227,13 +221,18 @@ function InternalFlow() {
       .forEach(conn => connect(conn))
   }
 
-  const exportAllNodes = () => {
-    const buf = cp.BuildCopyBuffer(nodes, edges, false)
+  const anySelected = () => nodes.some(node => node.selected)
+  const exportNodes = () => {
+    const buf = cp.BuildCopyBuffer(anySelected() ? nodes.filter(node => node.selected) : nodes, edges, false)
     return btoa(JSON.stringify(buf))
   }
-  const exportSelectedNodes = () => {
-    const buf = cp.BuildCopyBuffer(nodes.filter(node => node.selected), edges, false)
-    return btoa(JSON.stringify(buf))
+  const verifyImport = (data: string) => {
+    try {
+      cp.FromBuffer(atob(data))
+      return true
+    } catch {
+      return false;
+    }
   }
   const importNodes = async (data: string) => {
     const {nodes, edges} = cp.FromBuffer(atob(data))
@@ -292,14 +291,18 @@ function InternalFlow() {
   var graphPathRef = useRef<HTMLInputElement>(null)
   const loadGraph = () => client.graph.load({Path: graphPathRef.current?.value})
   
+	const [selectedDialog, selectDialog] = useState(DialogType.None)
+
+	const importRef = useRef<HTMLTextAreaElement>(null)
+
   const emptyFlow = <Empty>
     <EmptyHeader>
       <EmptyMedia variant="icon">
-        <IconSchemaOff />
+        <IconNewSection />
       </EmptyMedia>
       <EmptyTitle>Empty graph</EmptyTitle>
       <EmptyDescription>
-        You haven't created any nodes yet. Get started by creating node or openning existing graph.
+        You haven't created any nodes yet. Get started by creating node, importing or openning graph.
       </EmptyDescription>
     </EmptyHeader>
     <EmptyContent>
@@ -307,29 +310,17 @@ function InternalFlow() {
         <div className="flex gap-2">
           <Button onClick={() => addNewNode()}>Create Node</Button>
           <DialogTrigger asChild>
-            <Button variant='secondary'>Open graph</Button>
+            <Button variant='secondary' onClick={() => selectDialog(DialogType.OpenGraph)}>
+              Open
+            </Button>
+          </DialogTrigger>
+          <DialogTrigger asChild>
+            <Button variant='secondary' onClick={() => selectDialog(DialogType.ImportNodes)}>
+              Import
+            </Button>
           </DialogTrigger>
         </div>
-			
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Open graph</DialogTitle>
-						<DialogDescription></DialogDescription>
-					</DialogHeader>
-					<div style={{ display: "flex" }}>
-						<Input
-							ref={graphPathRef}
-							placeholder='yarl.proto.txt'
-							defaultValue={new Cookies().get('graph-path')}
-							onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-						/>
-						<DialogClose asChild>
-							<Button type="button" variant="secondary" onClick={loadGraph}>
-								Open
-							</Button>
-						</DialogClose>
-					</div>
-				</DialogContent>
+        {SharedDialogContent(selectedDialog, {loadGraph, graphPathRef, importRef, verifyImport, importNodes})}
 		  </Dialog>
     </EmptyContent>
   </Empty>
@@ -384,12 +375,12 @@ function InternalFlow() {
       <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
         <ResizablePanel defaultSize={layout[0]}>
           <Menubar
-            anySelected={() => nodes.some(node => node.selected)}
+            anySelected={anySelected}
+            verifyImport={verifyImport}
             addNewNode={addNewNodeInCenter}
             copyNodes={copyNodes}
             pasteNodes={pasteNodes}
-            exportAllNodes={exportAllNodes}
-            exportSelectedNodes={exportSelectedNodes}
+            exportNodes={exportNodes}
             importNodes={importNodes}
           />
           {currentFlow}
