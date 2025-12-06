@@ -60,10 +60,7 @@ const jobInfos : JobInfo[] = [
         schema: ScriptConfigSchema,
         init: {
             job: create(ScriptConfigSchema, {
-                Source: [
-                    "#!/bin/bash",
-                    "echo 'hello yarl'",
-                ],
+                Source: "#!/bin/bash\necho 'hello yarl'",
             }),
             input: [],
             output: [],
