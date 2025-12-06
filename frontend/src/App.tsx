@@ -32,7 +32,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
-import { IconPlugConnected, IconSchemaOff } from "@tabler/icons-react"
+import { IconNewSection, IconPlugConnected } from "@tabler/icons-react"
 
 import Sidebar, { buildDefaultConfig } from './Sidebar';
 
@@ -53,7 +53,7 @@ import { canonizeConnection, convertConnectionToEdge } from './util';
 
 import { StableSyncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
-import Menubar from './Menubar';
+import Menubar, { DialogType, SharedDialogContent } from './Menubar';
 
 import Cookies from 'universal-cookie';
 import { Toaster } from "@/components/ui/sonner"
@@ -62,14 +62,8 @@ import { Button } from './components/ui/button';
 
 import {
   Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from './components/ui/input';
 import * as cp from './CopyPaste';
 import { ScrollArea } from "@/components/ui/scroll-area"
 
@@ -128,19 +122,21 @@ function InternalFlow() {
       const spawnPos = connectionState.fromPosition == 'left'
         ? {x: flowPos.x - nodeInitSize.x, y: flowPos.y - 10}
         : {x: flowPos.x, y: flowPos.y - 10}
-      const id = await addNewNode(spawnPos)
-      const ends = [connectionState.fromNode?.id as string, id.toString()]
+      const node = await addNodeAt(spawnPos)
+      const ends = [connectionState.fromNode?.id as string, node.data.config.Id.toString()]
       const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
-      connect({ source: source, target: target, sourceHandle: null, targetHandle: null })
+      // added node won't be deduced automatically, since it will be added to nodes next render frame
+      const input = connectionState.fromPosition == 'left' ? node : undefined 
+      connect({ source: source, target: target, sourceHandle: null, targetHandle: null }, input)
     }
   }
 
-  const connect = (connection: Connection) => {
+  const connect = (connection: Connection, input?: Node) => {
     const source = nodes.find(node => node.id == connection.source) as Node
     const target = nodes.find(node => node.id == connection.target) as Node
     client.graph.connect(convertConnectionToEdge(connection, source, target))
     setEdges((eds) => {
-      const input = nodes.find(nd => nd.id == connection.source)
+      input = input || nodes.find(nd => nd.id == connection.source)
       return addEdge(canonizeConnection(connection, input?.data.state), eds)
     })
   }
@@ -172,7 +168,7 @@ function InternalFlow() {
 
   const addNewNodeInCenter = useCallback(() => {
     const rect = refReactFlow.current?.getBoundingClientRect() as DOMRect
-    return addNewNode({
+    return addNodeAt({
       x: (-viewport.x + rect.width / 2) / viewport.zoom - nodeInitSize.x / 2,
       y: (-viewport.y + rect.height / 2) / viewport.zoom - nodeInitSize.y / 2
     })
@@ -182,66 +178,64 @@ function InternalFlow() {
     setNodes((nds) => nds.map(nd => ({...nd, selected: false})));
   }
 
-  const addNodeFromConfig = async (configToAdd: Omit<config.NodeConfig, 'Id'>) => {
-    const response = await client.node.add({...configToAdd, Id: BigInt(0)});
-    const config = {...configToAdd, Id: response.Id}
+  const addNode = async (config: Omit<config.NodeConfig, 'Id'>) => {
+    const response = await client.node.add({ ...config, Id: BigInt(0) });
     const state = create(NodeStateSchema, {
       Id: response.Id,
       State: { case: "Idle", value: { IsReady: true } },
     })
-
-    setNodes((nds) => [...nds, buildNode(config, state, true)])
-    return response.Id
+    const node = buildNode({ ...config, Id: response.Id }, state, true)
+    setNodes((nds) => [...nds, node])
+    return node
   }
 
-  const addNewNode = useCallback(async (pos: { x: number, y: number } = { x: 0, y: 0 }) => {
-    const snap = (value: number) => Math.round(value / 10) * 10
-    var config = buildDefaultConfig({ X: snap(pos.x), Y: snap(pos.y) } as config.Position)
+  const addNodeAt = useCallback(async (pos: { x: number, y: number }) => {
     deselectAllNodes()
-    return await addNodeFromConfig(config)
+    const snap = (value: number) => Math.round(value / 10) * 10
+    var config = buildDefaultConfig({ Position: { X: snap(pos.x), Y: snap(pos.y) } })
+    return await addNode(config)
   }, [setNodes]);
 
   const isLayout = (obj: any, expectedLenght?: number) => {
     return Array.isArray(obj)
       && (typeof expectedLenght == 'undefined' || obj.length == expectedLenght)
-      && obj.map(el => typeof el == 'number' && el >= 0).reduce((r, x) => r && x)
+      && obj.every(el => typeof el == 'number' && el >= 0)
       && obj.reduce((r, x) => r + x) == 100
   }
 
   const layout = (() => {
     const layout = new Cookies(null).get('layout')
-    return isLayout(layout, 2) ? layout : [85, 15]
+    return isLayout(layout, 2) ? layout : [80, 20]
   })()
 
+  const addCopyBuffer = async (buf: cp.CopyBuffer) => {
+    deselectAllNodes()
+    const nodes = await Promise.all(buf.nodes.map(config => addNode(config)))
+    cp.RenderEdges(buf.edges, nodes.map(node => node.data.config.Id.toString()))
+      .forEach(conn => connect(conn))
+  }
+  const anySelected = () => nodes.some(node => node.selected)
   const copyNodes = () => {
     const selectedNodes = nodes.filter(node => node.selected)
     if (selectedNodes.length > 0) {
       cp.IntoClipboard(selectedNodes, edges)
     }
   }
-  const pasteNodes = async () => {
-    const {nodes, edges} = await cp.FromClipboard()
-    deselectAllNodes()
-    const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
-    cp.RenderEdges(edges, ids.map(id => id.toString()))
-      .forEach(conn => connect(conn))
-  }
-
-  const exportAllNodes = () => {
-    const buf = cp.BuildCopyBuffer(nodes, edges, false)
+  const pasteNodes = () => cp.FromClipboard().then(buf => addCopyBuffer(buf)) 
+  const exportNodes = () => {
+    const nodesToExport = anySelected() ? nodes.filter(node => node.selected) : nodes
+    const buf = cp.BuildCopyBuffer(nodesToExport, edges, false)
     return btoa(JSON.stringify(buf))
   }
-  const exportSelectedNodes = () => {
-    const buf = cp.BuildCopyBuffer(nodes.filter(node => node.selected), edges, false)
-    return btoa(JSON.stringify(buf))
+  const verifyImport = (data: string) => {
+    try {
+      cp.FromBuffer(atob(data))
+      return true
+    } catch {
+      return false;
+    }
   }
-  const importNodes = async (data: string) => {
-    const {nodes, edges} = cp.FromBuffer(atob(data))
-    deselectAllNodes()
-    const ids = await Promise.all(nodes.map(config => addNodeFromConfig(config)))
-    cp.RenderEdges(edges, ids.map(id => id.toString()))
-      .forEach(conn => connect(conn))
-  }
+  const importNodes = (data: string) => addCopyBuffer(cp.FromBuffer(atob(data)))
 
   useEffect(() => {
     const keyPress = (event: KeyboardEvent) => {
@@ -292,44 +286,36 @@ function InternalFlow() {
   var graphPathRef = useRef<HTMLInputElement>(null)
   const loadGraph = () => client.graph.load({Path: graphPathRef.current?.value})
   
+	const [selectedDialog, selectDialog] = useState(DialogType.None)
+
+	const importRef = useRef<HTMLTextAreaElement>(null)
+
   const emptyFlow = <Empty>
     <EmptyHeader>
       <EmptyMedia variant="icon">
-        <IconSchemaOff />
+        <IconNewSection />
       </EmptyMedia>
       <EmptyTitle>Empty graph</EmptyTitle>
       <EmptyDescription>
-        You haven't created any nodes yet. Get started by creating node or openning existing graph.
+        You haven't created any nodes yet. Get started by creating node, importing or opening graph.
       </EmptyDescription>
     </EmptyHeader>
     <EmptyContent>
 		  <Dialog>
         <div className="flex gap-2">
-          <Button onClick={() => addNewNode()}>Create Node</Button>
+          <Button onClick={() => addNodeAt({ x: 0, y: 0 })}>Create Node</Button>
           <DialogTrigger asChild>
-            <Button variant='secondary'>Open graph</Button>
+            <Button variant='secondary' onClick={() => selectDialog(DialogType.OpenGraph)}>
+              Open
+            </Button>
+          </DialogTrigger>
+          <DialogTrigger asChild>
+            <Button variant='secondary' onClick={() => selectDialog(DialogType.ImportNodes)}>
+              Import
+            </Button>
           </DialogTrigger>
         </div>
-			
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Open graph</DialogTitle>
-						<DialogDescription></DialogDescription>
-					</DialogHeader>
-					<div style={{ display: "flex" }}>
-						<Input
-							ref={graphPathRef}
-							placeholder='yarl.proto.txt'
-							defaultValue={new Cookies().get('graph-path')}
-							onChange={(change) => new Cookies().set('graph-path', change.currentTarget.value)}
-						/>
-						<DialogClose asChild>
-							<Button type="button" variant="secondary" onClick={loadGraph}>
-								Open
-							</Button>
-						</DialogClose>
-					</div>
-				</DialogContent>
+        {SharedDialogContent(selectedDialog, {loadGraph, graphPathRef, importRef, verifyImport, importNodes})}
 		  </Dialog>
     </EmptyContent>
   </Empty>
@@ -384,12 +370,12 @@ function InternalFlow() {
       <ResizablePanelGroup direction="horizontal" onLayout={(layout: number[]) => new Cookies(null).set('layout', layout)}>
         <ResizablePanel defaultSize={layout[0]}>
           <Menubar
-            anySelected={() => nodes.some(node => node.selected)}
+            anySelected={anySelected}
+            verifyImport={verifyImport}
             addNewNode={addNewNodeInCenter}
             copyNodes={copyNodes}
             pasteNodes={pasteNodes}
-            exportAllNodes={exportAllNodes}
-            exportSelectedNodes={exportSelectedNodes}
+            exportNodes={exportNodes}
             importNodes={importNodes}
           />
           {currentFlow}

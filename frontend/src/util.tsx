@@ -1,8 +1,11 @@
-import { create, toBinary,  type DescMessage, type MessageInitShape } from '@bufbuild/protobuf';
+import { create, toBinary,  type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
 import * as config from './gen/internal/graph/config_pb'
 import { type Connection, type Edge } from '@xyflow/react';
 import { getBorderColor, isScheduled } from './misc';
 import type { Node } from './JobNode';
+import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
+
+export type MessageInit<T> = MessageInitShape<GenMessage<Message & T>>
 
 export const extractJobType = (typeUrl: string) => {
     const splitted = typeUrl.split('.');
