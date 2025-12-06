@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
-import { create, fromBinary, type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
+import { create, fromBinary, type DescMessage, type Message } from '@bufbuild/protobuf';
 import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
-import { extractJobType } from './util';
+import { extractJobType, type MessageInit } from './util';
 import {
     Accordion,
     AccordionContent,
@@ -29,7 +29,6 @@ import { buildNode } from './misc';
 import { ScriptConfigSchema } from './gen/internal/job/register/script/script_pb';
 import { DaemonConfigSchema, DaemonMonitorConfigSchema } from './gen/internal/job/register/daemon/daemon_pb';
 import JobEditor from './JobEditor';
-import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 import Io from './io';
 import { FileConfigSchema } from './gen/internal/job/register/file/file_pb';
 
@@ -99,8 +98,6 @@ const jobInfos : JobInfo[] = [
     },
 ]
 
-export type MessageInit<T> = MessageInitShape<GenMessage<Message & T>>
-
 export function buildDefaultConfig(config: MessageInit<NodeConfig> = {}) {
     const info = jobInfos[0]
     return create(NodeConfigSchema, {
@@ -151,7 +148,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
         [setNodes],
     )
 
-    const patchConfigOfSelected = (configPatch: MessageInitShape<GenMessage<NodeConfig>>) => setNodes(
+    const patchConfigOfSelected = (configPatch: MessageInit<NodeConfig>) => setNodes(
         (nds: Node[]) => nds.map((nd) => {
             if (!nd.selected) {
                 return nd
