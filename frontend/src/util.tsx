@@ -22,7 +22,7 @@ export function createBinary<Desc extends DescMessage>(schema: Desc, init?: Mess
     return toBinary(schema, create(schema, init))
 }
 
-function isFileConnection(connection: Edge | Connection): boolean {
+export function isFileConnection(connection: Edge | Connection): boolean {
     if (!!connection.sourceHandle != !!connection.targetHandle) {
         throw `connection ${connection} is invalid (either both or none ends must be files)`
     }
