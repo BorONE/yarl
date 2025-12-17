@@ -49,7 +49,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { canonizeConnection, convertConnectionToEdge } from './util';
+import { canonizeConnection, convertConnectionToEdge, isFileConnection } from './util';
 
 import { StableSyncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
@@ -75,6 +75,10 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 var syncer = new StableSyncer()
 const nodeInitSize = {x: 100, y: 30}
 
+function patchStyle<T extends { style?: React.CSSProperties }>(obj: T, style: React.CSSProperties): T {
+  return { ...obj, style: { ...obj.style, ...style } }
+}
+
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -88,7 +92,17 @@ function InternalFlow() {
   }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds) as Node[]),
+    (changes) => setNodes((nds) => {
+      nds = applyNodeChanges(changes, nds) as Node[]
+      const anySelected = nds.some(nd => nd.selected)
+      setEdges(eds => {
+        const isSelectedEdge = (ed: Edge) => nds.find(nd => nd.id == ed.source)?.selected || nds.find(nd => nd.id == ed.target)?.selected
+        const isOpaque = (ed: Edge) => anySelected ? isSelectedEdge(ed) : !isFileConnection(ed)
+        return eds.map(ed => patchStyle(ed, { strokeOpacity: isOpaque(ed) ? 1 : 0.5, }))
+      })
+      const isOpaque = (nd: Node) => anySelected ? nd.selected : true
+      return nds.map(nd => patchStyle(nd, { opacity: isOpaque(nd) ? 1 : 0.5 }))
+    }),
     [setNodes],
   );
   const onNodesDelete: OnNodesDelete = useCallback(
