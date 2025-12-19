@@ -1,14 +1,4 @@
 services:
-  backend:
-    container_name: backend1
-    build: backend
-    tty: true
-    stdin_open: true
-    restart: always
-    ports:
-      - "9000:9000"
-    networks:
-      - yarl-net
   frontend:
     container_name: frontend
     build: frontend
@@ -16,7 +6,7 @@ services:
     stdin_open: true
     restart: always
     ports:
-      - "4173:80"
+      - "8000:80"
     networks:
       - yarl-net
   envoy:
@@ -24,9 +14,11 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./docker-envoy.yaml:/etc/envoy/envoy.yaml
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
     networks:
       - yarl-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   yarl-net:
