@@ -6,35 +6,53 @@ https://github.com/user-attachments/assets/7d87052f-6e47-434f-ac76-b0786f05db83
 
 ## How to run
 
-You can run full app in docker or run locally each component separetly.
+YaRL consists of two main components: a web interface (frontend) and a runner (backend). We recommend running the frontend on your local machine. The backend can be run on your local machine or a remote machine. 
 
+### Frontend
+
+First of all, make sure you have installed [Docker](https://docs.docker.com/engine/install/). Then use command below. This will start the web interface on port [8000](http://localhost:8000) (can be configured in compose.yml). The web interface will try to connect to port 9000 on your machine (can be configured in envoy.yaml).
+```shell 
+docker compose up --build --detach
+```
+
+### Backend
+
+Just run binary
 ```shell
-docker compose build
-docker compose up
+./yarl
 ```
 
 ---
 
-#### Backend
-Install [go](https://go.dev/doc/install), then you can install dependencies, build and run via:
+If you want to specify port use `--port`, by default port is 9000
+```shell
+./yarl --port 9001
+```
+
+If you need to compile runner yourself, install [go](https://go.dev/doc/install), then run 
 ```shell
 cd backend
-go run cmd/server/main.go
+go build -o yarl cmd/server/main.go
 ```
 
-#### Frontend
-Install [nvm](https://github.com/nvm-sh/nvm), then install dependencies and run:
+If you use remote machine, copy runner and connect to the remote and forward ports via ssh
 ```shell
-cd frontend
-npm install # dependencies
-npm run build
-npm run preview
+scp yarl $remote:~/yarl
+ssh -L 0.0.0.0:9000:localhost:9000 $remote
 ```
 
-#### Envoy
-Install [envoy](https://www.envoyproxy.io/docs/envoy/latest/start/install) and just run:
+Once you connected to the remote, use `nohup` or `tmux` to keep YaRL running even after you disconnect
 ```shell
-envoy -c envoy.yaml
+if [ "$TERM" = "screen" ] && [ -n "$TMUX" ]; then
+  ~/yarl # we are inside tmux, so just run
+else
+  nohup ~/yarl & # use nohup to run in bg
+fi
+```
+
+To reconnect just use command below again
+```shell
+ssh -L 0.0.0.0:9000:localhost:9000 $remote
 ```
 
 ### Protobuf (codegen)

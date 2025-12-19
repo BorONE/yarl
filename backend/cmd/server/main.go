@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -10,8 +12,13 @@ import (
 	_ "yarl/internal/job/register"
 )
 
+var port = flag.Int("port", 9000, "Port for runner to listen to")
+
 func main() {
-	lis, err := net.Listen("tcp", ":9000")
+	flag.Parse()
+
+	address := fmt.Sprintf(":%v", *port)
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
