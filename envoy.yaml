@@ -60,5 +60,4 @@ static_resources:
         - lb_endpoints:
           - endpoint:
               address:
-                # socket_address: { address: localhost, port_value: 9000 }
                 socket_address: { address: host.docker.internal, port_value: 9000 }
