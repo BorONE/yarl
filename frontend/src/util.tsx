@@ -29,17 +29,17 @@ export function isFileConnection(connection: Edge | Connection): boolean {
     return !!connection.sourceHandle
 }
 
-export function convertEdgeToConnection(edge: config.EdgeConfig, source: Node, _target: Node): Edge {
+export function convertConfigToEdge(edge: config.EdgeConfig, source?: Node, _target?: Node): Edge {
     const connection = {
         source: `${edge.FromNodeId}`,
         target: `${edge.ToNodeId}`,
         sourceHandle: edge.FromPort == BigInt(0) ? null : edge.FromPort.toString(),
         targetHandle: edge.ToPort == BigInt(0) ? null : edge.ToPort.toString(),
     }
-    return canonizeConnection(connection, source.data.state)
+    return canonizeConnection(connection, source?.data.state)
 }
 
-export function convertConnectionToEdge(connection: Edge | Connection, _source: Node, _target: Node): config.EdgeConfig {
+export function convertEdgeToConfig(connection: Edge | Connection, _source?: Node, _target?: Node): config.EdgeConfig {
     return create(config.EdgeConfigSchema, {
         FromNodeId: BigInt(connection.source),
         FromPort: connection.sourceHandle ? BigInt(connection.sourceHandle) : undefined,
