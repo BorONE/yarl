@@ -8,7 +8,6 @@ import {
   applyEdgeChanges,
   type Edge,
   type FitViewOptions,
-  type OnConnect,
   type OnNodesDelete,
   type OnNodesChange,
   type OnEdgesChange,
@@ -49,9 +48,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { canonizeConnection, convertConnectionToEdge, isFileConnection } from './util';
+import { canonizeConnection as canonizeEdge, convertEdgeToConfig, isFileConnection } from './util';
 
-import { StableSyncer } from './syncer';
+import { Syncer } from './syncer';
 import { buildNode, getBorderColor } from './misc';
 import Menubar, { DialogType, SharedDialogContent } from './Menubar';
 
@@ -72,8 +71,8 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
 };
 
-var syncer = new StableSyncer()
-const nodeInitSize = {x: 100, y: 30}
+var syncer = new Syncer()
+const nodeInitSize = { x: 100, y: 30 }
 
 function patchStyle<T extends { style?: React.CSSProperties }>(obj: T, style: React.CSSProperties): T {
   return { ...obj, style: { ...obj.style, ...style } }
@@ -82,14 +81,17 @@ function patchStyle<T extends { style?: React.CSSProperties }>(obj: T, style: Re
 function InternalFlow() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  
-  const [syncExhausted, setSyncExhausted] = useState(false);
 
-  useEffect(() => {
-    syncer.setNodes = setNodes
-    syncer.setEdges = setEdges
-    syncer.sync().finally(() => setSyncExhausted(true))
-  }, []);
+  syncer.setNodes = setNodes
+  syncer.setEdges = setEdges
+
+  const [isDesynced, setIsDesynced] = useState(false);
+  const resync = async () => {
+    setIsDesynced(false)
+    await syncer.sync()
+    setIsDesynced(true)
+  }
+  useEffect(() => { resync() }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => {
@@ -105,6 +107,7 @@ function InternalFlow() {
     }),
     [setNodes],
   );
+
   const onNodesDelete: OnNodesDelete = useCallback(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes.map((node) => ({ id: node.id, type: 'remove' })), nds))
@@ -140,37 +143,43 @@ function InternalFlow() {
       const ends = [connectionState.fromNode?.id as string, node.data.config.Id.toString()]
       const [source, target] = connectionState.fromPosition == 'left' ? ends.reverse() : ends
       // added node won't be deduced automatically, since it will be added to nodes next render frame
-      const input = connectionState.fromPosition == 'left' ? node : undefined 
-      connect({ source: source, target: target, sourceHandle: null, targetHandle: null }, input)
+      const input = connectionState.fromPosition == 'left' ? node : undefined
+      const edge = { source: source, target: target, sourceHandle: null, targetHandle: null }
+      connect(edge, input)
     }
   }
 
+  const getEdgeConfig = (connection: Connection | Edge) => {
+    const source = nodes.find(node => node.id == connection.source)
+    const target = nodes.find(node => node.id == connection.target)
+    return convertEdgeToConfig(connection, source, target)
+  }
+
   const connect = (connection: Connection, input?: Node) => {
-    const source = nodes.find(node => node.id == connection.source) as Node
-    const target = nodes.find(node => node.id == connection.target) as Node
-    client.graph.connect(convertConnectionToEdge(connection, source, target))
-    setEdges((eds) => {
+    const config = getEdgeConfig(connection)
+    client.graph.connect(config)
+    setEdges(eds => {
       input = input || nodes.find(nd => nd.id == connection.source)
-      return addEdge(canonizeConnection(connection, input?.data.state), eds)
+      const edge = canonizeEdge(connection, input?.data.state)
+      return addEdge(edge, eds)
     })
   }
 
-  const onConnect: OnConnect = useCallback(
-    async (connection) => {
+  const onConnect = useCallback(
+    async (connection: Connection) => {
       const isValidConnection = (connection.sourceHandle === null) == (connection.targetHandle === null)
-      if (!isValidConnection) {
-        return
+      if (isValidConnection) {
+        connect(connection)
       }
-      connect(connection)
     },
     [nodes, setEdges],
   );
+
   const onDisconnect = useCallback(
     async (connection: Edge) => {
-      const source = nodes.find(node => node.id == connection.source) as Node
-      const target = nodes.find(node => node.id == connection.target) as Node
-      await client.graph.disconnect(convertConnectionToEdge(connection, source, target))
-      setEdges((eds) => eds.filter((ed) => ed != connection))
+      const config = getEdgeConfig(connection)
+      await client.graph.disconnect(config)
+      setEdges(eds => eds.filter(ed => ed != connection))
     },
     [nodes, setEdges],
   );
@@ -341,12 +350,12 @@ function InternalFlow() {
     }
   }
 
-  const syncingFlowData = !syncExhausted ? {
-    title: "   Syncing...",
-    description: "Connecting to backend and initializing graph.",
+  const syncingFlowData = isDesynced ? {
+    title: "Desinced",
+    description: "Reload page or try to resync using button below",
   } : {
-    title: "Sync restarts are exhausted",
-    description: "Reload page to sync with backend again",
+    title: "   Syncing...",
+    description: "Connecting to backend and initializing graph",
   }
 
   const syncingFlow = (
@@ -362,8 +371,8 @@ function InternalFlow() {
       </EmptyHeader>
       <EmptyContent>
         <div className="flex gap-2">
-          <Button onClick={() => window.location.reload()}>Reload page</Button>
-          <Button variant='secondary' onClick={() => setShowLastState(true)} disabled={!syncer.isInited()}>Show last state</Button>
+          <Button onClick={() => resync()}>Resync</Button>
+          <Button variant='secondary' onClick={() => setShowLastState(true)} disabled={!syncer.isInited}>Show last state</Button>
         </div>
       </EmptyContent>
     </Empty>
@@ -373,7 +382,7 @@ function InternalFlow() {
   if (nodes.length == 0) {
     currentFlow = emptyFlow
   }
-  if (!syncer.isSynced()) {
+  if (!syncer.isInited || isDesynced) {
     currentFlow = showLastState ? currentFlow : syncingFlow
   } else {
     resetShowLastState()

@@ -5,7 +5,7 @@ import {
 import * as config from './gen/internal/graph/config_pb'
 import { buildNode } from './misc';
 import type { Node } from './JobNode';
-import { canonizeConnection, convertEdgeToConnection } from './util';
+import { canonizeConnection, convertConfigToEdge } from './util';
 
 import { toast } from "sonner"
 
@@ -15,74 +15,29 @@ enum SyncerState {
   sync = 1,
 }
 
-function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-export class StableSyncer {
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
-  
-  syncer : Syncer | null = null
-  wasSynced : boolean = false
-
-  async sync() {
-    const msSecond = 1000
-    const msBackoffs = [1, 2, 5, 10, 1].map(s => s * msSecond)
-    const rounds = msBackoffs.map((backoff, i) => ({number: i + 1, backoff}))
-    for (let i = 0; i < rounds.length; ++i) {
-      const round = rounds[i]
-      try {
-        this.syncer = new Syncer()
-        this.syncer.setNodes = this.setNodes
-        this.syncer.setEdges = this.setEdges
-        await this.syncer.sync()
-        this.wasSynced = true
-        this.syncer = null
-      } catch (err) {
-        this.wasSynced = this.wasSynced || (this.syncer as Syncer).isInited
-        this.syncer = null
-        console.error('sync::exception', err)
-        toast(`Sync exception #${round.number}`, { description: `${err}` })
-        this.triggerUpdate()
-        await timeout(round.backoff)
-      }
-    }
-    toast("Sync restarts are exhausted", { description: "Reload page to sync with backend again" })
-  }
-
-  isInited() {
-    return this.wasSynced || this.isSynced()
-  }
-
-  isSynced() {
-    return this.syncer ? this.syncer.isInited : false
-  }
-
-  triggerUpdate() {
-    this.setNodes(nds => [...nds])
-  }
-};
-
 export class Syncer {
   state = SyncerState.init
   initialGraph : { nodes: Node[], edges: Edge[] } = { nodes: [], edges: [] }
-  stream = client.graph.sync({})
   isInited : boolean = false
   
   setNodes: React.Dispatch<React.SetStateAction<Node[]>> = nds => nds
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>> = eds => eds
 
   async sync() {
-    for await (const update of this.stream) {
-      switch (this.state) {
-      case SyncerState.init:
-        this.handleInit(update)
-        break
-      case SyncerState.sync:
-        this.handleSync(update)
-        break
+    try {
+      for await (const update of client.graph.sync({})) {
+        switch (this.state) {
+        case SyncerState.init:
+          this.handleInit(update)
+          break
+        case SyncerState.sync:
+          this.handleSync(update)
+          break
+        }
       }
+    } catch (err) {
+      console.error('sync::exception', err)
+      toast(`Sync exception`, { description: `${err}` })
     }
   }
 
@@ -96,18 +51,19 @@ export class Syncer {
         break
       }
       case config.SyncType.InitEdge: {
-        const edge = update.EdgeConfig as config.EdgeConfig
-        const source = this.initialGraph.nodes.find(node => node.data.id == edge.FromNodeId) as Node
-        const target = this.initialGraph.nodes.find(node => node.data.id == edge.ToNodeId) as Node
-        this.initialGraph.edges.push(convertEdgeToConnection(edge, source, target))
+        const config = update.EdgeConfig as config.EdgeConfig
+        const source = this.initialGraph.nodes.find(node => node.data.id == config.FromNodeId)
+        const target = this.initialGraph.nodes.find(node => node.data.id == config.ToNodeId)
+        const edge = convertConfigToEdge(config, source, target)
+        this.initialGraph.edges.push(edge)
         break
       }
       case config.SyncType.InitDone: {
         console.log('sync::init', this.initialGraph)
         this.isInited = true
         this.state = SyncerState.sync
-        this.setNodes((_) => this.initialGraph.nodes)
-        this.setEdges((_) => this.initialGraph.edges)
+        this.setNodes(this.initialGraph.nodes)
+        this.setEdges(this.initialGraph.edges)
         break
       }
     }
@@ -123,10 +79,9 @@ export class Syncer {
       }
       case config.SyncType.Reset: {
         this.initialGraph = { nodes: [], edges: [] }
-        this.setNodes((_) => []);
-        this.setEdges((_) => []);
+        this.setNodes([])
+        this.setEdges([])
         this.state = SyncerState.init
-        this.stream = client.graph.sync({})
         break
       }
       case config.SyncType.Error: {
