@@ -252,7 +252,8 @@ function InternalFlow() {
   }
   const verifyImport = (data: string) => {
     try {
-      cp.FromBuffer(atob(data))
+      const buf = cp.FromBuffer(atob(data))
+      cp.RenderEdges(buf.edges, buf.nodes.map(_ => ''))
       return true
     } catch {
       return false;

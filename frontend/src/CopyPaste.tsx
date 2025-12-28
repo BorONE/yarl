@@ -4,11 +4,10 @@ import type { Node } from "./JobNode"
 
 type Overwrite<A, B> = Omit<A, keyof B> & B
 type CopyBufferNode = Overwrite<config.NodeConfig, {Id: undefined}>
-type CopyBufferEdge = { edge: Edge, sourceIndex: number, targetIndex: number }
 
 export type CopyBuffer = {
   nodes: CopyBufferNode[],
-  edges: CopyBufferEdge[],
+  edges: string[],
 }
 
 export function BuildCopyBuffer(nodes: Node[], edges: Edge[], isLocal: boolean): CopyBuffer {
@@ -17,7 +16,10 @@ export function BuildCopyBuffer(nodes: Node[], edges: Edge[], isLocal: boolean):
         nodes: nodes.map(node => ({ ...node.data.config, Id: undefined })),
         edges: edges
             .map(edge => ({
-                edge,
+                source: edge.source,
+                target: edge.target,
+                sourceHandle: edge.sourceHandle,
+                targetHandle: edge.targetHandle,
                 sourceIndex: nodeIds.indexOf(edge.source),
                 targetIndex: nodeIds.indexOf(edge.target),
             }))
@@ -27,6 +29,11 @@ export function BuildCopyBuffer(nodes: Node[], edges: Edge[], isLocal: boolean):
                 } else {
                     return (edge.sourceIndex >= 0) && (edge.targetIndex >= 0)
                 }
+            })
+            .map(edge => {
+                const source = edge.sourceIndex >= 0 ? ('i' + edge.sourceIndex) : edge.source
+                const target = edge.targetIndex >= 0 ? ('i' + edge.targetIndex) : edge.target
+                return `${source}:${target},${edge.sourceHandle || ''}:${edge.targetHandle || ''}`
             })
     }
 }
@@ -56,11 +63,17 @@ export async function FromClipboard() {
     return FromBuffer(clipboard);
 }
 
-export function RenderEdges(edges: CopyBufferEdge[], ids: string[]) {
-    return edges.map(edge => ({
-        source: edge.sourceIndex >= 0 ? ids[edge.sourceIndex] : edge.edge.source,
-        target: edge.targetIndex >= 0 ? ids[edge.targetIndex] : edge.edge.target,
-        sourceHandle: edge.edge.sourceHandle || null,
-        targetHandle: edge.edge.targetHandle || null,
-    } as Connection))
+export function RenderEdges(edges: string[], ids: string[]): Connection[] {
+    return edges
+        .map(edge => {
+            const [nodes, handles] = edge.split(',')
+            const [source, target] = nodes.split(':')
+            const [sourceHandle, targetHandle] = handles.split(':')
+            return {
+                source: source.startsWith('i') ? ids[Number(source.slice(1))] : source,
+                target: target.startsWith('i') ? ids[Number(target.slice(1))] : target,
+                sourceHandle: sourceHandle || null,
+                targetHandle: targetHandle || null,
+            }
+        })
 }

@@ -116,7 +116,7 @@ export function SharedDialogContent(dialog: DialogType, ctx : Partial<Ctx>) {
 					</DialogTitle>
 					<DialogDescription>Copy this string</DialogDescription>
 				</DialogHeader>
-				<Textarea readOnly value={value} />
+				<Textarea readOnly value={value} wrap='off' />
 				<div className="flex gap-2">
 					<Button type="button" variant="default" onClick={() => {
 						navigator.clipboard.writeText(value)
@@ -145,7 +145,7 @@ export function SharedDialogContent(dialog: DialogType, ctx : Partial<Ctx>) {
 					<DialogTitle>Import</DialogTitle>
 					<DialogDescription>Paste string</DialogDescription>
 				</DialogHeader>
-				<Textarea placeholder='Paste your string here...' ref={importRef} />
+				<Textarea placeholder='Paste your string here...' ref={importRef} wrap='off' />
 				<div className="flex gap-2">
 					<DialogClose asChild>
 						<Button type="button" variant="default" onClick={() => {
