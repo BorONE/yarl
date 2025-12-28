@@ -289,7 +289,7 @@ function InternalFlow() {
     onNodesChange={onNodesChange}
     onEdgesChange={onEdgesChange}
     onConnect={onConnect}
-    onEdgesDelete={(edges: Edge[]) => edges.map((edge) => onDisconnect(edge))}
+    onEdgesDelete={async (edges: Edge[]) => await Promise.all(edges.map((edge) => onDisconnect(edge)))}
     onNodesDelete={onNodesDelete}
     onNodeDragStop={onNodeDragStop}
     onConnectEnd={onConnectEnd}
