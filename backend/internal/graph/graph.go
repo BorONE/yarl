@@ -123,7 +123,7 @@ func (graph *Graph) Disconnect(edge *EdgeConfig) error {
 func (graph *Graph) UpdateEdgeType(edge *EdgeConfig) error {
 	index := slices.IndexFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
 	if index == -1 {
-		return fmt.Errorf("edge is not found: %v", prototext.MarshalOptions{}.Format(edge))
+		return fmt.Errorf("edge is not found: { %v }", prototext.MarshalOptions{}.Format(edge))
 	}
 	graph.Config.Edges[index] = edge
 	return nil

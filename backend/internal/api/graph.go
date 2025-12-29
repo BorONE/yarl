@@ -111,56 +111,40 @@ func (s ImplementedGraphServer) ScheduleAll(ctx context.Context, _ *Nothing) (*N
 	return nil, nil
 }
 
-func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
+func (s ImplementedGraphServer) editGraph(ctx context.Context, how func() error) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	log.Printf("serving Connect(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	err := s.graph.Connect(edge)
+	err := how()
 	if err != nil {
-		return nil, util.GrpcError(err)
+		return util.GrpcError(err)
 	}
 
 	err = s.graph.SaveCurrent(ctx)
 	if err != nil {
-		return nil, util.GrpcError(err)
+		return util.GrpcError(err)
 	}
 
-	return nil, nil
+	return nil
+}
+
+func (s ImplementedGraphServer) Connect(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
+	return nil, s.editGraph(ctx, func() error {
+		log.Printf("serving Connect(edge = { %v })\n", prototext.MarshalOptions{}.Format(edge))
+		return s.graph.Connect(edge)
+	})
 }
 
 func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("serving Disconnect(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	err := s.graph.Disconnect(edge)
-	if err != nil {
-		return nil, util.GrpcError(err)
-	}
-
-	err = s.graph.SaveCurrent(ctx)
-	if err != nil {
-		return nil, util.GrpcError(err)
-	}
-
-	return nil, nil
+	return nil, s.editGraph(ctx, func() error {
+		log.Printf("serving Disconnect(edge = { %v })\n", prototext.MarshalOptions{}.Format(edge))
+		return s.graph.Disconnect(edge)
+	})
 }
 
 func (s ImplementedGraphServer) UpdateEdgeType(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	log.Printf("serving UpdateEdgeType(%v)\n", prototext.MarshalOptions{}.Format(edge))
-	err := s.graph.UpdateEdgeType(edge)
-	if err != nil {
-		return nil, util.GrpcError(err)
-	}
-
-	err = s.graph.SaveCurrent(ctx)
-	if err != nil {
-		return nil, util.GrpcError(err)
-	}
-
-	return nil, nil
+	return nil, s.editGraph(ctx, func() error {
+		log.Printf("serving UpdateEdgeType(edge = { %v })\n", prototext.MarshalOptions{}.Format(edge))
+		return s.graph.UpdateEdgeType(edge)
+	})
 }
