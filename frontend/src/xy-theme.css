@@ -185,4 +185,31 @@
     margin-bottom: 3px;
     display: inline-block;
   }
-  
+
+.button-edge__label {
+  position: absolute;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.button-edge__button {
+  opacity: 0;
+  pointer-events: all;
+  position: relative;
+  bottom: 5px;
+  color: var(--xy-edge-label-color-default);
+  font-family: monospace;
+  font-size: 6px;
+  font-weight: 400;
+  padding: 0 3px 1px 3px;
+  border-radius: 2px;
+  transition: opacity 0.1s;
+}
+
+.button-edge__button:hover {
+  opacity: 1;
+  border: #88888888 solid 1px;
+  color: #ffffff;
+  /* height: 12px; */
+  transition: opacity 0.1s;
+}

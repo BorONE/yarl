@@ -36,6 +36,7 @@ import { IconNewSection, IconPlugConnected } from "@tabler/icons-react"
 import Sidebar, { buildDefaultConfig } from './Sidebar';
 
 import JobNode, { type Node } from './JobNode';
+import FileEdge, { type Edge as FileEdgeType } from './FileEdge';
 
 import * as client from './client'
 
@@ -78,7 +79,31 @@ function patchStyle<T extends { style?: React.CSSProperties }>(obj: T, style: Re
   return { ...obj, style: { ...obj.style, ...style } }
 }
 
+type AppHooks = {
+  updateEdgeType: (id: string, type: config.EdgeType) => void,
+}
+
+let app = {} as Partial<AppHooks>
+
+export function useApp(): AppHooks {
+  return app as AppHooks
+}
+
 function InternalFlow() {
+  app.updateEdgeType = (id: string, type: config.EdgeType) => {
+    setEdges(eds => eds.map(ed => {
+      if (ed.id == id) {
+        const edge = ed as FileEdgeType
+        const config = convertEdgeToConfig(edge)
+        config.Type = type
+        client.graph.updateEdgeType(config)
+        edge.data = { ...edge.data, config }
+        return { ...edge }
+      }
+      return ed
+    }))
+  }
+
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
@@ -161,6 +186,7 @@ function InternalFlow() {
     setEdges(eds => {
       input = input || nodes.find(nd => nd.id == connection.source)
       const edge = canonizeEdge(connection, input?.data.state)
+      edge.data = { config }
       return addEdge(edge, eds)
     })
   }
@@ -295,6 +321,7 @@ function InternalFlow() {
     onNodeDragStop={onNodeDragStop}
     onConnectEnd={onConnectEnd}
     nodeTypes={{JobNode}}
+    edgeTypes={{FileEdge}}
     fitView
     fitViewOptions={fitViewOptions}
     defaultEdgeOptions={defaultEdgeOptions}

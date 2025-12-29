@@ -20,13 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Graph_Sync_FullMethodName        = "/api.Graph/Sync"
-	Graph_New_FullMethodName         = "/api.Graph/New"
-	Graph_Load_FullMethodName        = "/api.Graph/Load"
-	Graph_Save_FullMethodName        = "/api.Graph/Save"
-	Graph_ScheduleAll_FullMethodName = "/api.Graph/ScheduleAll"
-	Graph_Connect_FullMethodName     = "/api.Graph/Connect"
-	Graph_Disconnect_FullMethodName  = "/api.Graph/Disconnect"
+	Graph_Sync_FullMethodName           = "/api.Graph/Sync"
+	Graph_New_FullMethodName            = "/api.Graph/New"
+	Graph_Load_FullMethodName           = "/api.Graph/Load"
+	Graph_Save_FullMethodName           = "/api.Graph/Save"
+	Graph_ScheduleAll_FullMethodName    = "/api.Graph/ScheduleAll"
+	Graph_Connect_FullMethodName        = "/api.Graph/Connect"
+	Graph_Disconnect_FullMethodName     = "/api.Graph/Disconnect"
+	Graph_UpdateEdgeType_FullMethodName = "/api.Graph/UpdateEdgeType"
 )
 
 // GraphClient is the client API for Graph service.
@@ -40,6 +41,7 @@ type GraphClient interface {
 	ScheduleAll(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*Nothing, error)
 	Connect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
 	Disconnect(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
+	UpdateEdgeType(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error)
 }
 
 type graphClient struct {
@@ -129,6 +131,16 @@ func (c *graphClient) Disconnect(ctx context.Context, in *graph.EdgeConfig, opts
 	return out, nil
 }
 
+func (c *graphClient) UpdateEdgeType(ctx context.Context, in *graph.EdgeConfig, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Graph_UpdateEdgeType_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GraphServer is the server API for Graph service.
 // All implementations must embed UnimplementedGraphServer
 // for forward compatibility.
@@ -140,6 +152,7 @@ type GraphServer interface {
 	ScheduleAll(context.Context, *Nothing) (*Nothing, error)
 	Connect(context.Context, *graph.EdgeConfig) (*Nothing, error)
 	Disconnect(context.Context, *graph.EdgeConfig) (*Nothing, error)
+	UpdateEdgeType(context.Context, *graph.EdgeConfig) (*Nothing, error)
 	mustEmbedUnimplementedGraphServer()
 }
 
@@ -170,6 +183,9 @@ func (UnimplementedGraphServer) Connect(context.Context, *graph.EdgeConfig) (*No
 }
 func (UnimplementedGraphServer) Disconnect(context.Context, *graph.EdgeConfig) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
+}
+func (UnimplementedGraphServer) UpdateEdgeType(context.Context, *graph.EdgeConfig) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEdgeType not implemented")
 }
 func (UnimplementedGraphServer) mustEmbedUnimplementedGraphServer() {}
 func (UnimplementedGraphServer) testEmbeddedByValue()               {}
@@ -311,6 +327,24 @@ func _Graph_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Graph_UpdateEdgeType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(graph.EdgeConfig)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServer).UpdateEdgeType(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Graph_UpdateEdgeType_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServer).UpdateEdgeType(ctx, req.(*graph.EdgeConfig))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Graph_ServiceDesc is the grpc.ServiceDesc for Graph service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -341,6 +375,10 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Disconnect",
 			Handler:    _Graph_Disconnect_Handler,
+		},
+		{
+			MethodName: "UpdateEdgeType",
+			Handler:    _Graph_UpdateEdgeType_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -146,3 +146,21 @@ func (s ImplementedGraphServer) Disconnect(ctx context.Context, edge *graph.Edge
 
 	return nil, nil
 }
+
+func (s ImplementedGraphServer) UpdateEdgeType(ctx context.Context, edge *graph.EdgeConfig) (*Nothing, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Printf("serving UpdateEdgeType(%v)\n", prototext.MarshalOptions{}.Format(edge))
+	err := s.graph.UpdateEdgeType(edge)
+	if err != nil {
+		return nil, util.GrpcError(err)
+	}
+
+	err = s.graph.SaveCurrent(ctx)
+	if err != nil {
+		return nil, util.GrpcError(err)
+	}
+
+	return nil, nil
+}
