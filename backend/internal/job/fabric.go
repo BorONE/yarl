@@ -12,6 +12,12 @@ type RunContext struct {
 	Dir string
 }
 
+// NB Run can be executed async with other methods. This means that it is prone
+// to data race. So try to avoid accessing shared data in Run or at least use
+// thread-safe data structures. If you need to initialize something in Run, try
+// to move it to job creator: Run is called right after the creation, but
+// creation is synced with other methods. NB Artifacts are thread-safe, so they
+// can be safely used in Run.
 type Job interface {
 	Run(ctx *RunContext) error
 	Kill() error
