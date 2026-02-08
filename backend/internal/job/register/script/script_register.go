@@ -29,7 +29,6 @@ func (j *ScriptJob) Run(ctx *job.RunContext) error {
 	j.arts.Reset(map[string]string{"started_at": time.Now().String()})
 	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
 
-	j.cmd = util.NewCmd("./" + SCRIPT_FILENAME)
 	j.cmd.Dir = ctx.Dir
 	return j.cmd.Run()
 }
@@ -50,6 +49,8 @@ var _ job.Job = &ScriptJob{}
 
 func init() {
 	job.Register(&ScriptConfig{}, func(msg proto.Message) (job.Job, error) {
-		return &ScriptJob{config: msg.(*ScriptConfig)}, nil
+		job := &ScriptJob{config: msg.(*ScriptConfig)}
+		job.cmd = util.NewCmd("./" + SCRIPT_FILENAME)
+		return job, nil
 	})
 }

@@ -38,7 +38,6 @@ func (j *DaemonJob) Run(ctx *job.RunContext) error {
 	})
 	defer func() { j.arts.Set("finished_at", time.Now().String()) }()
 
-	j.cmd = util.NewCmd("./" + DAEMON_SCRIPT_FILENAME)
 	j.cmd.Dir = ctx.Dir
 	return j.cmd.Run()
 }
@@ -59,6 +58,8 @@ var _ job.Job = &DaemonJob{}
 
 func init() {
 	job.Register(&DaemonConfig{}, func(msg proto.Message) (job.Job, error) {
-		return &DaemonJob{config: msg.(*DaemonConfig)}, nil
+		job := &DaemonJob{config: msg.(*DaemonConfig)}
+		job.cmd = util.NewCmd("./" + DAEMON_SCRIPT_FILENAME)
+		return job, nil
 	})
 }
