@@ -58,7 +58,10 @@ func (graph *Graph) CollectNodeStates() []*NodeState {
 
 func isEdgeEqualsFunc(edge *EdgeConfig) func(e *EdgeConfig) bool {
 	return func(e *EdgeConfig) bool {
-		return prototext.Format(edge) == prototext.Format(e)
+		return edge.GetFromNodeId() == e.GetFromNodeId() &&
+			edge.GetToNodeId() == e.GetToNodeId() &&
+			edge.GetFromPort() == e.GetFromPort() &&
+			edge.GetToPort() == e.GetToPort()
 	}
 }
 
@@ -80,13 +83,12 @@ func (graph *Graph) getEdgeNodes(edge *EdgeConfig, existing bool) (*edgeNodes, e
 	}
 
 	if slices.ContainsFunc(graph.Config.Edges, isEdgeEqualsFunc(edge)) != existing {
-		var errorFormat string
+		serializedEdge := prototext.MarshalOptions{}.Format(edge)
 		if existing {
-			errorFormat = "edge {%v} does not exist"
+			return nil, fmt.Errorf("edge { %v } does not exist", serializedEdge)
 		} else {
-			errorFormat = "edge {%v} already exists"
+			return nil, fmt.Errorf("edge { %v } already exists", serializedEdge)
 		}
-		return nil, fmt.Errorf(errorFormat, prototext.MarshalOptions{}.Format(edge))
 	}
 
 	if (edge.FromPort == nil) != (edge.ToPort == nil) {
@@ -115,6 +117,15 @@ func (graph *Graph) Disconnect(edge *EdgeConfig) error {
 
 	graph.Config.Edges = slices.DeleteFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
 	edgeNodes.to.OnInputChange()
+	return nil
+}
+
+func (graph *Graph) UpdateEdgeType(edge *EdgeConfig) error {
+	index := slices.IndexFunc(graph.Config.Edges, isEdgeEqualsFunc(edge))
+	if index == -1 {
+		return fmt.Errorf("edge is not found: { %v }", prototext.MarshalOptions{}.Format(edge))
+	}
+	graph.Config.Edges[index] = edge
 	return nil
 }
 

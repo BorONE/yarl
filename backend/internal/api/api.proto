@@ -37,6 +37,7 @@ service Graph {
 
     rpc Connect(graph.EdgeConfig) returns (Nothing);
     rpc Disconnect(graph.EdgeConfig) returns (Nothing);
+    rpc UpdateEdgeType(graph.EdgeConfig) returns (Nothing);
 }
 
 service Node {

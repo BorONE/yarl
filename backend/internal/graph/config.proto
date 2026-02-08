@@ -62,11 +62,17 @@ message NodeConfig {
     repeated string Outputs = 6;
 }
 
+enum EdgeType {
+    Copy = 0;
+    SymLink = 1;
+}
+
 message EdgeConfig {
     optional uint64 FromNodeId = 1;
     optional uint64 ToNodeId = 2;
     optional uint64 FromPort = 3; // 1-indexed
     optional uint64 ToPort = 4;   // 1-indexed
+    optional EdgeType Type = 5;
 }
 
 enum SyncType {

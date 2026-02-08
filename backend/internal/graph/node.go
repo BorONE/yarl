@@ -172,10 +172,16 @@ func copyEdge(edge *EdgeConfig, nodes map[NodeId]*Node) error {
 		return fmt.Errorf("invalid destination of edge {%v}: %v", prototext.MarshalOptions{}.Format(edge), err)
 	}
 	// TODO use more go-like solution
-	cp := exec.Command("cp", "--recursive", src, dst)
-	output, err := cp.CombinedOutput()
+	var cmd *exec.Cmd
+	switch edge.GetType() {
+	case EdgeType_Copy:
+		cmd = exec.Command("cp", "--recursive", src, dst)
+	case EdgeType_SymLink:
+		cmd = exec.Command("ln", "--symbolic", src, dst)
+	}
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("cp=`%v` failed: err=\"%v\" %v", cp, err, string(output))
+		return fmt.Errorf("cmd `%v` failed: err=\"%v\" %v", cmd, err, string(output))
 	}
 	return nil
 }

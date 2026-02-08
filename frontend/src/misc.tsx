@@ -41,6 +41,11 @@ export function isScheduled(nodeState: config.NodeState) {
     return state.case == "Idle" && state.value.Plan == config.NodeState_IdleState_IdlePlan.Scheduled;
 }
 
+export function isRunning(nodeState: config.NodeState) {
+    const state = nodeState.State
+    return state.case == "InProgress" && state.value.Status == config.NodeState_InProgressState_InProgressStatus.Running
+}
+
 export function getBorderColor(nodeState: config.NodeState) {
   const state = nodeState.State
   switch (state.case) {

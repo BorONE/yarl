@@ -1,7 +1,7 @@
 import { create, toBinary,  type DescMessage, type Message, type MessageInitShape } from '@bufbuild/protobuf';
 import * as config from './gen/internal/graph/config_pb'
 import { type Connection, type Edge } from '@xyflow/react';
-import { getBorderColor, isScheduled } from './misc';
+import { getBorderColor, isRunning, isScheduled } from './misc';
 import type { Node } from './JobNode';
 import type { GenMessage } from '@bufbuild/protobuf/codegenv2';
 
@@ -35,6 +35,7 @@ export function convertConfigToEdge(edge: config.EdgeConfig, source?: Node, _tar
         target: `${edge.ToNodeId}`,
         sourceHandle: edge.FromPort == BigInt(0) ? null : edge.FromPort.toString(),
         targetHandle: edge.ToPort == BigInt(0) ? null : edge.ToPort.toString(),
+        data: { config: edge }
     }
     return canonizeConnection(connection, source?.data.state)
 }
@@ -49,12 +50,23 @@ export function convertEdgeToConfig(connection: Edge | Connection, _source?: Nod
 }
 
 export function canonizeConnection(connection: Edge | Connection, inputState?: config.NodeState) : Edge {
-    const isFile = isFileConnection(connection)
-    const style : React.CSSProperties = isFile
-        ? { stroke: "#888888", strokeOpacity: 0.5 }
-        : { stroke: inputState ? getBorderColor(inputState) : undefined }
-    const id = isFile
-        ? `${connection.source}-${connection.target}:${connection.sourceHandle}-${connection.targetHandle}`
-        : `${connection.source}-${connection.target}`
-    return { ...connection, id, style, animated: isFile || (inputState ? isScheduled(inputState) : false) }
+    if (isFileConnection(connection)) {
+        return {
+            ...connection,
+            id: `${connection.source}-${connection.target}:${connection.sourceHandle}-${connection.targetHandle}`,
+            type: 'FileEdge',
+            style: { stroke: "#888888", strokeOpacity: 0.5 },
+        }
+    } else {
+        const animated = inputState && (isScheduled(inputState) || isRunning(inputState))
+        return {
+            ...connection,
+            id: `${connection.source}-${connection.target}`,
+            style: {
+                stroke: inputState ? getBorderColor(inputState) : undefined,
+                strokeDasharray: animated ? '9,1' : undefined,
+            },
+            animated
+        }
+    }
 }

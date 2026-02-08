@@ -259,7 +259,7 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1a\n" +
 	"\x04Path\x12\x12\n" +
-	"\x04Path\x18\x01 \x01(\tR\x04Path2\x9f\x02\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path2\xd2\x02\n" +
 	"\x05Graph\x12+\n" +
 	"\x04Sync\x12\f.api.Nothing\x1a\x13.graph.SyncResponse0\x01\x12!\n" +
 	"\x03New\x12\f.api.Nothing\x1a\f.api.Nothing\x12\x1f\n" +
@@ -268,7 +268,8 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\vScheduleAll\x12\f.api.Nothing\x1a\f.api.Nothing\x12*\n" +
 	"\aConnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing\x12-\n" +
 	"\n" +
-	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\xe5\x03\n" +
+	"Disconnect\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing\x121\n" +
+	"\x0eUpdateEdgeType\x12\x11.graph.EdgeConfig\x1a\f.api.Nothing2\xe5\x03\n" +
 	"\x04Node\x12(\n" +
 	"\x03Run\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12-\n" +
 	"\bSchedule\x12\x13.api.NodeIdentifier\x1a\f.api.Nothing\x12)\n" +
@@ -317,37 +318,39 @@ var file_internal_api_api_proto_depIdxs = []int32{
 	0,  // 6: api.Graph.ScheduleAll:input_type -> api.Nothing
 	7,  // 7: api.Graph.Connect:input_type -> graph.EdgeConfig
 	7,  // 8: api.Graph.Disconnect:input_type -> graph.EdgeConfig
-	1,  // 9: api.Node.Run:input_type -> api.NodeIdentifier
-	1,  // 10: api.Node.Schedule:input_type -> api.NodeIdentifier
-	1,  // 11: api.Node.Done:input_type -> api.NodeIdentifier
-	2,  // 12: api.Node.Plan:input_type -> api.NodePlan
-	1,  // 13: api.Node.Stop:input_type -> api.NodeIdentifier
-	1,  // 14: api.Node.Skip:input_type -> api.NodeIdentifier
-	1,  // 15: api.Node.Reset:input_type -> api.NodeIdentifier
-	1,  // 16: api.Node.CollectArts:input_type -> api.NodeIdentifier
-	8,  // 17: api.Node.Add:input_type -> graph.NodeConfig
-	8,  // 18: api.Node.Edit:input_type -> graph.NodeConfig
-	1,  // 19: api.Node.Delete:input_type -> api.NodeIdentifier
-	9,  // 20: api.Graph.Sync:output_type -> graph.SyncResponse
-	0,  // 21: api.Graph.New:output_type -> api.Nothing
-	0,  // 22: api.Graph.Load:output_type -> api.Nothing
-	0,  // 23: api.Graph.Save:output_type -> api.Nothing
-	0,  // 24: api.Graph.ScheduleAll:output_type -> api.Nothing
-	0,  // 25: api.Graph.Connect:output_type -> api.Nothing
-	0,  // 26: api.Graph.Disconnect:output_type -> api.Nothing
-	0,  // 27: api.Node.Run:output_type -> api.Nothing
-	0,  // 28: api.Node.Schedule:output_type -> api.Nothing
-	0,  // 29: api.Node.Done:output_type -> api.Nothing
-	0,  // 30: api.Node.Plan:output_type -> api.Nothing
-	0,  // 31: api.Node.Stop:output_type -> api.Nothing
-	0,  // 32: api.Node.Skip:output_type -> api.Nothing
-	0,  // 33: api.Node.Reset:output_type -> api.Nothing
-	3,  // 34: api.Node.CollectArts:output_type -> api.Arts
-	1,  // 35: api.Node.Add:output_type -> api.NodeIdentifier
-	0,  // 36: api.Node.Edit:output_type -> api.Nothing
-	0,  // 37: api.Node.Delete:output_type -> api.Nothing
-	20, // [20:38] is the sub-list for method output_type
-	2,  // [2:20] is the sub-list for method input_type
+	7,  // 9: api.Graph.UpdateEdgeType:input_type -> graph.EdgeConfig
+	1,  // 10: api.Node.Run:input_type -> api.NodeIdentifier
+	1,  // 11: api.Node.Schedule:input_type -> api.NodeIdentifier
+	1,  // 12: api.Node.Done:input_type -> api.NodeIdentifier
+	2,  // 13: api.Node.Plan:input_type -> api.NodePlan
+	1,  // 14: api.Node.Stop:input_type -> api.NodeIdentifier
+	1,  // 15: api.Node.Skip:input_type -> api.NodeIdentifier
+	1,  // 16: api.Node.Reset:input_type -> api.NodeIdentifier
+	1,  // 17: api.Node.CollectArts:input_type -> api.NodeIdentifier
+	8,  // 18: api.Node.Add:input_type -> graph.NodeConfig
+	8,  // 19: api.Node.Edit:input_type -> graph.NodeConfig
+	1,  // 20: api.Node.Delete:input_type -> api.NodeIdentifier
+	9,  // 21: api.Graph.Sync:output_type -> graph.SyncResponse
+	0,  // 22: api.Graph.New:output_type -> api.Nothing
+	0,  // 23: api.Graph.Load:output_type -> api.Nothing
+	0,  // 24: api.Graph.Save:output_type -> api.Nothing
+	0,  // 25: api.Graph.ScheduleAll:output_type -> api.Nothing
+	0,  // 26: api.Graph.Connect:output_type -> api.Nothing
+	0,  // 27: api.Graph.Disconnect:output_type -> api.Nothing
+	0,  // 28: api.Graph.UpdateEdgeType:output_type -> api.Nothing
+	0,  // 29: api.Node.Run:output_type -> api.Nothing
+	0,  // 30: api.Node.Schedule:output_type -> api.Nothing
+	0,  // 31: api.Node.Done:output_type -> api.Nothing
+	0,  // 32: api.Node.Plan:output_type -> api.Nothing
+	0,  // 33: api.Node.Stop:output_type -> api.Nothing
+	0,  // 34: api.Node.Skip:output_type -> api.Nothing
+	0,  // 35: api.Node.Reset:output_type -> api.Nothing
+	3,  // 36: api.Node.CollectArts:output_type -> api.Arts
+	1,  // 37: api.Node.Add:output_type -> api.NodeIdentifier
+	0,  // 38: api.Node.Edit:output_type -> api.Nothing
+	0,  // 39: api.Node.Delete:output_type -> api.Nothing
+	21, // [21:40] is the sub-list for method output_type
+	2,  // [2:21] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
