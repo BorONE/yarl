@@ -1,0 +1,13 @@
+services:
+  envoy:
+    extra_hosts:
+    - host.docker.internal:host-gateway
+    image: envoyproxy/envoy:v1.32.2
+    ports:
+    - 8080:8080
+    volumes:
+    - ./envoy.yaml:/etc/envoy/envoy.yaml
+  frontend:
+    build: frontend
+    ports:
+    - 8000:80
