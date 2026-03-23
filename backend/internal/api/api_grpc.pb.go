@@ -392,17 +392,19 @@ var Graph_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Node_Run_FullMethodName         = "/api.Node/Run"
-	Node_Schedule_FullMethodName    = "/api.Node/Schedule"
-	Node_Done_FullMethodName        = "/api.Node/Done"
-	Node_Plan_FullMethodName        = "/api.Node/Plan"
-	Node_Stop_FullMethodName        = "/api.Node/Stop"
-	Node_Skip_FullMethodName        = "/api.Node/Skip"
-	Node_Reset_FullMethodName       = "/api.Node/Reset"
-	Node_CollectArts_FullMethodName = "/api.Node/CollectArts"
-	Node_Add_FullMethodName         = "/api.Node/Add"
-	Node_Edit_FullMethodName        = "/api.Node/Edit"
-	Node_Delete_FullMethodName      = "/api.Node/Delete"
+	Node_Run_FullMethodName          = "/api.Node/Run"
+	Node_Schedule_FullMethodName     = "/api.Node/Schedule"
+	Node_Done_FullMethodName         = "/api.Node/Done"
+	Node_Plan_FullMethodName         = "/api.Node/Plan"
+	Node_Stop_FullMethodName         = "/api.Node/Stop"
+	Node_Skip_FullMethodName         = "/api.Node/Skip"
+	Node_Reset_FullMethodName        = "/api.Node/Reset"
+	Node_CollectArts_FullMethodName  = "/api.Node/CollectArts"
+	Node_Add_FullMethodName          = "/api.Node/Add"
+	Node_Edit_FullMethodName         = "/api.Node/Edit"
+	Node_Delete_FullMethodName       = "/api.Node/Delete"
+	Node_GetLaunches_FullMethodName  = "/api.Node/GetLaunches"
+	Node_ChooseLaunch_FullMethodName = "/api.Node/ChooseLaunch"
 )
 
 // NodeClient is the client API for Node service.
@@ -420,6 +422,8 @@ type NodeClient interface {
 	Add(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*NodeIdentifier, error)
 	Edit(ctx context.Context, in *graph.NodeConfig, opts ...grpc.CallOption) (*Nothing, error)
 	Delete(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Nothing, error)
+	GetLaunches(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Launches, error)
+	ChooseLaunch(ctx context.Context, in *LaunchChoice, opts ...grpc.CallOption) (*Nothing, error)
 }
 
 type nodeClient struct {
@@ -540,6 +544,26 @@ func (c *nodeClient) Delete(ctx context.Context, in *NodeIdentifier, opts ...grp
 	return out, nil
 }
 
+func (c *nodeClient) GetLaunches(ctx context.Context, in *NodeIdentifier, opts ...grpc.CallOption) (*Launches, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Launches)
+	err := c.cc.Invoke(ctx, Node_GetLaunches_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeClient) ChooseLaunch(ctx context.Context, in *LaunchChoice, opts ...grpc.CallOption) (*Nothing, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Nothing)
+	err := c.cc.Invoke(ctx, Node_ChooseLaunch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServer is the server API for Node service.
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility.
@@ -555,6 +579,8 @@ type NodeServer interface {
 	Add(context.Context, *graph.NodeConfig) (*NodeIdentifier, error)
 	Edit(context.Context, *graph.NodeConfig) (*Nothing, error)
 	Delete(context.Context, *NodeIdentifier) (*Nothing, error)
+	GetLaunches(context.Context, *NodeIdentifier) (*Launches, error)
+	ChooseLaunch(context.Context, *LaunchChoice) (*Nothing, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -597,6 +623,12 @@ func (UnimplementedNodeServer) Edit(context.Context, *graph.NodeConfig) (*Nothin
 }
 func (UnimplementedNodeServer) Delete(context.Context, *NodeIdentifier) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedNodeServer) GetLaunches(context.Context, *NodeIdentifier) (*Launches, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLaunches not implemented")
+}
+func (UnimplementedNodeServer) ChooseLaunch(context.Context, *LaunchChoice) (*Nothing, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChooseLaunch not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
 func (UnimplementedNodeServer) testEmbeddedByValue()              {}
@@ -817,6 +849,42 @@ func _Node_Delete_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Node_GetLaunches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeIdentifier)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).GetLaunches(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_GetLaunches_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).GetLaunches(ctx, req.(*NodeIdentifier))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Node_ChooseLaunch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LaunchChoice)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).ChooseLaunch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_ChooseLaunch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).ChooseLaunch(ctx, req.(*LaunchChoice))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Node_ServiceDesc is the grpc.ServiceDesc for Node service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -867,6 +935,14 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _Node_Delete_Handler,
+		},
+		{
+			MethodName: "GetLaunches",
+			Handler:    _Node_GetLaunches_Handler,
+		},
+		{
+			MethodName: "ChooseLaunch",
+			Handler:    _Node_ChooseLaunch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
