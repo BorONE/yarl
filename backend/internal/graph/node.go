@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 	"yarl/internal/job"
 	"yarl/internal/util"
 
@@ -88,13 +89,19 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 		return nil, fmt.Errorf("reset failed: %v", err)
 	}
 
-	ctx := &job.RunContext{
-		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
-	}
+	launchDir := path.Join(YARL_ROOT, fmt.Sprintf("%v-%v", node.Config.GetId(), time.Now().Unix()))
+	nodeDir := path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId()))
 
-	err = os.MkdirAll(ctx.Dir, 0777)
+	ctx := &job.RunContext{Dir: nodeDir}
+
+	err = os.MkdirAll(launchDir, 0777)
 	if err != nil {
 		return nil, fmt.Errorf("mkdir failed: %v", err)
+	}
+
+	err = os.Symlink(launchDir, nodeDir)
+	if err != nil {
+		return nil, fmt.Errorf("symlink %v %v failed: %v", launchDir, nodeDir, err)
 	}
 
 	for inputPort0Indexed, input := range node.Config.Inputs {
@@ -187,7 +194,8 @@ func copyEdge(edge *EdgeConfig, nodes map[NodeId]*Node) error {
 }
 
 func (node *Node) resetRunContext() error {
-	return os.RemoveAll(path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())))
+	nodeDir := path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId()))
+	return os.RemoveAll(nodeDir)
 }
 
 func (node *Node) Schedule() error {

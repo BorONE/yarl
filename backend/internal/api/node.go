@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"slices"
+	"strings"
 	"sync"
 	"yarl/internal/graph"
 	"yarl/internal/util"
@@ -143,4 +146,35 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 
 		return nil
 	})
+}
+
+func (s ImplementedNodeServer) GetLaunches(ctx context.Context, id *NodeIdentifier) (*Launches, error) {
+	dirEntries, err := os.ReadDir(graph.YARL_ROOT)
+	if err != nil {
+		return nil, util.GrpcError(fmt.Errorf("readdir failed: %v", err))
+	}
+
+	launches := &Launches{}
+	for _, dirEntry := range dirEntries {
+		if suffix, ok := strings.CutPrefix(dirEntry.Name(), fmt.Sprintf("%v-", id.GetId())); ok {
+			launches.Launches = append(launches.Launches, suffix)
+		}
+	}
+	return launches, nil
+}
+
+func (s ImplementedNodeServer) ChooseLaunch(ctx context.Context, choice *LaunchChoice) (*Nothing, error) {
+	nodeDir := path.Join(graph.YARL_ROOT, fmt.Sprint(choice.GetId()))
+	err := os.RemoveAll(nodeDir)
+	if err != nil {
+		return nil, util.GrpcError(fmt.Errorf("removeall %v failed: %v", nodeDir, err))
+	}
+
+	launchDir := path.Join(graph.YARL_ROOT, fmt.Sprintf("%v-%v", choice.GetId(), choice.GetLaunch()))
+	err = os.Symlink(launchDir, nodeDir)
+	if err != nil {
+		return nil, util.GrpcError(fmt.Errorf("symlink %v %v failed: %v", launchDir, nodeDir, err))
+	}
+
+	return nil, nil
 }
