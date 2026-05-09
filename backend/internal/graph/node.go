@@ -89,7 +89,7 @@ func (node *Node) prepareRunContext() (*job.RunContext, error) {
 		return nil, fmt.Errorf("reset failed: %v", err)
 	}
 
-	launchDir := path.Join(YARL_ROOT, fmt.Sprintf("%v-%v", node.Config.GetId(), time.Now().Unix()))
+	launchDir := path.Join(YARL_ROOT, fmt.Sprintf("%v-%v", node.Config.GetId(), time.Now().Format("20060102-150405")))
 	nodeDir := path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId()))
 
 	ctx := &job.RunContext{Dir: nodeDir}

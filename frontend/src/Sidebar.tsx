@@ -24,6 +24,7 @@ import { Input } from './components/ui/input';
 import { Separator } from './components/ui/separator';
 import Cookies from 'universal-cookie';
 import Artifacts from './Arts';
+import Launches from './Launches';
 import type { Node } from './JobNode';
 import { buildNode } from './misc';
 import { ScriptConfigSchema } from './gen/internal/job/register/script/script_pb';
@@ -254,6 +255,13 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
                 <AccordionTrigger>Artifacts</AccordionTrigger>
                 <AccordionContent>
                     <Artifacts selectedNode={selectedNode} />
+                </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="Launches">
+                <AccordionTrigger>Launches</AccordionTrigger>
+                <AccordionContent>
+                    <Launches selectedNode={selectedNode} />
                 </AccordionContent>
             </AccordionItem>
         </Accordion>
