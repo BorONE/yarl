@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import * as client from "./client"
 import type { Node } from "./JobNode";
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
@@ -7,10 +7,17 @@ import { LaunchesPolicySchema, type LaunchesPolicy } from "./gen/internal/graph/
 import { ButtonGroup } from "./components/ui/button-group";
 import { Input } from "./components/ui/input";
 import { Button } from "./components/ui/button";
-import { MinusIcon, PlusIcon } from "lucide-react";
 import { create } from '@bufbuild/protobuf';
 
 export default ({ selectedNode, onChange } : { selectedNode: Node, onChange: (policy: LaunchesPolicy) => void }) => {
+    const inputRef : React.Ref<HTMLInputElement> = useRef(null)
+    const setInputValue = (value: string) => {
+        if (inputRef.current) {
+            inputRef.current.value = value
+        }
+        onChange(create(LaunchesPolicySchema, { Limit: Number(value) }))
+    }
+
     useEffect(() => {
         update();
     }, [selectedNode, selectedNode.data.state]);
@@ -50,33 +57,33 @@ export default ({ selectedNode, onChange } : { selectedNode: Node, onChange: (po
         break;
     }
 
-    const limit = selectedNode.data.config.LaunchesPolicy ? selectedNode.data.config.LaunchesPolicy?.Limit : ""
+    const limit = selectedNode.data.config.LaunchesPolicy?.Limit
+
+    const onInputLimitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            const parsed = Number(event.target.value)
+            console.log(event.target.value, parsed)
+            if (parsed < 0 || parsed >= 2 ** 31 ) {
+                throw Error("invalid range")
+            }
+            setIsValid(true)
+            onChange(create(LaunchesPolicySchema, { Limit: parsed }))
+        } catch {
+            setIsValid(false)
+        }
+    }
 
     return <>
         <div className="flex">
             <Label htmlFor="limit">Limit</Label>
-            <ButtonGroup
-                aria-label="Media controls"
-                style={{ padding: 5 }}
-            >
-                <Input id="limit" className="w-15" placeholder="0" value={limit.toString()} aria-invalid={!isValid} onChange={(event) => {
-                    try {
-                        const parsed = Number(event.target.value)
-                        if (parsed < 0 || parsed >= 2 ** 31 ) {
-                            throw Error("invalid range")
-                        }
-                        setIsValid(true)
-                        onChange(create(LaunchesPolicySchema, { Limit: parsed }))
-                    } catch {
-                        setIsValid(false)
-                    }                
-                }} />
-                {/* <Button variant="outline" size="icon">
-                    <MinusIcon />
+            <ButtonGroup aria-label="Media controls" style={{ padding: 5 }} >
+                <Input id="limit" placeholder="unlimited" ref={inputRef} defaultValue={(limit || "").toString()} aria-invalid={!isValid} onChange={onInputLimitChange} type='number' step={1} />
+                <Button variant="outline" size="icon" onClick={() => setInputValue("1")} >
+                    1
                 </Button>
-                <Button variant="outline" size="icon">
-                    <PlusIcon />
-                </Button> */}
+                <Button variant="outline" onClick={() => setInputValue("")} >
+                    unlimited
+                </Button>
             </ButtonGroup>
         </div>
         <RadioGroup value={selectedLaunch} style={{ padding: 5 }}>
