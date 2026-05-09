@@ -53,6 +53,11 @@ message Position {
     optional int32 Y = 2;
 }
 
+message LaunchesPolicy {
+    // Limit == 0 means unlimited
+    optional int32 Limit = 1;
+}
+
 message NodeConfig {
     optional uint64 Id = 1;
     optional string Name = 2;
@@ -60,6 +65,7 @@ message NodeConfig {
     optional Position Position = 4;
     repeated string Inputs = 5;
     repeated string Outputs = 6;
+    optional LaunchesPolicy LaunchesPolicy = 7;
 }
 
 enum EdgeType {

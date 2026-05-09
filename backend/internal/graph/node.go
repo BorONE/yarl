@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -83,8 +84,46 @@ func (node *Node) Run() error {
 
 const YARL_ROOT = "/home/bor1-ss/.yarl/nodes"
 
+func (node *Node) applyLaunchesPolicy() error {
+	limit := node.Config.LaunchesPolicy.GetLimit()
+	if limit == 0 {
+		return nil
+	}
+
+	dirEntries, err := os.ReadDir(YARL_ROOT)
+	if err != nil {
+		return err
+	}
+
+	nodeLaunches := []string{}
+	nodeLaunchPrefix := fmt.Sprintf("%v-", node.Config.GetId())
+	for _, dirEntry := range dirEntries {
+		if strings.HasPrefix(dirEntry.Name(), nodeLaunchPrefix) {
+			nodeLaunches = append(nodeLaunches, dirEntry.Name())
+		}
+	}
+
+	toDelete := len(nodeLaunches) + 1 - int(limit)
+	fmt.Println(toDelete, nodeLaunches)
+	if toDelete > 0 {
+		for _, path := range nodeLaunches[:toDelete] {
+			err := os.RemoveAll(filepath.Join(YARL_ROOT, path))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (node *Node) prepareRunContext() (*job.RunContext, error) {
-	err := node.resetRunContext()
+	err := node.applyLaunchesPolicy()
+	if err != nil {
+		return nil, fmt.Errorf("launches policy failed to apply: %v", err)
+	}
+
+	err = node.resetRunContext()
 	if err != nil {
 		return nil, fmt.Errorf("reset failed: %v", err)
 	}
