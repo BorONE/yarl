@@ -226,8 +226,10 @@ export default memo(({ data } : { data: NodeData }) => {
         }
     }
 
+    const jobType = extractJobTypeSafe(data.config.Job?.typeUrl)
+    const jobTypeWithId = `${jobType} #${data.id}`
     const name = {
-        value: data.config.Name == "" ? `Node` : data.config.Name,
+        value: data.config.Name == "" ? jobTypeWithId : data.config.Name,
         color: data.config.Name == "" ? "#747474" : undefined,
     }
 
@@ -240,7 +242,7 @@ export default memo(({ data } : { data: NodeData }) => {
         </label>
     
         <label className='job-node-type'>
-            {extractJobTypeSafe(data.config.Job?.typeUrl)} #{data.id}
+            {data.config.Name == "" ? undefined : jobTypeWithId}
         </label>
 
         <img src={getStateIcon().icon} className='job-node-status' style={{ animation: getAnimation() }} />
