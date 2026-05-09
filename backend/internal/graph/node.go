@@ -104,7 +104,6 @@ func (node *Node) applyLaunchesPolicy() error {
 	}
 
 	toDelete := len(nodeLaunches) + 1 - int(limit)
-	fmt.Println(toDelete, nodeLaunches)
 	if toDelete > 0 {
 		for _, path := range nodeLaunches[:toDelete] {
 			err := os.RemoveAll(filepath.Join(YARL_ROOT, path))
