@@ -193,5 +193,15 @@ func (s ImplementedNodeServer) ChooseLaunch(ctx context.Context, choice *LaunchC
 		return nil, util.GrpcError(fmt.Errorf("symlink %v %v failed: %v", launchDir, nodeDir, err))
 	}
 
+	triggerInputChange := func(node *graph.Node) error {
+		node.OnInputChange()
+		return nil
+	}
+
+	err = s.onNode(choice.GetId(), triggerInputChange)
+	if err != nil {
+		return nil, err
+	}
+
 	return nil, nil
 }
