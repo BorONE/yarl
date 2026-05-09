@@ -4,7 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"path"
+	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"yarl/internal/graph"
 	"yarl/internal/util"
@@ -143,4 +147,61 @@ func (s ImplementedNodeServer) Delete(ctx context.Context, id *NodeIdentifier) (
 
 		return nil
 	})
+}
+
+func (s ImplementedNodeServer) GetLaunches(ctx context.Context, id *NodeIdentifier) (*Launches, error) {
+	log.Printf("running node{%v}.GetLaunches()\n", prototext.MarshalOptions{}.Format(id))
+
+	dirEntries, err := os.ReadDir(graph.YARL_ROOT)
+	if err != nil {
+		return nil, util.GrpcError(fmt.Errorf("readdir failed: %v", err))
+	}
+
+	nodeLaunchPrefix := fmt.Sprintf("%v-", id.GetId())
+	launches := &Launches{}
+	for _, dirEntry := range dirEntries {
+		if strings.HasPrefix(dirEntry.Name(), nodeLaunchPrefix) {
+			launches.Launches = append(launches.Launches, dirEntry.Name())
+		}
+	}
+
+	selectedPath := path.Join(graph.YARL_ROOT, fmt.Sprint(id.GetId()))
+	if path, err := os.Readlink(selectedPath); err == nil {
+		path = filepath.Base(path)
+		launches.SelectedLaunch = &path
+	} else if os.IsNotExist(err) {
+		launches.SelectedLaunch = nil
+	} else {
+		return nil, util.GrpcError(err)
+	}
+
+	return launches, nil
+}
+
+func (s ImplementedNodeServer) ChooseLaunch(ctx context.Context, choice *LaunchChoice) (*Nothing, error) {
+	log.Printf("running node{%v}.ChooseLaunch()\n", prototext.MarshalOptions{}.Format(choice))
+
+	nodeDir := path.Join(graph.YARL_ROOT, fmt.Sprint(choice.GetId()))
+	err := os.RemoveAll(nodeDir)
+	if err != nil {
+		return nil, util.GrpcError(fmt.Errorf("removeall %v failed: %v", nodeDir, err))
+	}
+
+	launchDir := path.Join(graph.YARL_ROOT, choice.GetLaunch())
+	err = os.Symlink(launchDir, nodeDir)
+	if err != nil {
+		return nil, util.GrpcError(fmt.Errorf("symlink %v %v failed: %v", launchDir, nodeDir, err))
+	}
+
+	triggerInputChange := func(node *graph.Node) error {
+		node.OnInputChange()
+		return nil
+	}
+
+	err = s.onNode(choice.GetId(), triggerInputChange)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }

@@ -6,8 +6,10 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 	"yarl/internal/job"
 	"yarl/internal/util"
 
@@ -82,19 +84,62 @@ func (node *Node) Run() error {
 
 const YARL_ROOT = "/home/bor1-ss/.yarl/nodes"
 
+func (node *Node) applyLaunchesPolicy() error {
+	limit := node.Config.LaunchesPolicy.GetLimit()
+	if limit == 0 {
+		return nil
+	}
+
+	dirEntries, err := os.ReadDir(YARL_ROOT)
+	if err != nil {
+		return err
+	}
+
+	nodeLaunches := []string{}
+	nodeLaunchPrefix := fmt.Sprintf("%v-", node.Config.GetId())
+	for _, dirEntry := range dirEntries {
+		if strings.HasPrefix(dirEntry.Name(), nodeLaunchPrefix) {
+			nodeLaunches = append(nodeLaunches, dirEntry.Name())
+		}
+	}
+
+	toDelete := len(nodeLaunches) + 1 - int(limit)
+	if toDelete > 0 {
+		for _, path := range nodeLaunches[:toDelete] {
+			err := os.RemoveAll(filepath.Join(YARL_ROOT, path))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (node *Node) prepareRunContext() (*job.RunContext, error) {
-	err := node.resetRunContext()
+	err := node.applyLaunchesPolicy()
+	if err != nil {
+		return nil, fmt.Errorf("launches policy failed to apply: %v", err)
+	}
+
+	err = node.resetRunContext()
 	if err != nil {
 		return nil, fmt.Errorf("reset failed: %v", err)
 	}
 
-	ctx := &job.RunContext{
-		Dir: path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())),
-	}
+	launchDir := path.Join(YARL_ROOT, fmt.Sprintf("%v-%v", node.Config.GetId(), time.Now().Format("20060102-150405")))
+	nodeDir := path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId()))
 
-	err = os.MkdirAll(ctx.Dir, 0777)
+	ctx := &job.RunContext{Dir: nodeDir}
+
+	err = os.MkdirAll(launchDir, 0777)
 	if err != nil {
 		return nil, fmt.Errorf("mkdir failed: %v", err)
+	}
+
+	err = os.Symlink(launchDir, nodeDir)
+	if err != nil {
+		return nil, fmt.Errorf("symlink %v %v failed: %v", launchDir, nodeDir, err)
 	}
 
 	for inputPort0Indexed, input := range node.Config.Inputs {
@@ -187,7 +232,8 @@ func copyEdge(edge *EdgeConfig, nodes map[NodeId]*Node) error {
 }
 
 func (node *Node) resetRunContext() error {
-	return os.RemoveAll(path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId())))
+	nodeDir := path.Join(YARL_ROOT, fmt.Sprint(node.Config.GetId()))
+	return os.RemoveAll(nodeDir)
 }
 
 func (node *Node) Schedule() error {

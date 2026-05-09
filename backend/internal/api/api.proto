@@ -26,6 +26,16 @@ message Path {
     optional string Path = 1;
 }
 
+message Launches {
+    repeated string Launches = 1;
+    optional string SelectedLaunch = 2;
+}
+
+message LaunchChoice {
+    optional uint64 Id = 1;
+    optional string Launch = 2;
+}
+
 service Graph {
     rpc Sync(Nothing) returns (stream graph.SyncResponse);
 
@@ -56,4 +66,7 @@ service Node {
     rpc Add(graph.NodeConfig) returns (NodeIdentifier);
     rpc Edit(graph.NodeConfig) returns (Nothing);
     rpc Delete(NodeIdentifier) returns (Nothing);
+
+    rpc GetLaunches(NodeIdentifier) returns (Launches);
+    rpc ChooseLaunch(LaunchChoice) returns (Nothing);
 }
