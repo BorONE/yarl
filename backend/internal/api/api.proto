@@ -28,6 +28,7 @@ message Path {
 
 message Launches {
     repeated string Launches = 1;
+    optional string SelectedLaunch = 2;
 }
 
 message LaunchChoice {

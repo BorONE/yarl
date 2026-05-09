@@ -243,10 +243,11 @@ func (x *Path) GetPath() string {
 }
 
 type Launches struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Launches      []string               `protobuf:"bytes,1,rep,name=Launches" json:"Launches,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Launches       []string               `protobuf:"bytes,1,rep,name=Launches" json:"Launches,omitempty"`
+	SelectedLaunch *string                `protobuf:"bytes,2,opt,name=SelectedLaunch" json:"SelectedLaunch,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Launches) Reset() {
@@ -284,6 +285,13 @@ func (x *Launches) GetLaunches() []string {
 		return x.Launches
 	}
 	return nil
+}
+
+func (x *Launches) GetSelectedLaunch() string {
+	if x != nil && x.SelectedLaunch != nil {
+		return *x.SelectedLaunch
+	}
+	return ""
 }
 
 type LaunchChoice struct {
@@ -355,9 +363,10 @@ const file_internal_api_api_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1a\n" +
 	"\x04Path\x12\x12\n" +
-	"\x04Path\x18\x01 \x01(\tR\x04Path\"&\n" +
+	"\x04Path\x18\x01 \x01(\tR\x04Path\"N\n" +
 	"\bLaunches\x12\x1a\n" +
-	"\bLaunches\x18\x01 \x03(\tR\bLaunches\"6\n" +
+	"\bLaunches\x18\x01 \x03(\tR\bLaunches\x12&\n" +
+	"\x0eSelectedLaunch\x18\x02 \x01(\tR\x0eSelectedLaunch\"6\n" +
 	"\fLaunchChoice\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x04R\x02Id\x12\x16\n" +
 	"\x06Launch\x18\x02 \x01(\tR\x06Launch2\xd2\x02\n" +

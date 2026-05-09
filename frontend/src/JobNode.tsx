@@ -1,4 +1,4 @@
-import React, { memo, type CSSProperties } from 'react';
+import React, { memo, useEffect, useState, type CSSProperties } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
 import statusIconDoneError from './assets/status/2/failed.svg'
@@ -81,6 +81,20 @@ type Btn = {
 }
 
 export default memo(({ data } : { data: NodeData }) => {
+    const [isLaunchSelected, setIsLaunchSelected] = useState(true)
+    const updateIsLaunchSelected = async () => {
+        const msg = await client.node.getLaunches({ Id: data.config.Id })
+        const newIsLaunchSelected = msg.SelectedLaunch != ""
+        if (isLaunchSelected != newIsLaunchSelected) {
+            setIsLaunchSelected(newIsLaunchSelected)
+        }
+        console.log(msg, isLaunchSelected, data.state)
+    }
+    useEffect(() => {
+        updateIsLaunchSelected()
+    }, [data.state])
+
+
     const genButton = (btn: Btn, pos: number, style = {}, className: string | undefined = undefined) => {
         style = { ...buttonStyle, borderColor: 'transparent', ...style }
         const position : CSSProperties = { position: 'absolute', left: pos * 20 + 9, top: -1 }
@@ -205,7 +219,7 @@ export default memo(({ data } : { data: NodeData }) => {
             }
         case "Done":
             if (state.State.value.FromIdle) {
-                return {icon: statusIconSkipped}
+                return {icon: isLaunchSelected ? statusIconDoneSuccess : statusIconSkipped}
             } else if (state.State.value.IsStopped) {
                 return {icon: state.State.value.IsSkipped ? statusIconDoneStoppedSkipped : statusIconDoneStopped }
             } else if (state.State.value.Error) {
