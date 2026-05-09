@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { applyNodeChanges } from '@xyflow/react';
 import { create, fromBinary, type DescMessage, type Message } from '@bufbuild/protobuf';
-import { NodeConfigSchema, type NodeConfig } from './gen/internal/graph/config_pb';
+import { LaunchesPolicySchema, NodeConfigSchema, type LaunchesPolicy, type NodeConfig } from './gen/internal/graph/config_pb';
 import { extractJobType, type MessageInit } from './util';
 import {
     Accordion,
@@ -107,6 +107,9 @@ export function buildDefaultConfig(config: MessageInit<NodeConfig> = {}) {
         Job: anyPack(info.schema, info.init.job),
         Inputs: info.init.input,
         Outputs: info.init.output,
+        LaunchesPolicy: create(LaunchesPolicySchema, {
+            Limit: 1,
+        }),
     })
 }
 
@@ -261,7 +264,7 @@ export default ({ nodes, setNodes } : { nodes: Node[], setNodes: (value: React.S
             <AccordionItem value="Launches">
                 <AccordionTrigger>Launches</AccordionTrigger>
                 <AccordionContent>
-                    <Launches selectedNode={selectedNode} />
+                    <Launches selectedNode={selectedNode} onChange={(policy: LaunchesPolicy) => patchConfigOfSelected({ LaunchesPolicy: policy })} />
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

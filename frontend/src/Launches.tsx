@@ -3,8 +3,14 @@ import * as client from "./client"
 import type { Node } from "./JobNode";
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import { Label } from "./components/ui/label";
+import { LaunchesPolicySchema, type LaunchesPolicy } from "./gen/internal/graph/config_pb";
+import { ButtonGroup } from "./components/ui/button-group";
+import { Input } from "./components/ui/input";
+import { Button } from "./components/ui/button";
+import { MinusIcon, PlusIcon } from "lucide-react";
+import { create } from '@bufbuild/protobuf';
 
-export default ({ selectedNode } : { selectedNode: Node }) => {
+export default ({ selectedNode, onChange } : { selectedNode: Node, onChange: (policy: LaunchesPolicy) => void }) => {
     useEffect(() => {
         update();
     }, [selectedNode, selectedNode.data.state]);
@@ -14,6 +20,9 @@ export default ({ selectedNode } : { selectedNode: Node }) => {
 
     const initSelectedLaunch : string = ""
     const [selectedLaunch, setSelectedLaunch] = useState(initSelectedLaunch)
+
+    const initIsValid : boolean = true
+    const [isValid, setIsValid] = useState(initIsValid)
     
     const id = selectedNode.data.id
 
@@ -41,8 +50,36 @@ export default ({ selectedNode } : { selectedNode: Node }) => {
         break;
     }
 
+    const limit = selectedNode.data.config.LaunchesPolicy ? selectedNode.data.config.LaunchesPolicy?.Limit : ""
+
     return <>
-        <RadioGroup value={selectedLaunch}>
+        <div className="flex">
+            <Label htmlFor="limit">Limit</Label>
+            <ButtonGroup
+                aria-label="Media controls"
+                style={{ padding: 5 }}
+            >
+                <Input id="limit" className="w-15" placeholder="0" value={limit.toString()} aria-invalid={!isValid} onChange={(event) => {
+                    try {
+                        const parsed = Number(event.target.value)
+                        if (parsed < 0 || parsed >= 2 ** 31 ) {
+                            throw Error("invalid range")
+                        }
+                        setIsValid(true)
+                        onChange(create(LaunchesPolicySchema, { Limit: parsed }))
+                    } catch {
+                        setIsValid(false)
+                    }                
+                }} />
+                {/* <Button variant="outline" size="icon">
+                    <MinusIcon />
+                </Button>
+                <Button variant="outline" size="icon">
+                    <PlusIcon />
+                </Button> */}
+            </ButtonGroup>
+        </div>
+        <RadioGroup value={selectedLaunch} style={{ padding: 5 }}>
         {
             launches.map(
                 launch => (
